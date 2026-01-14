@@ -536,7 +536,7 @@ mockedAxios.get.mockResolvedValue({
 
 ---
 
-### [ ] Phase 2, T2.3: 검색 API 엔드포인트 RED→GREEN
+### [x] Phase 2, T2.3: 검색 API 엔드포인트 RED→GREEN
 
 **담당**: backend-specialist
 
@@ -576,13 +576,13 @@ cd ../welfare-notifier-phase2-search-api
 - `backend/src/services/benefitService.ts`
 
 **인수 조건**:
-- [ ] T0.5.2 테스트 통과 (GREEN)
-- [ ] 커버리지 >= 80%
-- [ ] API 문서 확인 (Swagger UI 또는 OpenAPI)
+- [x] T0.5.2 테스트 통과 (GREEN)
+- [x] 커버리지 >= 80%
+- [x] API 문서 확인 (Swagger UI 또는 OpenAPI)
 
 **완료 시**:
-- [ ] 사용자 승인 후 병합
-- [ ] worktree 정리
+- [x] 사용자 승인 후 병합
+- [x] worktree 정리
 
 ---
 
