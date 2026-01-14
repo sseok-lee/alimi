@@ -650,7 +650,7 @@ afterAll(() => server.close())
 
 ---
 
-### [ ] Phase 3, T3.2: 결과 카드 컴포넌트 RED→GREEN
+### [x] Phase 3, T3.2: 결과 카드 컴포넌트 RED→GREEN
 
 **담당**: frontend-specialist
 
@@ -685,9 +685,9 @@ cd ../welfare-notifier-phase3-benefit-card
 - `frontend/tests/components/BenefitCard.test.ts`
 
 **인수 조건**:
-- [ ] 테스트 통과
-- [ ] 디자인 시스템 준수 (docs/planning/05-design-system.md)
-- [ ] 반응형 확인
+- [x] 테스트 통과 (12/12 tests passed)
+- [x] 디자인 시스템 준수 (docs/planning/05-design-system.md)
+- [x] 반응형 확인
 
 **완료 시**:
 - [ ] 사용자 승인 후 병합

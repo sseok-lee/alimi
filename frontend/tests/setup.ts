@@ -10,3 +10,9 @@ global.useRouter = vi.fn(() => ({
 }))
 global.useSeoMeta = vi.fn()
 global.useHead = vi.fn()
+global.useRuntimeConfig = vi.fn(() => ({
+  public: {
+    apiBase: 'http://localhost:8000',
+    gaId: '',
+  },
+}))
