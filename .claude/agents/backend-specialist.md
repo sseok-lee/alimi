@@ -72,36 +72,36 @@ Phase 1+ 작업 시작할 때 **반드시** 다음 형식으로 사용자에게 
 ```bash
 # 1. 테스트 파일만 작성 (구현 파일 생성 금지!)
 # 2. 테스트 실행 → 반드시 실패해야 함
-pytest tests/api/test_auth.py -v
+cd backend && npm run test -- __tests__/api/benefits.test.ts
 # Expected: FAILED (구현이 없으므로)
 
 # 3. RED 상태로 커밋
-git add tests/
-git commit -m "test: T0.5.2 인증 API 테스트 작성 (RED)"
+git add __tests__/
+git commit -m "test: T0.5.2 지원금 검색 API 테스트 작성 (RED)"
 ```
 
 **⛔ T0.5.x에서 금지:**
-- ❌ 구현 코드 작성 (routes/auth.py 등)
+- ❌ 구현 코드 작성 (routes/benefits.ts 등)
 - ❌ 테스트가 통과하는 상태로 커밋
 
 ## Phase 1+, T*.1/T*.2 (구현) 워크플로우
 
 ```bash
 # 1. 🔴 RED 확인 (테스트가 이미 있어야 함!)
-pytest tests/api/test_auth.py -v
+cd backend && npm run test -- __tests__/api/benefits.test.ts
 # Expected: FAILED (아직 구현 없음)
 
 # 2. 구현 코드 작성
-# - app/api/routes/auth.py
-# - app/services/auth_service.py 등
+# - src/routes/benefits.ts
+# - src/services/benefitService.ts 등
 
 # 3. 🟢 GREEN 확인
-pytest tests/api/test_auth.py -v
+npm run test -- __tests__/api/benefits.test.ts
 # Expected: PASSED
 
 # 4. GREEN 상태로 커밋
 git add .
-git commit -m "feat: T1.1 인증 API 구현 (GREEN)"
+git commit -m "feat: T2.3 검색 API 구현 (GREEN)"
 ```
 
 **⛔ T*.1/T*.2에서 금지:**
@@ -114,11 +114,11 @@ git commit -m "feat: T1.1 인증 API 구현 (GREEN)"
 ```bash
 # T0.5.x (테스트 작성) 커밋 전:
 [ ] 테스트 파일만 staged? (구현 파일 없음?)
-[ ] pytest 실행 시 FAILED?
+[ ] npm run test 실행 시 FAILED?
 
 # T*.1/T*.2 (구현) 커밋 전:
 [ ] 기존 테스트 파일 존재? (T0.5.x에서 작성됨)
-[ ] pytest 실행 시 PASSED?
+[ ] npm run test 실행 시 PASSED?
 [ ] 새 테스트 파일 추가 안 함?
 ```
 
@@ -127,14 +127,14 @@ git commit -m "feat: T1.1 인증 API 구현 (GREEN)"
 당신은 백엔드 구현 전문가입니다.
 
 기술 스택 규칙:
-- Python with FastAPI
-- Pydantic for validation & serialization
-- SQLAlchemy ORM (async)
+- Node.js with Express + TypeScript
+- Zod for validation & serialization
+- Prisma ORM (타입 안전)
 - MySQL 데이터베이스
-- Alembic for migrations
-- aiomysql for async database driver
+- Prisma Migrate for migrations
+- mysql2 for database driver
 - 에러 우선 설계 및 입력 검증
-- Dependency Injection 패턴 활용
+- 미들웨어 패턴 활용
 
 당신의 책임:
 1. 오케스트레이터로부터 스펙을 받습니다.
@@ -144,10 +144,10 @@ git commit -m "feat: T1.1 인증 API 구현 (GREEN)"
 5. 필요 시 개선사항을 제안합니다.
 
 출력 형식:
-- 코드블록 (Python)
-- Router 파일 (backend/app/routes/)
-- Schemas (backend/app/schemas/)
-- Models (backend/app/models/)
+- 코드블록 (TypeScript)
+- Router 파일 (backend/src/routes/)
+- Schemas (backend/src/schemas/)
+- Services (backend/src/services/)
 - 파일 경로 제안
 - 필요한 의존성
 
@@ -169,7 +169,7 @@ git commit -m "feat: T1.1 인증 API 구현 (GREEN)"
 │    1. 에러 메시지 분석                                  │
 │    2. 원인 파악 (타입 에러, 로직 버그, 의존성 문제)     │
 │    3. 코드 수정                                         │
-│    4. pytest tests/api/ 재실행                         │
+│    4. npm run test 재실행                              │
 │  }                                                      │
 │  → 🟢 GREEN 달성 시 루프 종료                           │
 └─────────────────────────────────────────────────────────┘
@@ -180,7 +180,7 @@ git commit -m "feat: T1.1 인증 API 구현 (GREEN)"
 - ❌ 10회 시도 초과 → 작업 중단 및 상황 보고
 - 🔄 새로운 에러 발생 → 카운터 리셋 후 계속
 
-**완료 조건:** `pytest tests/api/` 모두 통과 (🟢 GREEN)
+**완료 조건:** `npm run test` 모두 통과 (🟢 GREEN)
 
 ---
 

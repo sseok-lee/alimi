@@ -74,10 +74,10 @@ Plan 모드에서 다음 단계들을 수행합니다.
 플러그인이 설치되어 있지 않다면 수동으로 검증:
 ```bash
 # 빌드 확인
-npm run build  # 또는 pip install -r requirements.txt
+npm run build
 
 # 테스트 실행
-npm test  # 또는 pytest
+npm run test
 ```
 
 ### 6단계: 브라우저 테스트 (프론트엔드 작업 시)
@@ -180,11 +180,11 @@ Task tool parameters:
 
     ## TDD 요구사항 (Phase 1+ 필수!)
     반드시 TDD 사이클을 따르세요:
-    1. RED: 테스트 먼저 작성 (tests/api/test_auth.py)
+    1. RED: 테스트 먼저 작성 (backend/__tests__/api/auth.test.ts)
     2. GREEN: 테스트 통과하는 최소 구현
     3. REFACTOR: 테스트 유지하며 코드 정리
 
-    테스트 명령어: `pytest tests/api/test_auth.py -v`
+    테스트 명령어: `npm run test -- __tests__/api/auth.test.ts`
 
     ## 작업 내용
     {상세 작업 지시사항}
@@ -203,10 +203,10 @@ Task tool parameters:
 
 | subagent_type | 역할 |
 |---------------|------|
-| `backend-specialist` | FastAPI, 비즈니스 로직, DB 접근 |
+| `backend-specialist` | Express, 비즈니스 로직, Prisma DB 접근 |
 | `frontend-specialist` | Vue/Nuxt UI, 상태관리, API 통합 |
-| `database-specialist` | SQLAlchemy, Alembic 마이그레이션 |
-| `test-specialist` | pytest, Vitest, 테스트 작성 |
+| `database-specialist` | Prisma ORM, 마이그레이션 |
+| `test-specialist` | Vitest, Supertest, 테스트 작성 |
 
 ### 품질 보증 (플러그인으로 자동 처리)
 
@@ -367,5 +367,5 @@ $(head -100 docs/planning/02-trd.md 2>/dev/null || echo "TRD 문서 없음")
 
 ### 프로젝트 구조
 ```
-$(find . -type f -name "*.py" -o -name "*.ts" -o -name "*.tsx" 2>/dev/null | head -30 || echo "파일 없음")
+$(find . -type f -name "*.ts" -o -name "*.tsx" -o -name "*.vue" 2>/dev/null | head -30 || echo "파일 없음")
 ```

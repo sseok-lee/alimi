@@ -1,0 +1,55 @@
+// Prisma Schema for 복지알리미
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// 지원금 정보 테이블
+model Benefit {
+  id              String   @id @default(cuid())
+  name            String   @db.VarChar(255)
+  category        String   @db.VarChar(100)
+  description     String?  @db.Text
+  estimatedAmount String?  @map("estimated_amount") @db.VarChar(100)
+  eligibility     Json?
+  link            String   @db.VarChar(500)
+
+  // 자격 조건
+  minAge          Int?     @map("min_age")
+  maxAge          Int?     @map("max_age")
+  minIncome       Int?     @map("min_income")
+  maxIncome       Int?     @map("max_income")
+  region          String?  @db.VarChar(50)
+
+  // 메타데이터
+  source          String?  @db.VarChar(100)
+  fetchedAt       DateTime @default(now()) @map("fetched_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // 인덱스
+  @@index([region, minAge, maxAge, minIncome, maxIncome])
+  @@index([category])
+  @@index([fetchedAt(sort: Desc)])
+  @@map("benefits")
+}
+
+// 검색 로그 (익명화 - 개인정보 저장 안함)
+model SearchLog {
+  id         String   @id @default(cuid())
+  sessionId  String   @map("session_id") @db.VarChar(64)
+  age        Int?
+  income     Int?
+  region     String?  @db.VarChar(50)
+  resultCount Int     @default(0) @map("result_count")
+  searchedAt DateTime @default(now()) @map("searched_at")
+
+  @@index([sessionId])
+  @@index([searchedAt(sort: Desc)])
+  @@map("search_logs")
+}

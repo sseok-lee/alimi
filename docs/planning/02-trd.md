@@ -29,7 +29,7 @@
 ```
 ┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
 │   Client         │────▶│   Server         │────▶│  Database        │
-│  (Vue + Nuxt)    │     │  (FastAPI)       │     │  (MySQL)         │
+│  (Vue + Nuxt)    │     │  (Express)       │     │  (MySQL)         │
 │  - SSR/SSG       │     │  - API Gateway   │     │                  │
 │  - SEO 최적화    │     │  - 공공 API 연동 │     │                  │
 └──────────────────┘     └──────────────────┘     └──────────────────┘
@@ -47,7 +47,7 @@
 | 컴포넌트 | 역할 | 왜 이 선택? |
 |----------|------|-------------|
 | Frontend (Nuxt) | SSR/SSG로 페이지 사전 렌더링, SEO 최적화 | 애드센스 수익을 위해 구글 검색 노출이 필수이므로 SSR 지원 프레임워크 필요 |
-| Backend (FastAPI) | 공공 API 호출, 데이터 가공, 조건 매칭 로직 | Python으로 데이터 처리가 쉽고, 비동기 지원으로 여러 API 병렬 호출 가능 |
+| Backend (Express) | 공공 API 호출, 데이터 가공, 조건 매칭 로직 | TypeScript로 프론트엔드와 타입 공유, 비동기 지원으로 여러 API 병렬 호출 가능 |
 | Database (MySQL) | 지원금 데이터, 메타데이터 저장 | 관계형 DB로 복잡한 조건 필터링(나이/소득/지역) 최적화 |
 | External APIs | 보조금24, 지자체 공공 API | 실시간 최신 데이터 확보 |
 
@@ -69,11 +69,11 @@
 
 | 항목 | 선택 | 이유 | 벤더 락인 리스크 |
 |------|------|------|-----------------|
-| 프레임워크 | FastAPI | 빠른 개발 속도, 자동 API 문서(Swagger), 비동기 지원 | 낮음 |
-| 언어 | Python 3.11+ | 공공 API 연동(requests), 데이터 가공(pandas) 용이 | - |
-| ORM | SQLAlchemy 2.0 | 관계형 DB 추상화, 타입 안정성 | 낮음 |
-| 검증 | Pydantic v2 | FastAPI와 완벽 통합, 자동 validation | 낮음 |
-| 비동기 | httpx | requests의 비동기 버전, 여러 API 병렬 호출 | 낮음 |
+| 프레임워크 | Express | Node.js 표준 프레임워크, 경량, 유연한 미들웨어 구조 | 낮음 |
+| 언어 | TypeScript 5.0+ | 프론트엔드와 타입 공유, 타입 안정성 | - |
+| ORM | Prisma | 타입 안전, 자동 생성 클라이언트, 마이그레이션 지원 | 낮음 |
+| 검증 | Zod | TypeScript 퍼스트, 스키마 추론으로 타입 자동 생성 | 낮음 |
+| HTTP 클라이언트 | Axios | 널리 사용, 인터셉터로 에러 처리 용이, 비동기 지원 | 낮음 |
 
 ### 2.3 데이터베이스
 
@@ -88,7 +88,7 @@
 |------|------|------|
 | 컨테이너 | Docker + Docker Compose | 로컬 개발 환경 일관성, 배포 간소화 |
 | 호스팅 (FE) | Vercel | Nuxt SSR/SSG 최적화, 무료 tier 제공 |
-| 호스팅 (BE) | Railway / Fly.io | FastAPI 배포 간편, 무료 tier 제공 |
+| 호스팅 (BE) | Railway / Fly.io | Express 배포 간편, 무료 tier 제공 |
 | DB 호스팅 | PlanetScale / AWS RDS 프리티어 | MySQL 무료 호스팅 |
 
 ---
@@ -99,7 +99,7 @@
 
 | 항목 | 요구사항 | 측정 방법 |
 |------|----------|----------|
-| 응답 시간 | < 500ms (P95) | FastAPI /metrics, API 모니터링 |
+| 응답 시간 | < 500ms (P95) | Express 미들웨어, API 모니터링 |
 | 초기 로딩 (FCP) | < 3s | Lighthouse, Google PageSpeed Insights |
 | SEO 점수 | ≥ 90 | Lighthouse SEO 점수 |
 
@@ -110,7 +110,7 @@
 | 인증 | MVP에서는 불필요 (익명 검색), v2에서 JWT + Refresh Token |
 | 비밀번호 | bcrypt 해싱 (v2에서 적용) |
 | HTTPS | 필수 (Vercel/Railway 기본 제공) |
-| 입력 검증 | 서버 측 Pydantic validation 필수 |
+| 입력 검증 | 서버 측 Zod validation 필수 |
 | CORS | 프론트엔드 도메인만 허용 |
 
 ### 3.3 확장성
@@ -197,12 +197,12 @@ BE/FE가 독립적으로 병렬 개발하면서도 통합 시 호환성을 보�
 │                                                             │
 │  1. 계약 정의 (Phase 0)                                     │
 │     ├─ API 계약: contracts/*.contract.ts                   │
-│     ├─ BE 스키마: backend/app/schemas/*.py                 │
-│     └─ 타입 동기화: TypeScript ↔ Pydantic                  │
+│     ├─ BE 스키마: backend/src/schemas/*.ts                 │
+│     └─ 타입 동기화: TypeScript ↔ Zod                       │
 │                                                             │
 │  2. 테스트 선행 작성 (🔴 RED)                               │
-│     ├─ BE 테스트: tests/api/*.py                           │
-│     ├─ FE 테스트: src/__tests__/**/*.test.ts               │
+│     ├─ BE 테스트: backend/src/__tests__/**/*.test.ts       │
+│     ├─ FE 테스트: frontend/src/__tests__/**/*.test.ts      │
 │     └─ 모든 테스트가 실패하는 상태 (정상!)                  │
 │                                                             │
 │  3. Mock 생성 (FE 독립 개발용)                              │
@@ -222,8 +222,8 @@ BE/FE가 독립적으로 병렬 개발하면서도 통합 시 호환성을 보�
 
 | 레벨 | 도구 | 커버리지 목표 | 위치 |
 |------|------|-------------|------|
-| Unit | pytest / Vitest | ≥ 80% | tests/unit/, src/__tests__/ |
-| Integration | pytest / Vitest + MSW | Critical paths | tests/integration/ |
+| Unit | Vitest | ≥ 80% | backend/src/__tests__/, frontend/src/__tests__/ |
+| Integration | Vitest + MSW + Supertest | Critical paths | backend/src/__tests__/integration/ |
 | E2E | Playwright | Key user flows | e2e/ |
 
 ### 7.3 테스트 도구
@@ -231,11 +231,10 @@ BE/FE가 독립적으로 병렬 개발하면서도 통합 시 호환성을 보�
 **백엔드:**
 | 도구 | 용도 |
 |------|------|
-| pytest | 테스트 실행 |
-| pytest-asyncio | 비동기 테스트 |
-| httpx | API 클라이언트 (TestClient 대체) |
-| Factory Boy | 테스트 데이터 생성 |
-| pytest-cov | 커버리지 측정 |
+| Vitest | 테스트 실행 |
+| Supertest | API 엔드포인트 테스트 |
+| @faker-js/faker | 테스트 데이터 생성 |
+| @vitest/coverage-v8 | 커버리지 측정 |
 
 **프론트엔드:**
 | 도구 | 용도 |
@@ -254,11 +253,13 @@ project/
 │   └── benefits.contract.ts     # 지원금 검색 API 계약
 │
 ├── backend/
-│   ├── app/schemas/             # Pydantic 스키마 (계약과 동기화)
-│   │   └── benefits.py
-│   └── tests/
-│       └── api/                 # API 테스트 (계약 기반)
-│           └── test_benefits.py
+│   ├── src/
+│   │   ├── schemas/             # Zod 스키마 (계약과 동기화)
+│   │   │   └── benefit.ts
+│   │   └── __tests__/
+│   │       └── api/             # API 테스트 (계약 기반)
+│   │           └── benefits.test.ts
+│   └── package.json
 │
 └── frontend/
     ├── src/
@@ -286,21 +287,21 @@ project/
 **병합 전 필수 통과:**
 - [ ] 모든 단위 테스트 통과
 - [ ] 커버리지 ≥ 80%
-- [ ] 린트 통과 (ruff / ESLint)
-- [ ] 타입 체크 통과 (mypy / tsc)
+- [ ] 린트 통과 (ESLint)
+- [ ] 타입 체크 통과 (tsc)
 - [ ] E2E 테스트 통과 (해당 기능)
 
 **검증 명령어:**
 ```bash
 # 백엔드
-pytest --cov=app --cov-report=term-missing
-ruff check .
-mypy app/
+cd backend && npm run test -- --coverage
+cd backend && npm run lint
+cd backend && npm run type-check
 
 # 프론트엔드
-npm run test -- --coverage
-npm run lint
-npm run type-check
+cd frontend && npm run test -- --coverage
+cd frontend && npm run lint
+cd frontend && npm run type-check
 
 # E2E
 npx playwright test
@@ -384,7 +385,7 @@ git worktree add ../welfare-notifier-search-be -b feature/search-be
 git worktree add ../welfare-notifier-search-fe -b feature/search-fe
 
 # 각 Worktree에서 독립 작업
-cd ../welfare-notifier-search-be && pytest tests/api/test_search.py
+cd ../welfare-notifier-search-be && npm run test -- src/__tests__/api/search.test.ts
 cd ../welfare-notifier-search-fe && npm run test -- src/__tests__/search/
 
 # 테스트 통과 후 병합
@@ -412,9 +413,11 @@ git worktree remove ../welfare-notifier-search-fe
 
 | ID | 항목 | 선택 | 이유 |
 |----|------|------|------|
-| D-07 | 백엔드 프레임워크 | FastAPI | Python, 비동기 지원, 자동 API 문서 |
+| D-07 | 백엔드 프레임워크 | Express | TypeScript, 경량, 프론트엔드와 언어 통일 |
 | D-08 | 프론트엔드 프레임워크 | Vue + Nuxt | SSR/SSG 지원, SEO 최적화 필수 |
 | D-09 | 데이터베이스 | MySQL | 관계형, 복잡한 조건 필터링 최적 |
 | D-10 | 테스트 전략 | Contract-First TDD | BE/FE 병렬 개발, 통합 충돌 최소화 |
 | D-11 | 호스팅 (FE) | Vercel | Nuxt 최적화, 무료 tier |
-| D-12 | 호스팅 (BE) | Railway | FastAPI 배포 간편, 무료 tier |
+| D-12 | 호스팅 (BE) | Railway | Express 배포 간편, 무료 tier |
+| D-13 | ORM | Prisma | 타입 안전, 자동 생성 클라이언트, 마이그레이션 |
+| D-14 | 검증 라이브러리 | Zod | TypeScript 퍼스트, 스키마에서 타입 추론 |

@@ -62,22 +62,25 @@ welfare-notifier/
 │   │   └── search.ts
 │   ├── types/           # TypeScript 타입
 │   │   └── benefit.ts
-│   └── tests/
+│   └── __tests__/
 ├── backend/
-│   ├── app/
-│   │   ├── main.py      # FastAPI 앱 엔트리포인트
-│   │   ├── models/      # SQLAlchemy 모델
-│   │   │   └── benefit.py
+│   ├── src/
+│   │   ├── index.ts     # Express 앱 엔트리포인트
 │   │   ├── routes/      # API 라우트
-│   │   │   └── benefits.py
-│   │   ├── schemas/     # Pydantic 스키마
-│   │   │   └── benefit.py
+│   │   │   └── benefits.ts
+│   │   ├── schemas/     # Zod 스키마
+│   │   │   └── benefit.ts
 │   │   ├── services/    # 비즈니스 로직
-│   │   │   ├── benefit_service.py
-│   │   │   └── api_client.py
+│   │   │   ├── benefitService.ts
+│   │   │   └── apiClient.ts
+│   │   ├── middlewares/ # Express 미들웨어
+│   │   │   └── errorHandler.ts
 │   │   └── utils/       # 유틸리티
-│   │       └── logging.py
-│   └── tests/
+│   │       └── logger.ts
+│   ├── prisma/          # Prisma 스키마 & 마이그레이션
+│   │   └── schema.prisma
+│   ├── __tests__/       # 백엔드 테스트
+│   └── package.json
 ├── contracts/           # API 계약 (BE/FE 공유)
 │   └── benefits.contract.ts
 ├── docs/
@@ -98,12 +101,13 @@ welfare-notifier/
 |------|------|------|
 | 파일 (Vue 컴포넌트) | PascalCase | `BenefitCard.vue` |
 | 파일 (TypeScript) | camelCase | `useBenefitSearch.ts` |
-| 파일 (Python) | snake_case | `benefit_service.py` |
+| 파일 (BE TypeScript) | camelCase | `benefitService.ts` |
 | Vue 컴포넌트 | PascalCase | `BenefitCard` |
 | 함수/변수 | camelCase | `getBenefitById` |
 | 상수 | UPPER_SNAKE | `MAX_RETRY_COUNT` |
 | CSS 클래스 | kebab-case | `benefit-card` |
-| Pydantic 모델 | PascalCase | `BenefitResponse` |
+| Zod 스키마 | PascalCase | `BenefitResponseSchema` |
+| Prisma 모델 | PascalCase | `Benefit` |
 
 ---
 
@@ -145,7 +149,7 @@ welfare-notifier/
 **좋은 예:**
 > "TASKS 문서의 T1.1을 구현해주세요.
 > Database Design의 BENEFIT 테이블을 참조하고,
-> TRD의 FastAPI + Pydantic 스키마를 사용해주세요."
+> TRD의 Express + Zod 스키마를 사용해주세요."
 
 **나쁜 예:**
 > "API 만들어줘"
@@ -167,13 +171,13 @@ welfare-notifier/
 - 04-database-design.md BENEFIT 테이블
 
 ## 제약 조건
-- FastAPI 사용
-- Pydantic validation 필수
+- Express 사용
+- Zod validation 필수
 - 테스트 커버리지 80% 이상
 
 ## 예상 결과
-- backend/app/routes/benefits.py
-- backend/tests/api/test_benefits.py
+- backend/src/routes/benefits.ts
+- backend/__tests__/api/benefits.test.ts
 - 검색 API: GET /api/v1/benefits/search
 ```
 
@@ -190,7 +194,7 @@ welfare-notifier/
 
 ### 5.2 필수 적용
 
-- [ ] 모든 사용자 입력 검증 (서버 측 Pydantic)
+- [ ] 모든 사용자 입력 검증 (서버 측 Zod)
 - [ ] 환경 변수로 비밀 정보 관리 (.env)
 - [ ] HTTPS 사용 (Vercel/Railway 기본 제공)
 - [ ] CORS 설정 (프론트엔드 도메인만 허용)
@@ -220,7 +224,7 @@ NUXT_PUBLIC_API_BASE_URL=https://api.welfare-notifier.com
 ```bash
 # 백엔드
 cd backend
-pytest tests/ -v --cov=app
+npm run test -- --coverage
 
 # 프론트엔드
 cd frontend
@@ -242,19 +246,20 @@ npx playwright test
 **예시:**
 ```
 ## 에러
-ValidationError: age must be between 0 and 150
+ZodError: age must be between 0 and 150
 
 ## 코드
-@app.post("/api/v1/benefits/search")
-async def search_benefits(request: BenefitSearchRequest):
-    # line 42
+router.post("/api/v1/benefits/search", async (req, res) => {
+    const result = BenefitSearchSchema.safeParse(req.body);
+    // line 42
+});
 
 ## 재현
 1. age = -1 입력
 2. POST /api/v1/benefits/search
 
 ## 시도한 것
-- Pydantic Field(ge=0)로 검증 추가 → 여전히 실패
+- Zod z.number().min(0)로 검증 추가 → 여전히 실패
 ```
 
 ---
@@ -305,9 +310,9 @@ feat(search): 나이/소득/지역 기반 지원금 검색 API 추가
 
 | 도구 | 프론트엔드 | 백엔드 |
 |------|-----------|--------|
-| 린터 | ESLint | Ruff |
-| 포매터 | Prettier | Black |
-| 타입 체크 | TypeScript (tsc) | mypy (선택) |
+| 린터 | ESLint | ESLint |
+| 포매터 | Prettier | Prettier |
+| 타입 체크 | TypeScript (tsc) | TypeScript (tsc) |
 
 ### 8.2 Pre-commit 훅
 
@@ -317,22 +322,22 @@ repos:
   - repo: local
     hooks:
       # 프론트엔드
-      - id: eslint
-        name: ESLint
+      - id: eslint-frontend
+        name: ESLint (Frontend)
         entry: npm run lint --prefix frontend
         language: system
         pass_filenames: false
 
       # 백엔드
-      - id: ruff
-        name: Ruff
-        entry: ruff check backend/
+      - id: eslint-backend
+        name: ESLint (Backend)
+        entry: npm run lint --prefix backend
         language: system
         pass_filenames: false
 
-      - id: black
-        name: Black
-        entry: black backend/
+      - id: prettier
+        name: Prettier
+        entry: npx prettier --check .
         language: system
         pass_filenames: false
 ```
@@ -424,65 +429,98 @@ export function useBenefitSearch() {
 
 ---
 
-## 10. 백엔드 규약 (FastAPI + Python)
+## 10. 백엔드 규약 (Express + TypeScript)
 
 ### 10.1 API 엔드포인트 구조
 
-```python
-# app/routes/benefits.py
-from fastapi import APIRouter, Depends, HTTPException
-from app.schemas.benefit import BenefitSearchRequest, BenefitResponse
-from app.services.benefit_service import BenefitService
+```typescript
+// src/routes/benefits.ts
+import { Router, Request, Response, NextFunction } from 'express';
+import { BenefitSearchSchema, BenefitResponse } from '../schemas/benefit';
+import { BenefitService } from '../services/benefitService';
 
-router = APIRouter(prefix="/api/v1/benefits", tags=["benefits"])
+const router = Router();
+const benefitService = new BenefitService();
 
-@router.get("/search", response_model=list[BenefitResponse])
-async def search_benefits(
-    age: int,
-    income: int,
-    region: str,
-    service: BenefitService = Depends()
-):
-    """
-    나이/소득/지역 기반 지원금 검색
+/**
+ * 나이/소득/지역 기반 지원금 검색
+ * GET /api/v1/benefits/search
+ */
+router.get('/search', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = BenefitSearchSchema.safeParse({
+      age: Number(req.query.age),
+      income: Number(req.query.income),
+      region: req.query.region,
+    });
 
-    Args:
-        age: 나이 (0-150)
-        income: 연소득 (원 단위, 0 = 무소득)
-        region: 지역 (서울/경기/전국 등)
+    if (!result.success) {
+      return res.status(422).json({ error: result.error.flatten() });
+    }
 
-    Returns:
-        매칭된 지원금 리스트
-    """
-    try:
-        results = await service.search(age=age, income=income, region=region)
-        return results
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    const benefits = await benefitService.search(result.data);
+    return res.json(benefits);
+  } catch (error) {
+    next(error);
+  }
+});
+
+export default router;
 ```
 
-### 10.2 Pydantic 스키마
+### 10.2 Zod 스키마
 
-```python
-# app/schemas/benefit.py
-from pydantic import BaseModel, Field
-from typing import Optional
+```typescript
+// src/schemas/benefit.ts
+import { z } from 'zod';
 
-class BenefitSearchRequest(BaseModel):
-    age: int = Field(ge=0, le=150, description="나이")
-    income: int = Field(ge=0, description="연소득 (원 단위)")
-    region: str = Field(min_length=1, max_length=50, description="지역")
+export const BenefitSearchSchema = z.object({
+  age: z.number().min(0).max(150).describe('나이'),
+  income: z.number().min(0).describe('연소득 (원 단위)'),
+  region: z.string().min(1).max(50).describe('지역'),
+});
 
-class BenefitResponse(BaseModel):
-    id: str
-    name: str
-    category: str
-    description: Optional[str] = None
-    estimated_amount: Optional[str] = None
-    link: str
+export type BenefitSearchRequest = z.infer<typeof BenefitSearchSchema>;
 
-    class Config:
-        from_attributes = True  # SQLAlchemy 모델 자동 변환
+export const BenefitResponseSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  category: z.string(),
+  description: z.string().optional(),
+  estimatedAmount: z.string().optional(),
+  eligibility: z.array(z.string()),
+  link: z.string(),
+});
+
+export type BenefitResponse = z.infer<typeof BenefitResponseSchema>;
+```
+
+### 10.3 Prisma 스키마
+
+```prisma
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Benefit {
+  id              String   @id @default(cuid())
+  name            String
+  category        String
+  description     String?  @db.Text
+  estimatedAmount String?  @map("estimated_amount")
+  eligibility     Json
+  link            String
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("benefits")
+}
 ```
 
 ---
@@ -491,8 +529,10 @@ class BenefitResponse(BaseModel):
 
 | ID | 항목 | 선택 | 이유 |
 |----|------|------|------|
-| D-26 | 린터 (BE) | Ruff | 빠르고 설정 간단, Black 통합 |
+| D-26 | 린터 (BE) | ESLint | TypeScript 표준, 프론트엔드와 통일 |
 | D-27 | 린터 (FE) | ESLint + Prettier | Vue 공식 권장 |
-| D-28 | 테스트 프레임워크 (BE) | pytest | Python 표준, 비동기 지원 |
+| D-28 | 테스트 프레임워크 (BE) | Vitest | TypeScript 지원, 빠른 속도 |
 | D-29 | 테스트 프레임워크 (FE) | Vitest | Vite 통합, 빠른 속도 |
 | D-30 | 환경 변수 관리 | .env + .env.example | 표준 방식, 안전함 |
+| D-31 | ORM | Prisma | 타입 안전, 자동 생성 클라이언트 |
+| D-32 | 검증 라이브러리 | Zod | TypeScript 퍼스트, 스키마에서 타입 추론 |
