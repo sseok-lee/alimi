@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import type { Benefit } from '@prisma/client';
+import { getApiConfig } from '../config/api';
 
 /**
  * 공공 API 클라이언트
@@ -7,6 +8,9 @@ import type { Benefit } from '@prisma/client';
  * - 응답 정규화 (외부 형식 → Prisma Benefit 스키마)
  * - 에러 처리 및 재시도 로직
  */
+
+// 로그 출력 레벨 설정
+const LOG_ENABLED = process.env.LOG_LEVEL !== 'silent';
 
 // 외부 API 응답 타입 정의
 interface ExternalBenefitItem {
@@ -30,12 +34,10 @@ interface ExternalBenefitItem {
 
 // Axios 클라이언트 설정
 function createApiClient(): AxiosInstance {
-  const baseURL = process.env.PUBLIC_API_BASE_URL || 'https://mock-api.example.com';
-  const timeout = parseInt(process.env.API_TIMEOUT || '10000', 10);
-
+  const config = getApiConfig();
   return axios.create({
-    baseURL,
-    timeout,
+    baseURL: config.baseURL,
+    timeout: config.timeout,
     headers: {
       'Content-Type': 'application/json',
     },
@@ -48,17 +50,31 @@ function createApiClient(): AxiosInstance {
  * @throws API 호출 실패 시 에러
  */
 export async function fetchBenefits(): Promise<Benefit[]> {
+  const config = getApiConfig();
+
   // MVP: Mock 데이터 사용
-  if (process.env.USE_MOCK_API === 'true') {
+  if (config.useMock) {
+    if (LOG_ENABLED) {
+      console.log('[PublicApiClient] Using mock data (USE_MOCK_API=true)');
+    }
     return getMockBenefits();
   }
 
   // 실제 API 호출 (재시도 로직 포함)
-  const maxRetries = parseInt(process.env.API_MAX_RETRIES || '3', 10);
   const client = createApiClient();
 
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+  if (LOG_ENABLED) {
+    console.log(
+      `[PublicApiClient] Fetching benefits from ${config.baseURL} (max retries: ${config.maxRetries})`
+    );
+  }
+
+  for (let attempt = 1; attempt <= config.maxRetries; attempt++) {
     try {
+      if (LOG_ENABLED && attempt > 1) {
+        console.log(`[PublicApiClient] Retry attempt ${attempt}/${config.maxRetries}`);
+      }
+
       const response = await client.get('/benefits');
 
       // 응답 유효성 검증
@@ -89,17 +105,39 @@ export async function fetchBenefits(): Promise<Benefit[]> {
       }
 
       // 정규화하여 반환
-      return normalizeBenefits(items);
+      const benefits = normalizeBenefits(items);
+
+      if (LOG_ENABLED) {
+        console.log(`[PublicApiClient] Successfully fetched ${benefits.length} benefits`);
+      }
+
+      return benefits;
     } catch (error) {
-      const isLastAttempt = attempt === maxRetries;
+      const isLastAttempt = attempt === config.maxRetries;
       const shouldRetry = isRetryableError(error);
 
+      if (LOG_ENABLED) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(
+          `[PublicApiClient] Attempt ${attempt}/${config.maxRetries} failed: ${errorMessage}`
+        );
+      }
+
       if (isLastAttempt || !shouldRetry) {
+        if (LOG_ENABLED) {
+          console.error(
+            `[PublicApiClient] All retries exhausted or non-retryable error. Giving up.`
+          );
+        }
         throw error;
       }
 
       // 재시도 전 대기 (exponential backoff)
-      await sleep(1000 * attempt);
+      const delay = config.retryDelayBase * attempt;
+      if (LOG_ENABLED) {
+        console.log(`[PublicApiClient] Waiting ${delay}ms before retry...`);
+      }
+      await sleep(delay);
     }
   }
 
@@ -114,7 +152,7 @@ function isRetryableError(error: unknown): boolean {
   const err = error as { response?: { status?: number }; code?: string };
 
   // 5xx 서버 에러는 재시도
-  if (err.response && err.response.status >= 500 && err.response.status < 600) {
+  if (err.response?.status && err.response.status >= 500 && err.response.status < 600) {
     return true;
   }
 
