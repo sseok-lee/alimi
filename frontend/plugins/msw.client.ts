@@ -16,7 +16,5 @@ export default defineNuxtPlugin(async () => {
       // Service Worker 등록 시 콘솔 로그 비활성화 (선택사항)
       quiet: false,
     });
-
-    console.log('[MSW] Mock Service Worker가 활성화되었습니다.');
   }
 });
