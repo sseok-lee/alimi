@@ -690,8 +690,8 @@ cd ../welfare-notifier-phase3-benefit-card
 - [x] 반응형 확인
 
 **완료 시**:
-- [ ] 사용자 승인 후 병합
-- [ ] worktree 정리
+- [x] 사용자 승인 후 병합 (main 브랜치에서 직접 작업, 커밋 완료)
+- [x] worktree 정리: N/A (Phase 1-3은 main에서 작업)
 
 ---
 
