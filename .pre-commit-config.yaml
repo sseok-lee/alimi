@@ -1,0 +1,15 @@
+repos:
+  - repo: local
+    hooks:
+      - id: backend-lint
+        name: Backend ESLint
+        entry: bash -c 'cd backend && npm run lint'
+        language: system
+        files: ^backend/.*\.ts$
+        pass_filenames: false
+      - id: frontend-lint
+        name: Frontend ESLint
+        entry: bash -c 'cd frontend && npm run lint'
+        language: system
+        files: ^frontend/.*\.(vue|ts)$
+        pass_filenames: false
