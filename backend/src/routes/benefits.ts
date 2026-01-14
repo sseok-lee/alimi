@@ -1,8 +1,22 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { BenefitSearchSchema } from '../schemas/benefit.js'
 import * as benefitService from '../services/benefitService.js'
+import prisma from '../lib/prisma.js'
+import crypto from 'crypto'
 
 const router = Router()
+
+/**
+ * Generate a session ID from request IP and user-agent
+ * Used for anonymous search log tracking
+ */
+function generateSessionId(req: Request): string {
+  const identifier = (req.ip || 'unknown') + (req.headers['user-agent'] || 'unknown')
+  return crypto.createHash('sha256')
+    .update(identifier)
+    .digest('hex')
+    .substring(0, 16)
+}
 
 // POST /api/benefits/search - 맞춤 지원금 검색
 router.post('/search', async (req: Request, res: Response, next: NextFunction) => {
@@ -18,6 +32,23 @@ router.post('/search', async (req: Request, res: Response, next: NextFunction) =
 
     const benefits = await benefitService.searchBenefits(result.data)
 
+    // Record search log (don't fail request if logging fails)
+    try {
+      await prisma.searchLog.create({
+        data: {
+          sessionId: generateSessionId(req),
+          age: result.data.age ?? null,
+          income: result.data.income ?? null,
+          region: result.data.region ?? null,
+          resultCount: benefits.length,
+          searchedAt: new Date()
+        }
+      })
+    } catch (logError) {
+      console.error('Failed to record search log:', logError)
+      // Don't fail the request if logging fails
+    }
+
     res.json({
       benefits,
       total: benefits.length,
@@ -31,7 +62,8 @@ router.post('/search', async (req: Request, res: Response, next: NextFunction) =
 // GET /api/benefits/:id - 지원금 상세 조회
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const benefit = await benefitService.getBenefitById(req.params.id)
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id
+    const benefit = await benefitService.getBenefitById(id)
 
     if (!benefit) {
       return res.status(404).json({ error: 'Benefit not found' })

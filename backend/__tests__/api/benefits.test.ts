@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterEach, afterAll } from 'vitest'
 import request from 'supertest'
 import app from '../../src/app.js'
+import prisma from '../../src/lib/prisma.js'
 
 describe('Benefits API', () => {
   describe('POST /api/benefits/search', () => {
@@ -54,6 +55,67 @@ describe('Benefits API', () => {
 
       expect(response.status).toBe(404)
       expect(response.body).toHaveProperty('error', 'Benefit not found')
+    })
+  })
+
+  describe('SearchLog recording', () => {
+    afterEach(async () => {
+      // Clean up SearchLog entries after each test
+      await prisma.searchLog.deleteMany({})
+    })
+
+    afterAll(async () => {
+      // Final cleanup
+      await prisma.searchLog.deleteMany({})
+    })
+
+    it('POST /api/benefits/search - should record search log', async () => {
+      const searchParams = {
+        age: 27,
+        income: 0,
+        region: '서울'
+      }
+
+      const response = await request(app)
+        .post('/api/benefits/search')
+        .send(searchParams)
+        .expect(200)
+
+      // Verify SearchLog was created
+      const logs = await prisma.searchLog.findMany({
+        where: {
+          age: 27,
+          income: 0,
+          region: '서울'
+        },
+        orderBy: { searchedAt: 'desc' },
+        take: 1
+      })
+
+      expect(logs).toHaveLength(1)
+      expect(logs[0].age).toBe(27)
+      expect(logs[0].income).toBe(0)
+      expect(logs[0].region).toBe('서울')
+      expect(logs[0].resultCount).toBe(response.body.benefits.length)
+      expect(logs[0].sessionId).toBeTruthy() // Should have some session ID
+    })
+
+    it('POST /api/benefits/search - should record log even with empty params', async () => {
+      const response = await request(app)
+        .post('/api/benefits/search')
+        .send({})
+        .expect(200)
+
+      const logs = await prisma.searchLog.findMany({
+        orderBy: { searchedAt: 'desc' },
+        take: 1
+      })
+
+      expect(logs).toHaveLength(1)
+      expect(logs[0].age).toBeNull()
+      expect(logs[0].income).toBeNull()
+      expect(logs[0].region).toBeNull()
+      expect(logs[0].resultCount).toBe(response.body.benefits.length)
     })
   })
 })
