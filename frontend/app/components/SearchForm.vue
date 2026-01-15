@@ -183,12 +183,16 @@ const formData = ref<{
 
 const categories = [
   { value: '', label: '전체' },
-  { value: '복지서비스', label: '복지서비스' },
-  { value: '일자리', label: '일자리' },
-  { value: '금융/저축', label: '금융/저축' },
-  { value: '주거', label: '주거' },
-  { value: '취업/고용', label: '취업/고용' },
-  { value: '활동지원', label: '활동지원' },
+  { value: '생활안정', label: '생활안정' },
+  { value: '보육·교육', label: '보육·교육' },
+  { value: '보건·의료', label: '보건·의료' },
+  { value: '임신·출산', label: '임신·출산' },
+  { value: '고용·창업', label: '고용·창업' },
+  { value: '주거·자립', label: '주거·자립' },
+  { value: '보호·돌봄', label: '보호·돌봄' },
+  { value: '문화·환경', label: '문화·환경' },
+  { value: '행정·안전', label: '행정·안전' },
+  { value: '농림축산어업', label: '농림축산어업' },
 ]
 
 const handleSubmit = async () => {
@@ -198,16 +202,34 @@ const handleSubmit = async () => {
   }
 
   try {
-    const results = await search({
+    const searchParams: any = {
       age: formData.value.age,
       income: Number(formData.value.income),
       region: formData.value.region,
-      category: formData.value.category || undefined,
-      lifePregnancy: formData.value.lifePregnancy || undefined,
-      targetDisabled: formData.value.targetDisabled || undefined,
-      familySingleParent: formData.value.familySingleParent || undefined,
-      familyMultiChild: formData.value.familyMultiChild || undefined,
-    })
+    }
+
+    // 카테고리 필터 (값이 있을 때만)
+    if (formData.value.category) {
+      searchParams.category = formData.value.category
+    }
+
+    // 대상조건 필터 (체크된 것만)
+    if (formData.value.lifePregnancy) {
+      searchParams.lifePregnancy = true
+    }
+    if (formData.value.targetDisabled) {
+      searchParams.targetDisabled = true
+    }
+    if (formData.value.familySingleParent) {
+      searchParams.familySingleParent = true
+    }
+    if (formData.value.familyMultiChild) {
+      searchParams.familyMultiChild = true
+    }
+
+    console.log('검색 파라미터:', searchParams)
+
+    const results = await search(searchParams)
 
     // 검색 결과를 부모 컴포넌트에 emit
     emit('search-results', results)
