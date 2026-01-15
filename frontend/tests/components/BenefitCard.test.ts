@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import BenefitCard from '../../app/components/BenefitCard.vue'
 import type { BenefitResponse } from '../../app/composables/useBenefitSearch'
@@ -79,45 +79,59 @@ describe('BenefitCard.vue', () => {
     expect(wrapper.text()).toContain('연소득 7,500만원 이하')
   })
 
-  it('외부 링크 버튼이 표시되어야 한다', () => {
+  it('상세보기 버튼이 표시되어야 한다', () => {
     const wrapper = mount(BenefitCard, {
       props: {
         benefit: mockBenefit,
       },
     })
-    const linkButton = wrapper.find('a')
+    const linkButton = wrapper.find('button')
     expect(linkButton.exists()).toBe(true)
-    expect(linkButton.text()).toContain('신청하기')
+    expect(linkButton.text()).toContain('상세보기')
   })
 
-  it('링크 버튼에 href 속성이 올바르게 설정되어야 한다', () => {
+  it('카드 클릭 시 상세 페이지로 이동해야 한다', async () => {
+    // Mock navigateTo
+    const navigateToMock = vi.fn()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    global.navigateTo = navigateToMock as any
+
     const wrapper = mount(BenefitCard, {
       props: {
         benefit: mockBenefit,
       },
     })
-    const linkButton = wrapper.find('a')
-    expect(linkButton.attributes('href')).toBe('https://www.kinfa.or.kr/')
+
+    await wrapper.trigger('click')
+    expect(navigateToMock).toHaveBeenCalledWith('/benefits/benefit-001')
   })
 
-  it('링크 버튼에 target="_blank" 속성이 설정되어야 한다', () => {
+  it('버튼 클릭 시 상세 페이지로 이동해야 한다', async () => {
+    // Mock navigateTo
+    const navigateToMock = vi.fn()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    global.navigateTo = navigateToMock as any
+
     const wrapper = mount(BenefitCard, {
       props: {
         benefit: mockBenefit,
       },
     })
-    const linkButton = wrapper.find('a')
-    expect(linkButton.attributes('target')).toBe('_blank')
+
+    const button = wrapper.find('button')
+    await button.trigger('click')
+    expect(navigateToMock).toHaveBeenCalled()
   })
 
-  it('링크 버튼에 rel="noopener noreferrer" 속성이 설정되어야 한다 (보안)', () => {
+  it('카드에 클릭 가능한 스타일이 적용되어야 한다', () => {
     const wrapper = mount(BenefitCard, {
       props: {
         benefit: mockBenefit,
       },
     })
-    const linkButton = wrapper.find('a')
-    expect(linkButton.attributes('rel')).toBe('noopener noreferrer')
+    const card = wrapper.find('.benefit-card')
+    expect(card.exists()).toBe(true)
+    // CSS 클래스에 cursor: pointer가 적용됨 (scoped style)
   })
 
   it('estimated_amount가 없으면 표시되지 않아야 한다', () => {

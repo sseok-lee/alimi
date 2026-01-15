@@ -1,5 +1,5 @@
 <template>
-  <div class="benefit-card">
+  <div class="benefit-card" @click="handleClick">
     <!-- 카테고리 배지 -->
     <div class="category-badge">{{ benefit.category }}</div>
 
@@ -23,24 +23,23 @@
       </span>
     </div>
 
-    <!-- 외부 링크 버튼 -->
-    <a
-      :href="benefit.link"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="link-button"
-    >
-      신청하기 →
-    </a>
+    <!-- 상세보기 버튼 -->
+    <button type="button" class="link-button">
+      상세보기 →
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { BenefitResponse } from '~/composables/useBenefitSearch'
 
-defineProps<{
+const props = defineProps<{
   benefit: BenefitResponse
 }>()
+
+const handleClick = () => {
+  navigateTo(`/benefits/${props.benefit.id}`)
+}
 </script>
 
 <style scoped>
@@ -52,6 +51,7 @@ defineProps<{
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 16px;
   transition: box-shadow 150ms ease-out;
+  cursor: pointer;
 }
 
 .benefit-card:hover {
@@ -117,6 +117,10 @@ defineProps<{
   font-weight: 500;
   text-decoration: none;
   transition: text-decoration 150ms ease-out;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
 
 .link-button:hover {
