@@ -14,7 +14,7 @@
 **기술 스택**:
 - **백엔드**: Express + Prisma + MySQL + Zod
 - **프론트엔드**: Vue 3 + Nuxt 3 + TypeScript + TailwindCSS
-- **인프라**: Docker Compose, Vercel(FE), Railway(BE)
+- **인프라**: Cafe24 서버 + Nginx + PM2 + GitHub Actions + Docker Compose (로컬)
 
 **성공 지표**:
 - 노스스타: 월 애드센스 수익 목표 달성
@@ -32,7 +32,7 @@
 | M2 | FEAT-1: 지원금 검색 (백엔드) | Phase 2 | ✅ |
 | M3 | FEAT-1: 지원금 검색 (프론트엔드) | Phase 3 | ✅ |
 | M4 | 보조금24 데이터 동기화 & 통합 테스트 | Phase 4 | 🔄 진행 중 |
-| M5 | 배포 & 모니터링 | Phase 5 | ❌ |
+| M5 | CI/CD 구축 & 배포 | Phase 5 | ✅ |
 
 ---
 
@@ -953,84 +953,157 @@ cd ../welfare-notifier-phase4-perf
 
 ---
 
-## M5: 배포 & 모니터링 (Phase 5)
+## M5: CI/CD 구축 & 배포 (Phase 5)
 
-### [ ] Phase 5, T5.1: 프론트엔드 배포 (Vercel)
-
-**담당**: frontend-specialist
-
-**Git Worktree 설정**:
-```bash
-git worktree add ../welfare-notifier-phase5-deploy-fe -b phase/5-deploy-fe
-cd ../welfare-notifier-phase5-deploy-fe
-```
-
-**작업 내용**:
-- Vercel 프로젝트 생성
-- 환경 변수 설정 (NUXT_PUBLIC_API_BASE_URL)
-- 자동 배포 설정 (main 브랜치 푸시 시)
-
-**산출물**:
-- `vercel.json` (Vercel 설정)
-- 배포 URL: `https://welfare-notifier.vercel.app`
-
-**완료 조건**:
-- [ ] Vercel 배포 성공
-- [ ] 프로덕션 URL 접속 확인
-- [ ] SEO 메타태그 확인
-
-**완료 시**:
-- [ ] 사용자 승인 후 병합
-- [ ] worktree 정리
-
----
-
-### [ ] Phase 5, T5.2: 백엔드 배포 (Railway)
+### [x] Phase 5, T5.1: Cafe24 서버 환경 구축
 
 **담당**: backend-specialist
 
-**Git Worktree 설정**:
-```bash
-git worktree add ../welfare-notifier-phase5-deploy-be -b phase/5-deploy-be
-cd ../welfare-notifier-phase5-deploy-be
-```
+**작업 내용**:
+- Cafe24 가상서버 호스팅 설정 확인
+- SSH 접속 확인 및 키 생성
+- Node.js, MySQL, Nginx, PM2 설치 확인
+- 서버 디렉토리 구조 생성
+
+**서버 환경**:
+- IP: 183.111.126.54
+- OS: Ubuntu/Debian
+- Node.js: v20.19.6
+- MySQL: 서버 내 설치
+- Nginx: 1.18.0
+- PM2: 6.0.14
+
+**완료 조건**:
+- [x] SSH 접속 가능
+- [x] Node.js, npm, PM2, Nginx 설치 확인
+- [x] MySQL 실행 확인
+- [x] `/home/project1/alimi` 디렉토리 생성
+
+**완료일**: 2026-01-15
+
+---
+
+### [x] Phase 5, T5.2: GitHub Actions CI/CD 파이프라인 구축
+
+**담당**: backend-specialist
 
 **작업 내용**:
-- Railway 프로젝트 생성
-- MySQL 플러그인 연결
-- 환경 변수 설정
-- Prisma 마이그레이션 실행
+- `.github/workflows/deploy.yml` 워크플로우 작성
+- GitHub Secrets 설정 (SSH 키, 서버 정보)
+- 빌드 스크립트 작성 (Backend: Express, Frontend: Nuxt SSR)
+- SCP 배포 및 PM2 재시작 스크립트
 
 **산출물**:
-- 배포 URL: `https://welfare-notifier-api.railway.app`
+- `.github/workflows/deploy.yml`
+- GitHub Secrets: CAFE24_HOST, CAFE24_USER, CAFE24_SSH_KEY
+
+**배포 플로우**:
+```
+git push main → GitHub Actions → Build → SCP Deploy → PM2 Restart
+```
 
 **완료 조건**:
-- [ ] Railway 배포 성공
-- [ ] DB 마이그레이션 완료: `npx prisma migrate deploy`
-- [ ] API 헬스체크 통과
+- [x] GitHub Actions 워크플로우 작성
+- [x] SSH 키 생성 및 GitHub Secrets 등록
+- [x] 자동 배포 성공 (main 브랜치 푸시 시)
+- [x] PM2 프로세스 자동 재시작 확인
 
-**완료 시**:
-- [ ] 사용자 승인 후 병합
-- [ ] worktree 정리
+**완료일**: 2026-01-15
 
 ---
 
-### [ ] Phase 5, T5.3: DB 배포 (PlanetScale or AWS RDS)
+### [x] Phase 5, T5.3: Nginx 리버스 프록시 설정
 
-**담당**: database-specialist
+**담당**: backend-specialist
 
 **작업 내용**:
-- 프로덕션 DB 생성
-- 백업 설정
-- 모니터링 설정
+- Nginx 설정 파일 작성 (`/etc/nginx/sites-available/alimi`)
+- 리버스 프록시 설정 (API → 8000, Frontend → 3000)
+- Nginx 활성화 및 재시작
+
+**Nginx 설정**:
+```nginx
+server {
+    listen 80;
+    server_name 183.111.126.54;
+
+    location /api {
+        proxy_pass http://localhost:8000;
+    }
+
+    location / {
+        proxy_pass http://localhost:3000;
+    }
+}
+```
 
 **완료 조건**:
-- [ ] 프로덕션 DB 연결 확인
-- [ ] 백업 자동화 설정
+- [x] Nginx 설정 파일 작성
+- [x] 설정 테스트 통과 (`nginx -t`)
+- [x] Nginx 재시작 성공
+- [x] 포트 80으로 접속 가능
+
+**완료일**: 2026-01-15
 
 ---
 
-### [ ] Phase 5, T5.4: Google Analytics & AdSense 설정
+### [x] Phase 5, T5.4: 서버 환경변수 및 PM2 설정
+
+**담당**: backend-specialist
+
+**작업 내용**:
+- 백엔드 환경변수 파일 생성 (`/home/project1/alimi/backend/.env`)
+- PM2 프로세스 시작 스크립트 작성
+- PM2 재부팅 시 자동 시작 설정
+
+**환경변수**:
+- DATABASE_URL (MySQL 연결)
+- OPENAPI_SERVICE_KEY (공공데이터 API 키)
+- PORT, NODE_ENV, CORS_ORIGIN
+
+**완료 조건**:
+- [x] 환경변수 파일 생성 및 권한 설정 (chmod 600)
+- [x] PM2로 백엔드 실행 (alimi-backend)
+- [x] PM2로 프론트엔드 실행 (alimi-frontend)
+- [x] PM2 설정 저장 (`pm2 save`)
+- [x] PM2 자동 시작 설정 (`pm2 startup`)
+
+**완료일**: 2026-01-15
+
+---
+
+### [x] Phase 5, T5.5: 배포 테스트 및 문서화
+
+**담당**: all
+
+**작업 내용**:
+- 프로덕션 배포 테스트
+- 서비스 동작 확인 (http://183.111.126.54)
+- 배포 가이드 문서 작성
+- CLAUDE.md 업데이트
+
+**테스트 항목**:
+- [x] 프론트엔드 접속 확인 (http://183.111.126.54)
+- [x] 백엔드 API 확인 (http://183.111.126.54/api/health)
+- [x] PM2 프로세스 상태 확인
+- [x] Nginx 리버스 프록시 동작 확인
+- [x] GitHub Actions 자동 배포 테스트
+
+**산출물**:
+- `docs/planning/09-deployment-guide.md` (배포 가이드)
+- `docs/planning/02-trd.md` (인프라 섹션 업데이트)
+- `CLAUDE.md` (Deployment 섹션 추가)
+
+**완료 조건**:
+- [x] 프로덕션 서비스 정상 동작
+- [x] CI/CD 파이프라인 동작 확인
+- [x] 배포 관련 문서 작성 완료
+
+**완료일**: 2026-01-15
+
+---
+
+### [ ] Phase 5, T5.6: Google Analytics & AdSense 설정 (추후 진행)
 
 **담당**: frontend-specialist
 
@@ -1047,6 +1120,8 @@ cd ../welfare-notifier-phase5-deploy-be
 - [ ] GA4 이벤트 추적 확인 (검색, 클릭)
 - [ ] AdSense 승인 완료
 - [ ] 광고 노출 확인
+
+**비고**: M4 (데이터 동기화) 완료 후 진행
 
 ---
 
