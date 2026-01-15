@@ -86,10 +86,38 @@
 
 | 항목 | 선택 | 이유 |
 |------|------|------|
-| 컨테이너 | Docker + Docker Compose | 로컬 개발 환경 일관성, 배포 간소화 |
-| 호스팅 (FE) | Vercel | Nuxt SSR/SSG 최적화, 무료 tier 제공 |
-| 호스팅 (BE) | Railway / Fly.io | Express 배포 간편, 무료 tier 제공 |
-| DB 호스팅 | PlanetScale / AWS RDS 프리티어 | MySQL 무료 호스팅 |
+| 컨테이너 | Docker + Docker Compose | 로컬 개발 환경 일관성 (MySQL) |
+| 호스팅 | Cafe24 가상서버 호스팅 | Ubuntu, Node.js, MySQL, Nginx 모두 설치 가능 |
+| 웹서버 | Nginx | 리버스 프록시, 정적 파일 서빙, SSL 지원 |
+| 프로세스 관리 | PM2 | Node.js 프로세스 관리, 자동 재시작, 로그 관리 |
+| CI/CD | GitHub Actions | 자동 빌드 및 배포, SSH로 서버 연결 |
+
+### 2.5 CI/CD 파이프라인
+
+**배포 플로우:**
+```
+Git Push (main) → GitHub Actions → Build → SSH Deploy → PM2 Restart
+```
+
+**GitHub Actions 워크플로우:**
+1. **Checkout code**: 소스코드 체크아웃
+2. **Setup Node.js**: Node.js 20 환경 설정
+3. **Build Backend**: Express 빌드 (`npm run build`)
+4. **Build Frontend**: Nuxt SSR 빌드 (`npm run build`)
+5. **Deploy to Server**: SCP로 빌드 파일 전송
+6. **Restart Services**: PM2로 프로세스 재시작
+
+**서버 구성:**
+- **IP**: 183.111.126.54
+- **OS**: Ubuntu/Debian
+- **백엔드**: PM2로 Express 실행 (포트 8000)
+- **프론트엔드**: PM2로 Nuxt 실행 (포트 3000)
+- **Nginx**: 포트 80으로 프록시 (API → 8000, 나머지 → 3000)
+
+**환경변수 관리:**
+- 로컬: `.env` 파일
+- 서버: `/home/project1/alimi/backend/.env`
+- GitHub: Secrets (SSH 키, 서버 정보)
 
 ---
 
@@ -448,7 +476,9 @@ git worktree remove ../welfare-notifier-search-fe
 | D-08 | 프론트엔드 프레임워크 | Vue + Nuxt | SSR/SSG 지원, SEO 최적화 필수 |
 | D-09 | 데이터베이스 | MySQL | 관계형, 복잡한 조건 필터링 최적 |
 | D-10 | 테스트 전략 | Contract-First TDD | BE/FE 병렬 개발, 통합 충돌 최소화 |
-| D-11 | 호스팅 (FE) | Vercel | Nuxt 최적화, 무료 tier |
-| D-12 | 호스팅 (BE) | Railway | Express 배포 간편, 무료 tier |
-| D-13 | ORM | Prisma | 타입 안전, 자동 생성 클라이언트, 마이그레이션 |
-| D-14 | 검증 라이브러리 | Zod | TypeScript 퍼스트, 스키마에서 타입 추론 |
+| D-11 | 호스팅 | Cafe24 가상서버 호스팅 | 전체 제어 가능, MySQL/Nginx 포함, 장기 운영 |
+| D-12 | 웹서버 | Nginx | 리버스 프록시, 성능, SSL 지원 |
+| D-13 | 프로세스 관리 | PM2 | 자동 재시작, 로그 관리, 무중단 배포 |
+| D-14 | CI/CD | GitHub Actions | 무료, GitHub 통합, SSH 배포 가능 |
+| D-15 | ORM | Prisma | 타입 안전, 자동 생성 클라이언트, 마이그레이션 |
+| D-16 | 검증 라이브러리 | Zod | TypeScript 퍼스트, 스키마에서 타입 추론 |
