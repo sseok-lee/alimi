@@ -2,9 +2,21 @@ import { z } from 'zod'
 
 // 검색 요청 스키마
 export const BenefitSearchSchema = z.object({
+  // 기존 필터
   age: z.number().int().min(0).max(150).optional(),
   income: z.number().int().min(0).optional(),
-  region: z.string().max(50).optional()
+  region: z.string().max(50).optional(),
+
+  // 신규 필터 (MVP)
+  category: z.string().optional(),           // 카테고리 필터
+  lifePregnancy: z.boolean().optional(),     // 임신/출산 (lifePregnant, lifeBirth)
+  targetDisabled: z.boolean().optional(),    // 장애인 (targetDisabled)
+  familySingleParent: z.boolean().optional(), // 한부모/조손 (familySingleParent)
+  familyMultiChild: z.boolean().optional(),  // 다자녀 (familyMultiChild)
+
+  // 페이지네이션
+  page: z.number().int().min(1).default(1).optional(),
+  limit: z.number().int().min(1).max(100).default(20).optional()
 })
 
 export type BenefitSearchInput = z.infer<typeof BenefitSearchSchema>

@@ -3,7 +3,7 @@ import { prisma } from '../lib/prisma.js'
 import { BenefitSearchInput, BenefitResponse } from '../schemas/benefit.js'
 
 export async function searchBenefits(params: BenefitSearchInput): Promise<BenefitResponse[]> {
-  const { age, income, region } = params
+  const { age, income, region, category, lifePregnancy, targetDisabled, familySingleParent, familyMultiChild, page = 1, limit = 20 } = params
 
   const where: Prisma.BenefitWhereInput = {}
 
@@ -59,8 +59,41 @@ export async function searchBenefits(params: BenefitSearchInput): Promise<Benefi
     ]
   }
 
+  // 카테고리 필터
+  if (category) {
+    where.category = category
+  }
+
+  // 생애주기 필터 (임신/출산)
+  if (lifePregnancy === true) {
+    where.OR = [
+      { lifePregnant: true },
+      { lifeBirth: true }
+    ]
+  }
+
+  // 가구특성 필터 (장애인)
+  if (targetDisabled === true) {
+    where.targetDisabled = true
+  }
+
+  // 가구특성 필터 (한부모/조손)
+  if (familySingleParent === true) {
+    where.familySingleParent = true
+  }
+
+  // 가구특성 필터 (다자녀)
+  if (familyMultiChild === true) {
+    where.familyMultiChild = true
+  }
+
+  const skip = (page - 1) * limit
+  const take = limit
+
   const benefits = await prisma.benefit.findMany({
     where,
+    skip,
+    take,
     orderBy: { fetchedAt: 'desc' }
   })
 
@@ -103,13 +136,17 @@ export async function getBenefitById(id: string): Promise<BenefitResponse | null
   }
 }
 
-export async function getCategories(): Promise<string[]> {
-  const categories = await prisma.benefit.findMany({
-    select: { category: true },
-    distinct: ['category']
+export async function getCategories(): Promise<Array<{ name: string; count: number }>> {
+  const categories = await prisma.benefit.groupBy({
+    by: ['category'],
+    _count: { category: true },
+    orderBy: { _count: { category: 'desc' } }
   })
 
-  return categories.map(c => c.category)
+  return categories.map(c => ({
+    name: c.category,
+    count: c._count.category
+  }))
 }
 
 export async function getRegions(): Promise<string[]> {
