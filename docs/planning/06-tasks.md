@@ -33,6 +33,7 @@
 | M3 | FEAT-1: 지원금 검색 (프론트엔드) | Phase 3 | ✅ |
 | M4 | 보조금24 데이터 동기화 & 통합 테스트 | Phase 4 | ✅ |
 | M5 | CI/CD 구축 & 배포 | Phase 5 | ✅ |
+| M6 | FEAT-1-3: 지원금 상세 페이지 | Phase 6 | 🔲 |
 
 ---
 
@@ -315,6 +316,12 @@ export const benefitHandlers = [
 ### [x] Phase 1, T1.1: 랜딩 페이지 UI RED→GREEN
 
 **담당**: frontend-specialist
+
+**디자인 레퍼런스**:
+| 파일 | 경로 | 설명 |
+|------|------|------|
+| HTML | [code.html](../../../design/welfare_alimi_landing_&_search/code.html) | 브라우저에서 열기 |
+| PNG | ![랜딩 & 검색 목업](../../../design/welfare_alimi_landing_&_search/screen.png) | 스크린샷 |
 
 **Git Worktree 설정**:
 ```bash
@@ -616,6 +623,12 @@ cd ../welfare-notifier-phase2-search-api
 
 **담당**: frontend-specialist
 
+**디자인 레퍼런스**:
+| 파일 | 경로 | 설명 |
+|------|------|------|
+| HTML | [code.html](../../../design/welfare_alimi_landing_&_search/code.html) | 브라우저에서 열기 |
+| PNG | ![랜딩 & 검색 목업](../../../design/welfare_alimi_landing_&_search/screen.png) | 검색 폼 디자인 |
+
 **의존성**: T2.3 (검색 API) - **Mock API 사용으로 독립 개발 가능**
 
 **Git Worktree 설정**:
@@ -678,6 +691,12 @@ afterAll(() => server.close())
 
 **담당**: frontend-specialist
 
+**디자인 레퍼런스**:
+| 파일 | 경로 | 설명 |
+|------|------|------|
+| HTML | [code.html](../../../design/customized_benefit_results/code.html) | 브라우저에서 열기 |
+| PNG | ![검색 결과 목업](../../../design/customized_benefit_results/screen.png) | 결과 카드 디자인 |
+
 **Git Worktree 설정**:
 ```bash
 git worktree add ../welfare-notifier-phase3-benefit-card -b phase/3-benefit-card
@@ -722,6 +741,14 @@ cd ../welfare-notifier-phase3-benefit-card
 ### [x] Phase 3, T3.3: 검색 페이지 통합 RED→GREEN
 
 **담당**: frontend-specialist
+
+**디자인 레퍼런스**:
+| 파일 | 경로 | 설명 |
+|------|------|------|
+| HTML | [code.html](../../../design/welfare_alimi_landing_&_search/code.html) | 랜딩 & 검색 화면 |
+| PNG | ![랜딩 & 검색](../../../design/welfare_alimi_landing_&_search/screen.png) | 검색 폼 |
+| HTML | [code.html](../../../design/customized_benefit_results/code.html) | 검색 결과 화면 |
+| PNG | ![검색 결과](../../../design/customized_benefit_results/screen.png) | 결과 카드 목록 |
 
 **의존성**: T3.1 (SearchForm), T3.2 (BenefitCard) - **컴포넌트 통합**
 
@@ -1487,3 +1514,324 @@ flowchart TD
 | Database Design | docs/planning/04-database-design.md | DB 스키마 |
 | Design System | docs/planning/05-design-system.md | 디자인 가이드 |
 | Coding Convention | docs/planning/07-coding-convention.md | 코딩 규칙 |
+
+---
+
+## 디자인 레퍼런스 (Google Stitch 목업)
+
+`design/` 폴더에 저장된 목업 파일 목록입니다.
+
+| 폴더명 | HTML | PNG | 연결된 Task |
+|--------|------|-----|-------------|
+| `welfare_alimi_landing_&_search/` | [code.html](../../design/welfare_alimi_landing_&_search/code.html) | [screen.png](../../design/welfare_alimi_landing_&_search/screen.png) | T1.1, T3.1, T3.3 |
+| `customized_benefit_results/` | [code.html](../../design/customized_benefit_results/code.html) | [screen.png](../../design/customized_benefit_results/screen.png) | T3.2, T3.3 |
+| `benefit_details_&_application/` | [code.html](../../design/benefit_details_&_application/code.html) | [screen.png](../../design/benefit_details_&_application/screen.png) | T6.1, T6.2, T6.3, T6.4 |
+
+---
+
+## M6: FEAT-1-3 지원금 상세 페이지 (Phase 6)
+
+> 검색 결과에서 바로 외부 링크로 이동하지 않고, 상세 페이지를 거쳐 더 많은 정보를 제공하는 고도화 기능
+
+### 마일스톤 개요
+
+| 항목 | 내용 |
+|------|------|
+| **목표** | 지원금 상세 정보 페이지 추가로 사용자 경험 개선 |
+| **성공 지표** | 신청 클릭률 증가 (상세 페이지 → 정부24 이동 비율) |
+| **MVP 범위** | 히어로 + 자격요건 + 구비서류 + 신청절차 + 신청버튼 + 관련추천 |
+| **디자인** | `design/benefit_details_&_application/` 목업 기준 |
+
+---
+
+### [x] Phase 6, T6.1: 백엔드 상세 조회 API RED→GREEN
+
+**담당**: backend-specialist
+
+**Git Worktree 설정**:
+```bash
+git worktree add ../alimi-phase6-detail-api -b phase/6-detail-api
+cd ../alimi-phase6-detail-api
+```
+
+**TDD 사이클**:
+
+1. **RED**: 테스트 작성
+   ```bash
+   # 테스트 파일: backend/__tests__/api/benefits-detail.test.ts
+   npm run test -- benefits-detail.test.ts
+   # Expected: FAILED
+   ```
+
+2. **GREEN**: API 구현
+   ```bash
+   # 구현 파일: backend/src/routes/benefits.ts
+   npm run test -- benefits-detail.test.ts
+   # Expected: PASSED
+   ```
+
+**작업 내용**:
+- `GET /api/benefits/:id` - 지원금 상세 조회 API
+- 조회수 카운팅 로직 (viewCount 증가)
+- 관련 서비스 추천 API (같은 카테고리 + 조회수 높은 순)
+
+**API 스펙**:
+```typescript
+// GET /api/benefits/:id
+interface BenefitDetailResponse {
+  benefit: {
+    id: string;
+    name: string;
+    category: string;
+    description: string;
+    supportDetails: string;        // 지원 금액/혜택
+    targetAudience: string;        // 대상자
+    selectionCriteria: string;     // 자격 요건
+    requiredDocuments: string;     // 구비 서류
+    applicationMethod: string;     // 신청 방법
+    applicationDeadline: string;   // 신청 기한
+    link: string;                  // 정부24 링크
+    viewCount: number;             // 조회수
+    // ... 기타 필드
+  };
+  relatedBenefits: Benefit[];      // 관련 서비스 3개
+}
+```
+
+**산출물**:
+- `backend/src/routes/benefits.ts` - 상세 조회 라우트 추가
+- `backend/src/services/benefitService.ts` - 상세 조회 + 관련 추천 로직
+- `backend/__tests__/api/benefits-detail.test.ts` - 테스트
+
+**완료 조건**:
+- [x] `GET /api/benefits/:id` 동작 확인
+- [x] 조회수 증가 확인
+- [x] 관련 서비스 3개 반환 확인
+- [x] 테스트 통과 (5/5)
+
+**완료 시**:
+- [x] 사용자 승인 후 병합 (main)
+- [x] worktree 정리
+
+**완료일**: 2026-01-15
+
+---
+
+### [x] Phase 6, T6.2: 상세 페이지 컴포넌트 구현 RED→GREEN
+
+**담당**: frontend-specialist
+
+**디자인 레퍼런스**:
+| 파일 | 경로 | 설명 |
+|------|------|------|
+| HTML | [code.html](../../../design/benefit_details_&_application/code.html) | 상세 페이지 전체 |
+| PNG | ![상세 페이지 목업](../../../design/benefit_details_&_application/screen.png) | 디자인 참조 |
+
+**Git Worktree 설정**:
+```bash
+git worktree add ../alimi-phase6-detail-components -b phase/6-detail-components
+cd ../alimi-phase6-detail-components
+```
+
+**TDD 사이클**:
+
+1. **RED**: 컴포넌트 테스트 작성
+   ```bash
+   npm run test -- BenefitDetail.test.ts
+   # Expected: FAILED
+   ```
+
+2. **GREEN**: 컴포넌트 구현
+   ```bash
+   npm run test -- BenefitDetail.test.ts
+   # Expected: PASSED
+   ```
+
+**작업 내용**:
+- 상세 페이지 컴포넌트 구현 (목업 기준)
+- 반응형 레이아웃 (8:4 그리드 → 모바일 1컬럼)
+- 모바일 하단 고정 바
+
+**컴포넌트 목록**:
+| 컴포넌트 | 역할 | 위치 |
+|----------|------|------|
+| `BenefitHero.vue` | 히어로 섹션 (서비스명, 금액, 태그, 조회수) | 메인 상단 |
+| `EligibilityCard.vue` | 자격 요건 목록 | 메인 |
+| `DocumentsCard.vue` | 구비 서류 목록 | 메인 |
+| `ProcessSteps.vue` | 신청 절차 (단계별) | 메인 |
+| `ApplySidebar.vue` | 신청 마감일 + 버튼 | 사이드바 |
+| `RelatedBenefits.vue` | 관련 서비스 추천 카드 | 하단 |
+| `MobileBottomBar.vue` | 모바일 하단 고정 바 | 모바일 |
+
+**산출물**:
+- `frontend/app/components/benefit/BenefitHero.vue`
+- `frontend/app/components/benefit/EligibilityCard.vue`
+- `frontend/app/components/benefit/DocumentsCard.vue`
+- `frontend/app/components/benefit/ProcessSteps.vue`
+- `frontend/app/components/benefit/ApplySidebar.vue`
+- `frontend/app/components/benefit/RelatedBenefits.vue`
+- `frontend/app/components/benefit/MobileBottomBar.vue`
+- `frontend/tests/components/benefit/*.test.ts`
+
+**완료 조건**:
+- [x] 모든 컴포넌트 테스트 통과 (47개 테스트)
+- [x] 목업과 동일한 UI 구현 (7개 컴포넌트)
+- [x] 반응형 레이아웃 확인 (lg: 2컬럼, 모바일: 1컬럼)
+- [x] 모바일 하단 바 동작 확인 (lg:hidden)
+
+**완료 시**:
+- [x] 사용자 승인 후 병합 (main)
+- [x] worktree 정리
+
+**완료일**: 2026-01-16
+
+---
+
+### [ ] Phase 6, T6.3: 상세 페이지 통합 RED→GREEN
+
+**담당**: frontend-specialist
+
+**의존성**: T6.1 (백엔드 API), T6.2 (컴포넌트)
+
+**Git Worktree 설정**:
+```bash
+git worktree add ../alimi-phase6-detail-page -b phase/6-detail-page
+cd ../alimi-phase6-detail-page
+```
+
+**TDD 사이클**:
+
+1. **RED**: 페이지 테스트 작성
+   ```bash
+   npm run test -- benefits-id.test.ts
+   # Expected: FAILED
+   ```
+
+2. **GREEN**: 페이지 구현
+   ```bash
+   npm run test -- benefits-id.test.ts
+   # Expected: PASSED
+   ```
+
+**작업 내용**:
+- `/benefits/:id` 동적 라우트 페이지 구현
+- 컴포넌트 통합
+- API 연동 (useBenefitDetail composable)
+- SEO 최적화 (useSeoMeta)
+- 로딩/에러 상태 처리
+
+**산출물**:
+- `frontend/app/pages/benefits/[id].vue` - 상세 페이지
+- `frontend/app/composables/useBenefitDetail.ts` - API 호출 composable
+- `frontend/tests/pages/benefits-id.test.ts` - 테스트
+
+**SEO 설정**:
+```typescript
+// pages/benefits/[id].vue
+useSeoMeta({
+  title: () => `${benefit.value?.name} - 복지알리미`,
+  description: () => benefit.value?.description,
+  ogTitle: () => benefit.value?.name,
+  ogDescription: () => benefit.value?.supportDetails,
+})
+```
+
+**완료 조건**:
+- [ ] `/benefits/:id` 페이지 동작 확인
+- [ ] API 연동 성공
+- [ ] SEO 메타태그 확인
+- [ ] 로딩/에러 상태 처리
+- [ ] 테스트 통과
+
+**완료 시**:
+- [ ] 사용자 승인 후 병합
+- [ ] worktree 정리
+
+---
+
+### [ ] Phase 6, T6.4: BenefitCard 클릭 동작 변경
+
+**담당**: frontend-specialist
+
+**의존성**: T6.3 (상세 페이지)
+
+**Git Worktree 설정**:
+```bash
+git worktree add ../alimi-phase6-card-link -b phase/6-card-link
+cd ../alimi-phase6-card-link
+```
+
+**작업 내용**:
+- `BenefitCard.vue` 클릭 시 외부 링크 → 상세 페이지로 변경
+- `NuxtLink`로 `/benefits/:id`로 이동
+
+**변경 전**:
+```vue
+<!-- 외부 링크로 바로 이동 -->
+<a :href="benefit.link" target="_blank">
+```
+
+**변경 후**:
+```vue
+<!-- 상세 페이지로 이동 -->
+<NuxtLink :to="`/benefits/${benefit.id}`">
+```
+
+**산출물**:
+- `frontend/app/components/BenefitCard.vue` 수정
+- `frontend/tests/components/BenefitCard.test.ts` 테스트 수정
+
+**완료 조건**:
+- [ ] 카드 클릭 시 상세 페이지로 이동
+- [ ] 기존 테스트 수정 및 통과
+- [ ] E2E 시나리오 확인: 검색 → 카드 클릭 → 상세 → 신청하러 가기
+
+**완료 시**:
+- [ ] 사용자 승인 후 병합
+- [ ] worktree 정리
+
+---
+
+### [ ] Phase 6, T6.5: 배포 및 검증
+
+**담당**: all
+
+**의존성**: T6.1 ~ T6.4 모두 완료
+
+**작업 내용**:
+- 프로덕션 배포 (GitHub Actions)
+- 실서버 동작 확인
+- 신청 클릭률 모니터링 설정
+
+**테스트 항목**:
+- [ ] 검색 결과 카드 클릭 → 상세 페이지 이동
+- [ ] 상세 페이지 모든 섹션 표시 확인
+- [ ] "신청하러 가기" 버튼 → 정부24 이동
+- [ ] 관련 서비스 추천 표시 확인
+- [ ] 모바일 하단 바 동작 확인
+- [ ] SEO 메타태그 확인 (Open Graph)
+
+**완료 조건**:
+- [ ] 프로덕션 배포 성공
+- [ ] 모든 테스트 항목 통과
+- [ ] 신청 클릭 이벤트 추적 확인
+
+---
+
+## Phase 6 의존성 그래프
+
+```mermaid
+flowchart TD
+    T6.1[T6.1: 백엔드 API] --> T6.3[T6.3: 페이지 통합]
+    T6.2[T6.2: 컴포넌트 구현] --> T6.3
+    T6.3 --> T6.4[T6.4: 카드 링크 변경]
+    T6.4 --> T6.5[T6.5: 배포 및 검증]
+
+    style T6.1 fill:#90EE90
+    style T6.2 fill:#90EE90
+    style T6.3 fill:#FFB6C1
+    style T6.4 fill:#FFB6C1
+    style T6.5 fill:#ADD8E6
+```
+
+**병렬 실행 가능**: T6.1 (백엔드) + T6.2 (프론트엔드 컴포넌트)

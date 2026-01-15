@@ -1,39 +1,53 @@
 <template>
   <div class="search-form-container">
-    <form class="space-y-6" @submit.prevent="handleSubmit">
+    <form class="space-y-5" @submit.prevent="handleSubmit">
       <!-- 생년월일 입력 -->
       <div>
-        <label for="search-birthdate" class="block text-sm font-medium text-gray-700 mb-2">
+        <label class="flex items-center gap-2 text-sm font-semibold text-text-primary mb-2">
+          <span class="material-symbols-outlined text-primary text-xl">cake</span>
           생년월일
-          <span v-if="calculatedAge !== null" class="ml-2 text-blue-600 font-semibold">
+          <span v-if="calculatedAge !== null" class="text-primary font-bold">
             (만 {{ calculatedAge }}세)
           </span>
         </label>
-        <VueDatePicker
-          v-model="formData.birthDate"
-          name="birthdate"
-          :enable-time-picker="false"
-          :max-date="new Date()"
-          :min-date="new Date(new Date().getFullYear() - 150, 0, 1)"
-          :format="'yyyy년 MM월 dd일'"
-          :preview-format="'yyyy년 MM월 dd일'"
-          placeholder="생년월일을 선택하세요"
-          locale="ko"
-          auto-apply
-          :year-range="[1900, new Date().getFullYear()]"
-          class="birthdate-picker"
-        />
-        <!-- 테스트용 hidden input -->
-        <input
-          type="hidden"
-          name="birthdate"
-          :value="formData.birthDate ? formatDateForTest(formData.birthDate) : ''"
-        />
+        <div class="grid grid-cols-3 gap-2">
+          <select
+            v-model.number="formData.birthYear"
+            required
+            class="h-14 px-3 border border-gray-200 rounded-xl text-base font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+          >
+            <option value="" disabled>년도</option>
+            <option v-for="year in yearOptions" :key="year" :value="year">
+              {{ year }}년
+            </option>
+          </select>
+          <select
+            v-model.number="formData.birthMonth"
+            required
+            class="h-14 px-3 border border-gray-200 rounded-xl text-base font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+          >
+            <option value="" disabled>월</option>
+            <option v-for="month in 12" :key="month" :value="month">
+              {{ month }}월
+            </option>
+          </select>
+          <select
+            v-model.number="formData.birthDay"
+            required
+            class="h-14 px-3 border border-gray-200 rounded-xl text-base font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+          >
+            <option value="" disabled>일</option>
+            <option v-for="day in daysInMonth" :key="day" :value="day">
+              {{ day }}일
+            </option>
+          </select>
+        </div>
       </div>
 
       <!-- 소득 선택 -->
       <div>
-        <label for="search-income" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="search-income" class="flex items-center gap-2 text-sm font-semibold text-text-primary mb-2">
+          <span class="material-symbols-outlined text-primary text-xl">payments</span>
           소득
         </label>
         <select
@@ -41,7 +55,7 @@
           v-model.number="formData.income"
           name="income"
           required
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          class="w-full h-14 px-4 border border-gray-200 rounded-xl text-base font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
         >
           <option value="" disabled>소득을 선택하세요</option>
           <option :value="0">무소득</option>
@@ -54,7 +68,8 @@
 
       <!-- 지역 선택 -->
       <div>
-        <label for="search-region" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="search-region" class="flex items-center gap-2 text-sm font-semibold text-text-primary mb-2">
+          <span class="material-symbols-outlined text-primary text-xl">location_on</span>
           지역
         </label>
         <select
@@ -62,7 +77,7 @@
           v-model="formData.region"
           name="region"
           required
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          class="w-full h-14 px-4 border border-gray-200 rounded-xl text-base font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
         >
           <option value="" disabled>지역을 선택하세요</option>
           <option value="서울">서울</option>
@@ -88,14 +103,15 @@
 
       <!-- 카테고리 필터 -->
       <div>
-        <label for="search-category" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="search-category" class="flex items-center gap-2 text-sm font-semibold text-text-primary mb-2">
+          <span class="material-symbols-outlined text-primary text-xl">category</span>
           카테고리 (선택)
         </label>
         <select
           id="search-category"
           v-model="formData.category"
           name="category"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          class="w-full h-14 px-4 border border-gray-200 rounded-xl text-base font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
         >
           <option v-for="cat in categories" :key="cat.value" :value="cat.value">
             {{ cat.label }}
@@ -104,48 +120,50 @@
       </div>
 
       <!-- 대상 조건 필터 -->
-      <div class="border-t border-gray-200 pt-6">
-        <label class="block text-sm font-medium text-gray-700 mb-3">
+      <div class="border-t border-gray-100 pt-5">
+        <label class="flex items-center gap-2 text-sm font-semibold text-text-primary mb-3">
+          <span class="material-symbols-outlined text-primary text-xl">tune</span>
           대상 조건 (선택)
         </label>
-        <div class="space-y-3">
-          <label class="flex items-center cursor-pointer">
+        <div class="grid grid-cols-2 gap-3">
+          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.lifePregnancy }">
             <input
               v-model="formData.lifePregnancy"
               type="checkbox"
-              class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+              class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
             />
-            <span class="ml-3 text-sm text-gray-700">임신/출산</span>
+            <span class="text-sm text-text-primary">임신/출산</span>
           </label>
-          <label class="flex items-center cursor-pointer">
+          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.targetDisabled }">
             <input
               v-model="formData.targetDisabled"
               type="checkbox"
-              class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+              class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
             />
-            <span class="ml-3 text-sm text-gray-700">장애인</span>
+            <span class="text-sm text-text-primary">장애인</span>
           </label>
-          <label class="flex items-center cursor-pointer">
+          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.familySingleParent }">
             <input
               v-model="formData.familySingleParent"
               type="checkbox"
-              class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+              class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
             />
-            <span class="ml-3 text-sm text-gray-700">한부모/조손 가정</span>
+            <span class="text-sm text-text-primary">한부모/조손</span>
           </label>
-          <label class="flex items-center cursor-pointer">
+          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.familyMultiChild }">
             <input
               v-model="formData.familyMultiChild"
               type="checkbox"
-              class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+              class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
             />
-            <span class="ml-3 text-sm text-gray-700">다자녀 가구</span>
+            <span class="text-sm text-text-primary">다자녀</span>
           </label>
         </div>
       </div>
 
       <!-- 에러 메시지 -->
-      <div v-if="props.error" class="error-message text-red-600 text-sm">
+      <div v-if="props.error" class="flex items-center gap-2 p-3 bg-red-50 text-red-600 text-sm rounded-xl">
+        <span class="material-symbols-outlined text-lg">error</span>
         {{ props.error }}
       </div>
 
@@ -153,11 +171,16 @@
       <button
         type="submit"
         :disabled="props.loading"
-        class="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        :class="{ loading: props.loading }"
+        class="w-full h-14 bg-primary hover:bg-primary-hover text-white text-lg font-bold rounded-xl shadow-lg shadow-primary/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99] flex items-center justify-center gap-2"
       >
-        <span v-if="props.loading">검색 중...</span>
-        <span v-else>검색하기</span>
+        <span v-if="props.loading" class="flex items-center gap-2">
+          <span class="animate-spin material-symbols-outlined text-xl">progress_activity</span>
+          검색 중...
+        </span>
+        <span v-else class="flex items-center gap-2">
+          지원금 찾기
+          <span class="material-symbols-outlined text-xl">arrow_forward</span>
+        </span>
       </button>
     </form>
   </div>
@@ -165,8 +188,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import VueDatePicker from '@vuepic/vue-datepicker'
-import '@vuepic/vue-datepicker/dist/main.css'
 
 const emit = defineEmits<{
   'submit': [params: {
@@ -186,18 +207,23 @@ const props = defineProps<{
   error?: string | null
 }>()
 
-const formData = ref<{
-  birthDate: Date | null
-  income: string | number
-  region: string
-  category: string
-  lifePregnancy: boolean
-  targetDisabled: boolean
-  familySingleParent: boolean
-  familyMultiChild: boolean
-}>({
-  birthDate: null,
-  income: '',
+// 현재 연도
+const currentYear = new Date().getFullYear()
+
+// 연도 옵션 (현재 연도부터 100년 전까지)
+const yearOptions = computed(() => {
+  const years = []
+  for (let y = currentYear; y >= currentYear - 100; y--) {
+    years.push(y)
+  }
+  return years
+})
+
+const formData = ref({
+  birthYear: '' as string | number,
+  birthMonth: '' as string | number,
+  birthDay: '' as string | number,
+  income: '' as string | number,
   region: '',
   category: '',
   lifePregnancy: false,
@@ -206,27 +232,27 @@ const formData = ref<{
   familyMultiChild: false,
 })
 
-// 테스트용 날짜 포맷 함수
-const formatDateForTest = (date: Date | null): string => {
-  if (!date) return ''
-  const d = new Date(date)
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
+// 해당 월의 일수 계산
+const daysInMonth = computed(() => {
+  if (!formData.value.birthYear || !formData.value.birthMonth) return 31
+  const year = Number(formData.value.birthYear)
+  const month = Number(formData.value.birthMonth)
+  return new Date(year, month, 0).getDate()
+})
 
-// 만 나이 계산
 const calculatedAge = computed(() => {
-  if (!formData.value.birthDate) return null
+  if (!formData.value.birthYear || !formData.value.birthMonth || !formData.value.birthDay) return null
 
-  const birthDate = new Date(formData.value.birthDate)
+  const birthDate = new Date(
+    Number(formData.value.birthYear),
+    Number(formData.value.birthMonth) - 1,
+    Number(formData.value.birthDay)
+  )
   const today = new Date()
 
   let age = today.getFullYear() - birthDate.getFullYear()
   const monthDiff = today.getMonth() - birthDate.getMonth()
 
-  // 생일이 아직 안 지났으면 1살 빼기
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
     age--
   }
@@ -249,8 +275,14 @@ const categories = [
 ]
 
 const handleSubmit = () => {
-  // 폼 검증
-  if (calculatedAge.value === null || formData.value.income === '' || !formData.value.region) {
+  if (
+    calculatedAge.value === null ||
+    !formData.value.birthYear ||
+    !formData.value.birthMonth ||
+    !formData.value.birthDay ||
+    formData.value.income === '' ||
+    !formData.value.region
+  ) {
     return
   }
 
@@ -269,12 +301,10 @@ const handleSubmit = () => {
     region: formData.value.region,
   }
 
-  // 카테고리 필터 (값이 있을 때만)
   if (formData.value.category) {
     searchParams.category = formData.value.category
   }
 
-  // 대상조건 필터 (체크된 것만)
   if (formData.value.lifePregnancy) {
     searchParams.lifePregnancy = true
   }
@@ -288,56 +318,14 @@ const handleSubmit = () => {
     searchParams.familyMultiChild = true
   }
 
-  console.log('검색 파라미터:', searchParams)
-
-  // 검색 파라미터를 부모 컴포넌트에 emit
   emit('submit', searchParams)
 }
 </script>
 
 <style scoped>
-.loading {
-  position: relative;
-}
-
-.loading::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  right: 1rem;
-  transform: translateY(-50%);
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid #ffffff;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: translateY(-50%) rotate(360deg);
-  }
-}
-
-/* VueDatePicker 커스텀 스타일 */
-.birthdate-picker :deep(.dp__input) {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-}
-
-.birthdate-picker :deep(.dp__input:focus) {
-  outline: none;
-  ring: 2px;
-  ring-color: #3b82f6;
-  border-color: #3b82f6;
-}
-
-.birthdate-picker :deep(.dp__menu) {
-  border-radius: 0.75rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+/* 체크박스 커스텀 스타일 */
+input[type="checkbox"]:checked {
+  background-color: #3780f6;
+  border-color: #3780f6;
 }
 </style>

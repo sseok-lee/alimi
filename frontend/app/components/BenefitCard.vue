@@ -1,134 +1,149 @@
 <template>
-  <div class="benefit-card" @click="handleClick">
-    <!-- 카테고리 배지 -->
-    <div class="category-badge">{{ benefit.category }}</div>
+  <div
+    class="benefit-card group bg-white border border-gray-200 rounded-2xl p-5 h-full flex flex-col transition-all duration-200 hover:shadow-card-hover hover:-translate-y-1 cursor-pointer"
+    @click="handleCardClick"
+  >
+    <!-- 상단: 카테고리 배지 + 북마크 버튼 -->
+    <div class="flex items-start justify-between mb-3">
+      <!-- 카테고리 배지 -->
+      <span
+        class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full"
+        :class="getCategoryBadgeClass(benefit.category)"
+      >
+        {{ benefit.category }}
+      </span>
 
-    <!-- 지원금 이름 (H3) -->
-    <h3 class="benefit-title">{{ benefit.name }}</h3>
+      <!-- 북마크 버튼 -->
+      <button
+        type="button"
+        class="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+        @click.stop="toggleBookmark"
+        :aria-label="isBookmarked ? '북마크 해제' : '북마크 추가'"
+      >
+        <span
+          class="material-symbols-outlined text-xl"
+          :class="isBookmarked ? 'text-primary filled-icon' : 'text-gray-400'"
+        >
+          bookmark
+        </span>
+      </button>
+    </div>
 
-    <!-- 예상 금액 (있을 경우) -->
-    <p v-if="benefit.estimated_amount" class="estimated-amount">
+    <!-- 지원금 이름 -->
+    <h3 class="font-display text-lg font-bold text-text-primary mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+      {{ benefit.name }}
+    </h3>
+
+    <!-- 예상 금액 -->
+    <p v-if="benefit.estimated_amount" class="text-2xl font-black text-primary mb-3">
       {{ benefit.estimated_amount }}
     </p>
 
-    <!-- 설명 (있을 경우) -->
-    <p v-if="benefit.description" class="description">
-      {{ benefit.description }}
-    </p>
+    <!-- 구분선 -->
+    <div class="border-t border-dashed border-gray-200 my-3"></div>
 
-    <!-- 자격 조건 -->
-    <div class="eligibility-list">
-      <span v-for="item in benefit.eligibility" :key="item" class="eligibility-item">
+    <!-- 설명 (체크 아이콘 포함) -->
+    <div v-if="benefit.description" class="flex items-start gap-2 mb-3">
+      <span class="material-symbols-outlined text-primary text-lg flex-shrink-0 mt-0.5">check_circle</span>
+      <p class="text-sm text-text-secondary line-clamp-2">
+        {{ benefit.description }}
+      </p>
+    </div>
+
+    <!-- 자격 조건 태그 -->
+    <div class="flex flex-wrap gap-2 mb-4 flex-grow">
+      <span
+        v-for="item in displayEligibility"
+        :key="item"
+        class="inline-flex items-center px-2.5 py-1 text-xs font-medium text-text-secondary bg-gray-50 rounded-lg"
+      >
         {{ item }}
+      </span>
+      <span
+        v-if="benefit.eligibility && benefit.eligibility.length > 3"
+        class="inline-flex items-center px-2.5 py-1 text-xs font-medium text-primary bg-primary/5 rounded-lg"
+      >
+        +{{ benefit.eligibility.length - 3 }}개
       </span>
     </div>
 
-    <!-- 상세보기 버튼 -->
-    <button type="button" class="link-button">
-      상세보기 →
-    </button>
+    <!-- 하단: 상세보기 버튼 -->
+    <div class="mt-auto pt-3 border-t border-gray-100">
+      <button
+        type="button"
+        class="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-primary hover:bg-primary/5 rounded-xl transition-colors"
+        @click.stop="handleDetailClick"
+      >
+        상세보기
+        <span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import type { BenefitResponse } from '~/composables/useBenefitSearch'
 
 const props = defineProps<{
   benefit: BenefitResponse
 }>()
 
-const handleClick = () => {
-  navigateTo(`/benefits/${props.benefit.id}`)
+const emit = defineEmits<{
+  'click': [benefit: BenefitResponse]
+  'bookmark': [benefit: BenefitResponse, isBookmarked: boolean]
+}>()
+
+const isBookmarked = ref(false)
+
+// 자격 조건 표시 (최대 3개)
+const displayEligibility = computed(() => {
+  if (!props.benefit.eligibility) return []
+  return props.benefit.eligibility.slice(0, 3)
+})
+
+// 카테고리별 배지 색상 클래스
+const getCategoryBadgeClass = (category: string): string => {
+  const categoryMap: Record<string, string> = {
+    '생활안정': 'bg-badge-finance-bg text-badge-finance-text border border-badge-finance-border',
+    '보육·교육': 'bg-badge-education-bg text-badge-education-text border border-badge-education-border',
+    '보건·의료': 'bg-badge-health-bg text-badge-health-text border border-badge-health-border',
+    '임신·출산': 'bg-badge-culture-bg text-badge-culture-text border border-badge-culture-border',
+    '고용·창업': 'bg-badge-employment-bg text-badge-employment-text border border-badge-employment-border',
+    '주거·자립': 'bg-badge-housing-bg text-badge-housing-text border border-badge-housing-border',
+    '보호·돌봄': 'bg-badge-transport-bg text-badge-transport-text border border-badge-transport-border',
+    '문화·환경': 'bg-badge-culture-bg text-badge-culture-text border border-badge-culture-border',
+    '행정·안전': 'bg-badge-finance-bg text-badge-finance-text border border-badge-finance-border',
+    '농림축산어업': 'bg-badge-transport-bg text-badge-transport-text border border-badge-transport-border',
+  }
+  return categoryMap[category] || 'bg-gray-100 text-gray-600 border border-gray-200'
+}
+
+const handleCardClick = () => {
+  emit('click', props.benefit)
+}
+
+const handleDetailClick = () => {
+  emit('click', props.benefit)
+}
+
+const toggleBookmark = () => {
+  isBookmarked.value = !isBookmarked.value
+  emit('bookmark', props.benefit, isBookmarked.value)
 }
 </script>
 
 <style scoped>
-.benefit-card {
-  /* 디자인 시스템 준수 */
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 16px;
-  transition: box-shadow 150ms ease-out;
-  cursor: pointer;
+/* line-clamp 유틸리티 */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.benefit-card:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* 카테고리 배지 */
-.category-badge {
-  display: inline-block;
-  padding: 4px 8px;
-  background-color: #dbeafe; /* Primary Light */
-  color: #3b82f6; /* Primary */
-  font-size: 14px;
-  border-radius: 4px;
-  margin-bottom: 8px;
-}
-
-/* 지원금 제목 */
-.benefit-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 8px;
-}
-
-/* 예상 금액 */
-.estimated-amount {
-  font-size: 16px;
-  font-weight: 500;
-  color: #3b82f6;
-  margin-bottom: 8px;
-}
-
-/* 설명 */
-.description {
-  font-size: 14px;
-  color: #6b7280;
-  margin-bottom: 12px;
-  line-height: 1.5;
-}
-
-/* 자격 조건 리스트 */
-.eligibility-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.eligibility-item {
-  font-size: 14px;
-  color: #6b7280;
-  background-color: #f9fafb;
-  padding: 4px 8px;
-  border-radius: 4px;
-}
-
-/* 링크 버튼 */
-.link-button {
-  display: inline-block;
-  color: #3b82f6;
-  font-size: 16px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: text-decoration 150ms ease-out;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
-.link-button:hover {
-  text-decoration: underline;
-}
-
-.link-button:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
+/* Material Symbols filled 스타일 */
+.filled-icon {
+  font-variation-settings: 'FILL' 1;
 }
 </style>
