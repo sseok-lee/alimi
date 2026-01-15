@@ -5,20 +5,30 @@
       <div>
         <label for="search-birthdate" class="block text-sm font-medium text-gray-700 mb-2">
           생년월일
+          <span v-if="calculatedAge !== null" class="ml-2 text-blue-600 font-semibold">
+            (만 {{ calculatedAge }}세)
+          </span>
         </label>
-        <input
-          id="search-birthdate"
+        <VueDatePicker
           v-model="formData.birthDate"
-          type="date"
           name="birthdate"
-          required
-          :max="maxDate"
-          :min="minDate"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          :enable-time-picker="false"
+          :max-date="new Date()"
+          :min-date="new Date(new Date().getFullYear() - 150, 0, 1)"
+          :format="'yyyy년 MM월 dd일'"
+          :preview-format="'yyyy년 MM월 dd일'"
+          placeholder="생년월일을 선택하세요"
+          locale="ko"
+          auto-apply
+          :year-range="[1900, new Date().getFullYear()]"
+          class="birthdate-picker"
         />
-        <p v-if="calculatedAge !== null" class="mt-2 text-sm text-gray-600">
-          만 {{ calculatedAge }}세
-        </p>
+        <!-- 테스트용 hidden input -->
+        <input
+          type="hidden"
+          name="birthdate"
+          :value="formData.birthDate ? formatDateForTest(formData.birthDate) : ''"
+        />
       </div>
 
       <!-- 소득 선택 -->
@@ -155,6 +165,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import VueDatePicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 
 const emit = defineEmits<{
   'submit': [params: {
@@ -175,7 +187,7 @@ const props = defineProps<{
 }>()
 
 const formData = ref<{
-  birthDate: string
+  birthDate: Date | null
   income: string | number
   region: string
   category: string
@@ -184,7 +196,7 @@ const formData = ref<{
   familySingleParent: boolean
   familyMultiChild: boolean
 }>({
-  birthDate: '',
+  birthDate: null,
   income: '',
   region: '',
   category: '',
@@ -194,15 +206,15 @@ const formData = ref<{
   familyMultiChild: false,
 })
 
-// 날짜 범위 설정
-const today = new Date()
-const maxDate = computed(() => {
-  return today.toISOString().split('T')[0]
-})
-const minDate = computed(() => {
-  const min = new Date(today.getFullYear() - 150, today.getMonth(), today.getDate())
-  return min.toISOString().split('T')[0]
-})
+// 테스트용 날짜 포맷 함수
+const formatDateForTest = (date: Date | null): string => {
+  if (!date) return ''
+  const d = new Date(date)
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 // 만 나이 계산
 const calculatedAge = computed(() => {
@@ -306,5 +318,26 @@ const handleSubmit = () => {
   to {
     transform: translateY(-50%) rotate(360deg);
   }
+}
+
+/* VueDatePicker 커스텀 스타일 */
+.birthdate-picker :deep(.dp__input) {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.birthdate-picker :deep(.dp__input:focus) {
+  outline: none;
+  ring: 2px;
+  ring-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.birthdate-picker :deep(.dp__menu) {
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 </style>

@@ -16,6 +16,7 @@
     "format": "prettier --write \"**/*.{vue,ts,js,css}\""
   },
   "dependencies": {
+    "@vuepic/vue-datepicker": "^12.1.0",
     "axios": "^1.13.2",
     "nuxt": "^4.2.2",
     "vue": "^3.5.26",
