@@ -7,7 +7,7 @@
 
 ## 프로젝트 개요
 
-**목표**: 20~30대 청년층이 공공데이터 기반으로 맞춤형 지원금을 쉽게 찾을 수 있는 서비스 제공
+**목표**: 국민 누구나 공공데이터 기반으로 맞춤형 지원금을 쉽게 찾을 수 있는 서비스 제공
 
 **핵심 기능**: 나이/소득/지역 3가지 입력으로 맞춤형 지원금 매칭
 
@@ -27,11 +27,11 @@
 | 마일스톤 | 설명 | Phase | 상태 |
 |----------|------|-------|------|
 | M0 | 프로젝트 셋업 | Phase 0 | ✅ |
-| M0.5 | 계약 & 테스트 설계 (Contract-First) | Phase 0 | 🔄 |
-| M1 | FEAT-0: 랜딩 페이지 | Phase 1 | ❌ |
-| M2 | FEAT-1: 지원금 검색 (백엔드) | Phase 2 | ❌ |
-| M3 | FEAT-1: 지원금 검색 (프론트엔드) | Phase 3 | ❌ |
-| M4 | 통합 & E2E 테스트 | Phase 4 | ❌ |
+| M0.5 | 계약 & 테스트 설계 (Contract-First) | Phase 0 | ✅ |
+| M1 | FEAT-0: 랜딩 페이지 | Phase 1 | ✅ |
+| M2 | FEAT-1: 지원금 검색 (백엔드) | Phase 2 | ✅ |
+| M3 | FEAT-1: 지원금 검색 (프론트엔드) | Phase 3 | ✅ |
+| M4 | 보조금24 데이터 동기화 & 통합 테스트 | Phase 4 | 🔄 진행 중 |
 | M5 | 배포 & 모니터링 | Phase 5 | ❌ |
 
 ---
@@ -501,15 +501,32 @@ cd ../welfare-notifier-phase2-api-client
    ```
 
 **작업 내용**:
-- 보조금24 API 클라이언트
+- **보조금24 API 클라이언트** (행정안전부 공공데이터)
+  - Base URL: `https://api.odcloud.kr/api`
+  - 인증: API Key (환경변수 `OPENAPI_SERVICE_KEY`)
+  - 엔드포인트:
+    - `/gov24/v3/serviceList` - 서비스 목록 조회
+    - `/gov24/v3/serviceDetail` - 서비스 상세
+    - `/gov24/v3/supportConditions` - 지원조건
 - API 응답 파싱 및 정규화
-- 에러 핸들링 (타임아웃, 재시도)
+- 에러 핸들링 (타임아웃 10초, 재시도 3회, Rate Limiting 1초)
+- 페이징 처리 (page, perPage)
 
 **산출물**:
-- `backend/src/services/publicApiClient.ts`
-- `backend/__tests__/services/publicApiClient.test.ts`
+- `backend/src/services/publicApiClient.ts` - API 클라이언트 (3개 함수)
+  - `fetchServiceList()` - 서비스 목록 조회
+  - `fetchSupportConditions()` - 지원조건 조회
+  - `fetchServiceDetail()` - 서비스 상세 조회
+- `backend/__tests__/services/publicApiClient.test.ts` - 단위 테스트
 
-**Mock 설정** (실제 API 호출 대신):
+**환경변수 설정**:
+```bash
+# backend/.env
+OPENAPI_SERVICE_KEY=43006692951fc050808d9f8f3fe5c5d76426bdaf2bcf308933f1aeeff539011b
+OPENAPI_BASE_URL=https://api.odcloud.kr/api
+```
+
+**Mock 설정** (테스트용):
 ```typescript
 // backend/__tests__/services/publicApiClient.test.ts
 import { vi } from 'vitest';
@@ -518,17 +535,24 @@ import axios from 'axios';
 vi.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-mockedAxios.get.mockResolvedValue({
-  data: {
-    data: [{ name: '청년도약계좌', ... }]
-  }
-});
+mockedAxios.create.mockReturnValue({
+  get: vi.fn().mockResolvedValue({
+    data: {
+      page: 1,
+      totalCount: 100,
+      data: [{ 서비스ID: 'SVC001', 서비스명: '청년도약계좌', ... }]
+    }
+  })
+} as any);
 ```
+
+**참고 문서**: `docs/planning/08-api-integration.md`
 
 **인수 조건**:
 - [x] 테스트 통과 (Mock 사용)
-- [x] 실제 API 연동 테스트 (수동)
-- [x] 에러 핸들링 확인
+- [x] 실제 API 연동 테스트 (수동) - 보조금24 API 키 사용
+- [x] 에러 핸들링 확인 (401, 429, timeout)
+- [x] 페이징 처리 확인
 
 **완료 시**:
 - [x] 사용자 승인 후 병합
@@ -745,7 +769,7 @@ cd ../welfare-notifier-phase3-search-page
 
 ## M4: 통합 & E2E 테스트 (Phase 4)
 
-### [ ] Phase 4, T4.1: Mock 제거 & 실제 API 연동
+### [ ] Phase 4, T4.1: 보조금24 데이터 동기화 & 통합
 
 **담당**: backend-specialist
 
@@ -756,19 +780,78 @@ cd ../welfare-notifier-phase4-integration
 ```
 
 **작업 내용**:
-- 프론트엔드에서 MSW Mock 제거
-- 실제 백엔드 API 연결 (NUXT_PUBLIC_API_BASE_URL)
-- CORS 설정 확인
-- 통합 테스트 실행
+1. **보조금24 데이터 동기화 스크립트 구현**
+   - `backend/src/services/syncBenefits.ts` 작성
+   - API에서 전체 서비스 목록 가져오기 (페이징)
+   - 각 서비스별 지원조건 조회
+   - Prisma Upsert로 DB 저장
+   - Rate Limiting (1초 대기)
+
+2. **npm 스크립트 추가**
+   - `package.json`에 `sync:benefits` 추가
+   - 수동 실행: `npm run sync:benefits`
+
+3. **첫 데이터 동기화 실행**
+   - 실제 API로 데이터 가져오기
+   - DB 저장 확인 (`npm run db:studio`)
+
+4. **검색 API 실제 데이터 연동**
+   - `benefitService.searchBenefits()` 수정
+   - Mock 데이터 대신 DB 조회
+
+5. **프론트엔드 MSW Mock 제거**
+   - MSW 비활성화 또는 제거
+   - 실제 백엔드 API 호출
+   - CORS 설정 확인
 
 **산출물**:
-- `frontend/nuxt.config.ts` (API base URL 설정)
-- `backend/src/index.ts` (CORS 설정)
+- `backend/src/services/syncBenefits.ts` - 동기화 스크립트
+- `backend/package.json` - `sync:benefits` 스크립트
+- `backend/src/services/benefitService.ts` - DB 조회로 변경
+- `frontend/nuxt.config.ts` - API base URL 설정
+- `backend/src/app.ts` - CORS 설정 (이미 완료)
+
+**환경변수**:
+```bash
+# backend/.env
+OPENAPI_SERVICE_KEY=43006692951fc050808d9f8f3fe5c5d76426bdaf2bcf308933f1aeeff539011b
+OPENAPI_BASE_URL=https://api.odcloud.kr/api
+DATABASE_URL=mysql://alimi:password@localhost:3306/alimi
+```
+
+**실행 순서**:
+```bash
+# 1. 데이터 동기화
+cd backend
+npm run sync:benefits
+
+# 2. DB 확인
+npm run db:studio
+
+# 3. 백엔드 서버 실행
+npm run dev
+
+# 4. 프론트엔드 실행
+cd ../frontend
+npm run dev
+
+# 5. 검색 테스트
+# 브라우저에서 localhost:3000 접속
+# 나이/소득/지역 입력 후 검색
+```
+
+**참고 문서**:
+- `docs/planning/08-api-integration.md` (API 통합 가이드)
+- `docs/planning/04-database-design.md` (데이터 동기화 전략)
 
 **완료 조건**:
-- [ ] Mock 제거 확인
-- [ ] 실제 API 호출 성공
+- [ ] `syncBenefits.ts` 구현 완료
+- [ ] 첫 동기화 성공 (DB에 데이터 확인)
+- [ ] 검색 API가 실제 DB 데이터 반환
+- [ ] 프론트엔드 MSW Mock 제거
+- [ ] 실제 API 호출 성공 (FE → BE → DB)
 - [ ] CORS 에러 없음
+- [ ] 통합 테스트 통과
 
 **완료 시**:
 - [ ] 사용자 승인 후 병합

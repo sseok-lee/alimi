@@ -8,8 +8,8 @@
 
 | # | 항목 | 내용 |
 |---|------|------|
-| 1 | 목표 | 20~30대 청년층이 공공데이터 기반으로 맞춤형 지원금을 쉽게 찾을 수 있는 서비스 제공 |
-| 2 | 페르소나 | 20~30대 청년층 전체 (취업준비생, 직장인, 프리랜서, 신혼부부 등) |
+| 1 | 목표 | 국민 누구나 공공데이터 기반으로 맞춤형 지원금을 쉽게 찾을 수 있는 서비스 제공 |
+| 2 | 페르소나 | 모든 연령층 (학생, 직장인, 프리랜서, 주부, 은퇴자 등) |
 | 3 | 핵심 기능 | FEAT-1: 나이/소득/지역 입력 맞춤형 지원금 매칭 |
 | 4 | 성공 지표 (노스스타) | 월 애드센스 수익 목표 달성 |
 | 5 | 입력 지표 | 일 방문자 수(DAU), 검색 전환율 |
@@ -204,12 +204,12 @@ welfare-notifier/
 ```bash
 # .env.example (커밋 O)
 DATABASE_URL=mysql://user:password@localhost:3306/welfare
-PUBLIC_DATA_API_KEY=your-api-key-here
+OPENAPI_SERVICE_KEY=your-api-key-here
 NUXT_PUBLIC_API_BASE_URL=http://localhost:8000
 
 # .env (커밋 X, .gitignore에 추가)
 DATABASE_URL=mysql://real:real@prod:3306/welfare
-PUBLIC_DATA_API_KEY=abc123xyz789
+OPENAPI_SERVICE_KEY=abc123xyz789
 NUXT_PUBLIC_API_BASE_URL=https://api.welfare-notifier.com
 ```
 
