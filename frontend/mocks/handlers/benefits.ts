@@ -12,14 +12,20 @@ import type {
 import { mockBenefits } from '../data/benefits';
 
 export const benefitHandlers = [
-  // POST /api/benefits/search (백엔드 API 스펙에 맞춤)
+  // POST /api/benefits/search
   http.post('/api/benefits/search', async ({ request }) => {
-    // POST body에서 검색 파라미터 파싱
-    const body = await request.json() as Record<string, unknown>;
+    const body = await request.json() as BenefitSearchRequest;
+
+    // 검색 파라미터
     const searchParams: BenefitSearchRequest = {
-      age: typeof body.age === 'number' ? body.age : undefined,
-      income: typeof body.income === 'number' ? body.income : undefined,
-      region: typeof body.region === 'string' ? body.region : undefined,
+      age: body.age,
+      income: body.income,
+      region: body.region,
+      category: body.category,
+      lifePregnancy: body.lifePregnancy,
+      targetDisabled: body.targetDisabled,
+      familySingleParent: body.familySingleParent,
+      familyMultiChild: body.familyMultiChild,
     };
 
     // Mock 데이터 필터링
@@ -57,6 +63,41 @@ export const benefitHandlers = [
         if (!benefit.region) return true; // 지역 정보 없는 경우 포함
         if (benefit.region === '전국') return true; // 전국 지원금은 모든 지역 포함
         return benefit.region === searchParams.region;
+      });
+    }
+
+    // 카테고리 필터링
+    if (searchParams.category && searchParams.category !== '') {
+      filteredBenefits = filteredBenefits.filter((benefit) => {
+        return benefit.category === searchParams.category;
+      });
+    }
+
+    // 생애주기 필터 (임신/출산)
+    if (searchParams.lifePregnancy === true) {
+      filteredBenefits = filteredBenefits.filter((benefit) => {
+        return benefit.lifePregnancy === true;
+      });
+    }
+
+    // 장애인 필터
+    if (searchParams.targetDisabled === true) {
+      filteredBenefits = filteredBenefits.filter((benefit) => {
+        return benefit.targetDisabled === true;
+      });
+    }
+
+    // 한부모/조손 필터
+    if (searchParams.familySingleParent === true) {
+      filteredBenefits = filteredBenefits.filter((benefit) => {
+        return benefit.familySingleParent === true;
+      });
+    }
+
+    // 다자녀 필터
+    if (searchParams.familyMultiChild === true) {
+      filteredBenefits = filteredBenefits.filter((benefit) => {
+        return benefit.familyMultiChild === true;
       });
     }
 

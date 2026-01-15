@@ -74,6 +74,64 @@
         </select>
       </div>
 
+      <!-- 카테고리 필터 -->
+      <div>
+        <label for="search-category" class="block text-sm font-medium text-gray-700 mb-2">
+          카테고리 (선택)
+        </label>
+        <select
+          id="search-category"
+          v-model="formData.category"
+          name="category"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+        >
+          <option v-for="cat in categories" :key="cat.value" :value="cat.value">
+            {{ cat.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- 대상 조건 필터 -->
+      <div class="border-t border-gray-200 pt-6">
+        <label class="block text-sm font-medium text-gray-700 mb-3">
+          대상 조건 (선택)
+        </label>
+        <div class="space-y-3">
+          <label class="flex items-center cursor-pointer">
+            <input
+              v-model="formData.lifePregnancy"
+              type="checkbox"
+              class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+            />
+            <span class="ml-3 text-sm text-gray-700">임신/출산</span>
+          </label>
+          <label class="flex items-center cursor-pointer">
+            <input
+              v-model="formData.targetDisabled"
+              type="checkbox"
+              class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+            />
+            <span class="ml-3 text-sm text-gray-700">장애인</span>
+          </label>
+          <label class="flex items-center cursor-pointer">
+            <input
+              v-model="formData.familySingleParent"
+              type="checkbox"
+              class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+            />
+            <span class="ml-3 text-sm text-gray-700">한부모/조손 가정</span>
+          </label>
+          <label class="flex items-center cursor-pointer">
+            <input
+              v-model="formData.familyMultiChild"
+              type="checkbox"
+              class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+            />
+            <span class="ml-3 text-sm text-gray-700">다자녀 가구</span>
+          </label>
+        </div>
+      </div>
+
       <!-- 에러 메시지 -->
       <div v-if="error" class="error-message text-red-600 text-sm">
         {{ error }}
@@ -107,11 +165,31 @@ const formData = ref<{
   age: number | null
   income: string | number
   region: string
+  category: string
+  lifePregnancy: boolean
+  targetDisabled: boolean
+  familySingleParent: boolean
+  familyMultiChild: boolean
 }>({
   age: null,
   income: '',
   region: '',
+  category: '',
+  lifePregnancy: false,
+  targetDisabled: false,
+  familySingleParent: false,
+  familyMultiChild: false,
 })
+
+const categories = [
+  { value: '', label: '전체' },
+  { value: '복지서비스', label: '복지서비스' },
+  { value: '일자리', label: '일자리' },
+  { value: '금융/저축', label: '금융/저축' },
+  { value: '주거', label: '주거' },
+  { value: '취업/고용', label: '취업/고용' },
+  { value: '활동지원', label: '활동지원' },
+]
 
 const handleSubmit = async () => {
   // 폼 검증
@@ -124,6 +202,11 @@ const handleSubmit = async () => {
       age: formData.value.age,
       income: Number(formData.value.income),
       region: formData.value.region,
+      category: formData.value.category || undefined,
+      lifePregnancy: formData.value.lifePregnancy || undefined,
+      targetDisabled: formData.value.targetDisabled || undefined,
+      familySingleParent: formData.value.familySingleParent || undefined,
+      familyMultiChild: formData.value.familyMultiChild || undefined,
     })
 
     // 검색 결과를 부모 컴포넌트에 emit

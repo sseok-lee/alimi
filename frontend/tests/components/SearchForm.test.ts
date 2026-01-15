@@ -6,36 +6,38 @@ import SearchForm from '../../app/components/SearchForm.vue'
 
 // Mock API 서버 설정
 const handlers = [
-  http.get('http://localhost:8000/api/v1/benefits/search', ({ request }) => {
-    const url = new URL(request.url)
-    const age = url.searchParams.get('age')
-    const income = url.searchParams.get('income')
-    const region = url.searchParams.get('region')
+  http.post('http://localhost:8000/api/benefits/search', async ({ request }) => {
+    const body = await request.json() as any
+    const { age, income, region } = body
 
-    if (!age || !income || !region) {
+    if (!age || income === undefined || !region) {
       return HttpResponse.json({ error: 'Missing parameters' }, { status: 422 })
     }
 
-    return HttpResponse.json([
-      {
-        id: 'benefit-001',
-        name: '청년도약계좌',
-        category: '금융지원',
-        description: '5년간 매월 납입 시 정부기여금 지원',
-        estimated_amount: '5년 후 5,000만원',
-        eligibility: ['19~34세', '연소득 7,500만원 이하'],
-        link: 'https://www.kinfa.or.kr/',
-      },
-      {
-        id: 'benefit-002',
-        name: '청년 월세 지원',
-        category: '주거지원',
-        description: '무주택 청년의 월세 지원',
-        estimated_amount: '월 최대 20만원',
-        eligibility: ['19~34세', '무주택자', '일정 소득 이하'],
-        link: 'https://www.molit.go.kr/',
-      },
-    ])
+    return HttpResponse.json({
+      benefits: [
+        {
+          id: 'benefit-001',
+          name: '청년도약계좌',
+          category: '금융지원',
+          description: '5년간 매월 납입 시 정부기여금 지원',
+          estimated_amount: '5년 후 5,000만원',
+          eligibility: ['19~34세', '연소득 7,500만원 이하'],
+          link: 'https://www.kinfa.or.kr/',
+        },
+        {
+          id: 'benefit-002',
+          name: '청년 월세 지원',
+          category: '주거지원',
+          description: '무주택 청년의 월세 지원',
+          estimated_amount: '월 최대 20만원',
+          eligibility: ['19~34세', '무주택자', '일정 소득 이하'],
+          link: 'https://www.molit.go.kr/',
+        },
+      ],
+      total: 2,
+      searchParams: { age, income, region },
+    })
   }),
 ]
 
@@ -83,6 +85,18 @@ describe('SearchForm.vue', () => {
     const button = wrapper.find('button[type="submit"]')
     expect(button.exists()).toBe(true)
     expect(button.text()).toContain('검색')
+  })
+
+  it('카테고리 필터가 표시되어야 한다', () => {
+    const wrapper = mount(SearchForm)
+    const categorySelect = wrapper.find('select[name="category"]')
+    expect(categorySelect.exists()).toBe(true)
+  })
+
+  it('대상 조건 체크박스가 표시되어야 한다', () => {
+    const wrapper = mount(SearchForm)
+    const checkboxes = wrapper.findAll('input[type="checkbox"]')
+    expect(checkboxes.length).toBe(4) // 임신/출산, 장애인, 한부모/조손, 다자녀
   })
 
   it('폼 입력 후 검색 버튼 클릭 시 API 호출되어야 한다', async () => {
@@ -136,7 +150,7 @@ describe('SearchForm.vue', () => {
   it('에러 발생 시 에러 메시지가 표시되어야 한다', async () => {
     // 에러를 반환하도록 Mock 재설정
     server.use(
-      http.get('http://localhost:8000/api/v1/benefits/search', () => {
+      http.post('http://localhost:8000/api/benefits/search', () => {
         return HttpResponse.json({ error: 'Server error' }, { status: 500 })
       }),
     )
