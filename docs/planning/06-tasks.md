@@ -931,7 +931,7 @@ npm run dev
 
 **완료 시**:
 - [x] 구현 완료 (2026-01-15)
-- [ ] 사용자 승인 후 커밋
+- [x] 커밋 완료
 
 ---
 
@@ -1022,6 +1022,107 @@ cd ../welfare-notifier-phase4-perf
 - [ ] Lighthouse 성능 점수 >= 90
 - [ ] FCP < 3초
 - [ ] LCP < 2.5초
+
+**완료 시**:
+- [ ] 사용자 승인 후 병합
+- [ ] worktree 정리
+
+---
+
+### [ ] Phase 4, T4.4: 검색 필터 확장 (MVP)
+
+**담당**: backend-specialist, frontend-specialist
+
+**Git Worktree 설정**:
+```bash
+git worktree add ../alimi-phase4-filters -b phase/4-filters
+cd ../alimi-phase4-filters
+```
+
+**배경**:
+- 현재 검색 결과가 8,000개 이상으로 너무 많음
+- 나이/소득/지역 3개 필터만으로는 정확한 매칭 어려움
+- DB에 이미 상세 필터 필드가 저장되어 있음 (supportConditions)
+
+**추가할 필터 (MVP)**:
+
+| 필터 | DB 필드 | UI 형태 | 효과 |
+|------|---------|---------|------|
+| **카테고리** | `category` | 드롭다운 | 10개 분류로 1/10 감소 |
+| **임신/출산** | `lifePregnant`, `lifeBirth`, `lifePregnancyPlan` | 체크박스 | ~3,500개 대상 |
+| **장애인** | `targetDisabled` | 체크박스 | ~3,700개 대상 |
+| **한부모/조손** | `familySingleParent` | 체크박스 | ~7,800개 대상 |
+| **다자녀가구** | `familyMultiChild` | 체크박스 | ~7,900개 대상 |
+
+**작업 내용**:
+
+1. **백엔드 (backend-specialist)**
+   - `backend/src/schemas/benefit.ts` - 검색 스키마 확장
+   - `backend/src/services/benefitService.ts` - 필터링 로직 추가
+   - `backend/src/routes/benefits.ts` - API 파라미터 처리
+
+2. **프론트엔드 (frontend-specialist)**
+   - `frontend/app/composables/useBenefitSearch.ts` - 검색 파라미터 확장
+   - `frontend/app/components/SearchForm.vue` - 필터 UI 추가
+   - 반응형 필터 패널 디자인
+
+**검색 API 파라미터 확장**:
+```typescript
+// POST /api/benefits/search
+interface BenefitSearchRequest {
+  // 기존 필터
+  age?: number;
+  income?: number;
+  region?: string;
+
+  // 신규 필터 (MVP)
+  category?: string;           // 카테고리 (보육·교육, 주거·자립 등)
+  lifePregnancy?: boolean;     // 임신/출산 관련
+  targetDisabled?: boolean;    // 장애인
+  familySingleParent?: boolean; // 한부모/조손가정
+  familyMultiChild?: boolean;  // 다자녀가구
+}
+```
+
+**UI 구조**:
+```
+[기본 정보]
+├── 나이: [__] 세
+├── 소득: [드롭다운: 중위소득 기준]
+└── 지역: [드롭다운]
+
+[카테고리]
+└── [드롭다운: 전체 / 보육·교육 / 주거·자립 / ...]
+
+[대상 조건] (체크박스)
+├── □ 임신/출산 (임산부, 예비부모, 출산)
+├── □ 장애인
+├── □ 한부모/조손가정
+└── □ 다자녀가구
+```
+
+**산출물**:
+- `backend/src/schemas/benefit.ts` - 스키마 확장
+- `backend/src/services/benefitService.ts` - 필터 로직
+- `frontend/app/components/SearchForm.vue` - 필터 UI
+- `frontend/app/composables/useBenefitSearch.ts` - API 연동
+- `frontend/mocks/handlers/benefits.ts` - Mock 핸들러 업데이트
+
+**예상 효과**:
+| 필터 조합 | 예상 결과 수 |
+|-----------|-------------|
+| 27세 + 서울 | ~8,000개 |
+| 27세 + 서울 + **보육·교육** | ~800개 |
+| 27세 + 서울 + 보육·교육 + **임신/출산** | ~100개 |
+
+**완료 조건**:
+- [ ] 백엔드 검색 스키마 확장
+- [ ] 백엔드 필터링 로직 구현
+- [ ] 프론트엔드 필터 UI 구현
+- [ ] MSW Mock 핸들러 업데이트
+- [ ] 검색 결과 수 감소 확인 (8,000개 → 100개 이하)
+- [ ] 반응형 UI 확인
+- [ ] 통합 테스트 통과
 
 **완료 시**:
 - [ ] 사용자 승인 후 병합

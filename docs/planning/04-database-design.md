@@ -29,9 +29,9 @@
 erDiagram
     %% FEAT-1: 지원금 데이터
     BENEFIT {
-        varchar id PK "고유 식별자 (benefit-001)"
+        varchar id PK "고유 식별자 (서비스ID)"
         varchar name "지원금명"
-        varchar category "카테고리 (금융/주거/취업 등)"
+        varchar category "카테고리 (복지서비스/일자리 등)"
         text description "설명"
         varchar estimated_amount "예상 수령액"
         int min_age "최소 나이"
@@ -44,6 +44,10 @@ erDiagram
         varchar source_api "데이터 출처 API"
         datetime fetched_at "데이터 가져온 시간"
         datetime updated_at "마지막 업데이트"
+        boolean JA0110 "임신/출산 (FEAT-1-2)"
+        boolean JA0401 "장애인 (FEAT-1-2)"
+        boolean JA0403 "한부모/조손 (FEAT-1-2)"
+        boolean JA0404 "다자녀 (FEAT-1-2)"
     }
 
     %% FEAT-1: 검색 로그 (분석용)
@@ -100,6 +104,37 @@ erDiagram
 - `idx_benefit_income` ON (min_income, max_income)
 - `idx_benefit_region` ON region
 - `idx_benefit_category` ON category
+
+**대상조건 필터 필드 (FEAT-1-2):**
+
+보조금24 지원조건 API의 JA 코드를 boolean 필드로 저장하여 필터링에 사용합니다.
+
+| 컬럼 | 타입 | JA 코드 | 설명 |
+|------|------|---------|------|
+| JA0110 | BOOLEAN | JA0110 | 임신/출산 |
+| JA0401 | BOOLEAN | JA0401 | 장애인 |
+| JA0403 | BOOLEAN | JA0403 | 한부모/조손 가정 |
+| JA0404 | BOOLEAN | JA0404 | 다자녀 가정 |
+| JA0101 | BOOLEAN | JA0101 | 영유아 (0-5세) |
+| JA0102 | BOOLEAN | JA0102 | 아동 (6-12세) |
+| JA0103 | BOOLEAN | JA0103 | 청소년 (13-18세) |
+| JA0104 | BOOLEAN | JA0104 | 청년 (19-39세) |
+| JA0105 | BOOLEAN | JA0105 | 중년 (40-64세) |
+| JA0106 | BOOLEAN | JA0106 | 노인 (65세 이상) |
+
+> 전체 JA 코드 목록 (50개)은 `docs/planning/08-api-integration.md`의 JA 코드 매핑 섹션 참조
+
+**카테고리 필드 (FEAT-1-2):**
+
+보조금24 서비스분야(`서비스분야`) 값을 그대로 저장합니다.
+
+| 카테고리 값 | 예상 데이터 수 |
+|------------|---------------|
+| 복지서비스 | ~10,000개 |
+| 일자리 | ~100개 |
+| 기타 | ~800개 |
+
+> 카테고리 목록은 동기화 시 자동으로 추출되며, `/api/benefits/meta/categories` API로 조회 가능
 
 **최소 수집 원칙 적용:**
 - 개인정보 수집 안 함
@@ -209,7 +244,7 @@ erDiagram
 
 ## 5. 쿼리 패턴 (주요 조회)
 
-### 5.1 지원금 검색 쿼리
+### 5.1 지원금 검색 쿼리 (기본)
 
 ```sql
 SELECT *
@@ -225,7 +260,32 @@ ORDER BY
 LIMIT 10;
 ```
 
-### 5.2 인기 지원금 조회 (클릭 수 기반)
+### 5.2 지원금 검색 쿼리 (필터 적용) - FEAT-1-2
+
+```sql
+-- 카테고리 + 대상조건 필터 적용
+SELECT *
+FROM BENEFIT
+WHERE
+  -- 기본 조건 (나이/소득/지역)
+  (min_age IS NULL OR min_age <= :age)
+  AND (max_age IS NULL OR max_age >= :age)
+  AND (min_income IS NULL OR min_income <= :income)
+  AND (max_income IS NULL OR max_income >= :income)
+  AND (region = :region OR region = '전국')
+  -- 카테고리 필터 (선택적)
+  AND (:category IS NULL OR category = :category)
+  -- 대상조건 필터 (선택적)
+  AND (:JA0110 IS NULL OR JA0110 = :JA0110)
+  AND (:JA0401 IS NULL OR JA0401 = :JA0401)
+  AND (:JA0403 IS NULL OR JA0403 = :JA0403)
+  AND (:JA0404 IS NULL OR JA0404 = :JA0404)
+ORDER BY
+  fetched_at DESC
+LIMIT :limit OFFSET :offset;
+```
+
+### 5.3 인기 지원금 조회 (클릭 수 기반)
 
 ```sql
 SELECT b.*, COUNT(c.id) AS click_count
@@ -237,7 +297,7 @@ ORDER BY click_count DESC
 LIMIT 5;
 ```
 
-### 5.3 검색 트렌드 분석
+### 5.4 검색 트렌드 분석
 
 ```sql
 SELECT
