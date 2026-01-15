@@ -482,3 +482,5 @@ git worktree remove ../welfare-notifier-search-fe
 | D-14 | CI/CD | GitHub Actions | 무료, GitHub 통합, SSH 배포 가능 |
 | D-15 | ORM | Prisma | 타입 안전, 자동 생성 클라이언트, 마이그레이션 |
 | D-16 | 검증 라이브러리 | Zod | TypeScript 퍼스트, 스키마에서 타입 추론 |
+| D-29 | DB 호스팅 | 서버 내 MySQL | 낮은 레이턴시, 비용 절감, 전체 제어 가능 |
+| D-30 | DB 문자셋 | utf8mb4 | 이모지 지원, 한글 완벽 지원, 최신 표준 |

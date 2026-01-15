@@ -159,6 +159,69 @@ OPENAPI_BASE_URL=https://api.odcloud.kr/api
 chmod 600 /home/project1/alimi/backend/.env
 ```
 
+### 3.4 MySQL 데이터베이스 설정
+
+**MySQL 접속:**
+```bash
+mysql -u root -p
+```
+
+**데이터베이스 및 사용자 생성:**
+```sql
+-- 데이터베이스 생성 (UTF-8 설정)
+CREATE DATABASE alimi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- 사용자 생성
+CREATE USER 'alimi'@'localhost' IDENTIFIED BY 'your_secure_password';
+
+-- 권한 부여
+GRANT ALL PRIVILEGES ON alimi.* TO 'alimi'@'localhost';
+FLUSH PRIVILEGES;
+
+-- 확인
+SHOW DATABASES;
+SELECT User, Host FROM mysql.user WHERE User = 'alimi';
+
+-- 종료
+exit;
+```
+
+**Prisma 스키마 적용:**
+```bash
+# 백엔드 디렉토리로 이동
+cd /home/project1/alimi/backend
+
+# 환경변수 확인 (DATABASE_URL이 올바른지)
+cat .env | grep DATABASE_URL
+
+# Prisma 클라이언트 생성
+npx prisma generate
+
+# 스키마 적용 (개발 환경 - 빠름)
+npx prisma db push
+
+# 또는 마이그레이션 실행 (프로덕션 권장)
+npx prisma migrate deploy
+
+# 연결 테스트
+npx prisma db execute --stdin <<< "SELECT 1"
+```
+
+**백엔드 재시작:**
+```bash
+pm2 restart alimi-backend
+pm2 logs alimi-backend --lines 20
+```
+
+**데이터베이스 연결 확인:**
+```bash
+# 백엔드 로그에서 DB 연결 확인
+pm2 logs alimi-backend | grep -i "database\|prisma\|mysql"
+
+# API health check
+curl http://localhost:8000/api/health
+```
+
 ---
 
 ## 4. Nginx 설정
@@ -521,3 +584,5 @@ pm2 start dist/index.js -i max --name alimi-backend
 | D-14 | CI/CD | GitHub Actions | 무료, GitHub 통합, SSH 배포 가능 |
 | D-27 | SSH 인증 | ED25519 키 | 보안성 우수, GitHub Actions 호환 |
 | D-28 | 빌드 모드 | SSR (npm run build) | SEO 최적화, 서버 사이드 렌더링 |
+| D-29 | DB 위치 | 서버 내 MySQL | 낮은 레이턴시, 비용 절감, 전체 제어 |
+| D-30 | DB 문자셋 | utf8mb4 | 이모지 지원, 한글 완벽 지원 |

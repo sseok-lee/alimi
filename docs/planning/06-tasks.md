@@ -1072,6 +1072,43 @@ server {
 
 ---
 
+### [x] Phase 5, T5.4.5: MySQL 데이터베이스 설정
+
+**담당**: database-specialist
+
+**작업 내용**:
+- MySQL 데이터베이스 생성
+- MySQL 사용자 생성 및 권한 부여
+- 환경변수에 DATABASE_URL 설정
+- Prisma 스키마 적용
+
+**MySQL 설정**:
+```sql
+CREATE DATABASE alimi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'alimi'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON alimi.* TO 'alimi'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+**Prisma 스키마 적용**:
+```bash
+cd /home/project1/alimi/backend
+npx prisma db push
+# 또는
+npx prisma migrate deploy
+```
+
+**완료 조건**:
+- [x] MySQL 데이터베이스 생성 확인
+- [x] 사용자 권한 설정 완료
+- [x] DATABASE_URL 환경변수 설정
+- [x] Prisma 스키마 적용 완료
+- [x] 백엔드 재시작 및 DB 연결 확인
+
+**완료일**: 2026-01-15
+
+---
+
 ### [x] Phase 5, T5.5: 배포 테스트 및 문서화
 
 **담당**: all
