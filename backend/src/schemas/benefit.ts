@@ -47,3 +47,48 @@ export const SearchResultSchema = z.object({
 })
 
 export type SearchResult = z.infer<typeof SearchResultSchema>
+
+// 상세 조회 응답 스키마
+export const BenefitDetailSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  category: z.string(),
+  description: z.string().nullable(),
+  supportDetails: z.string().nullable(),
+  targetAudience: z.string().nullable(),
+  selectionCriteria: z.string().nullable(),
+  requiredDocuments: z.string().nullable(),
+  applicationMethod: z.string().nullable(),
+  applicationDeadline: z.string().nullable(),
+  organizationName: z.string().nullable(),
+  contactInfo: z.string().nullable(),
+  link: z.string(),
+  viewCount: z.number(),
+  minAge: z.number().nullable(),
+  maxAge: z.number().nullable(),
+  minIncome: z.number().nullable(),
+  maxIncome: z.number().nullable(),
+  region: z.string().nullable()
+})
+
+export type BenefitDetail = z.infer<typeof BenefitDetailSchema>
+
+// 간단한 지원금 정보 (관련 서비스용)
+export const SimpleBenefitSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  category: z.string(),
+  description: z.string().nullable(),
+  link: z.string(),
+  viewCount: z.number()
+})
+
+export type SimpleBenefit = z.infer<typeof SimpleBenefitSchema>
+
+// 상세 조회 응답 전체 스키마
+export const BenefitDetailResponseSchema = z.object({
+  benefit: BenefitDetailSchema,
+  relatedBenefits: z.array(SimpleBenefitSchema)
+})
+
+export type BenefitDetailResponse = z.infer<typeof BenefitDetailResponseSchema>

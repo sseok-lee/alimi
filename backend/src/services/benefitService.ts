@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma.js'
-import { BenefitSearchInput, BenefitResponse } from '../schemas/benefit.js'
+import { BenefitSearchInput, BenefitResponse, BenefitDetailResponse, BenefitDetail, SimpleBenefit } from '../schemas/benefit.js'
 
 export interface SearchResult {
   benefits: BenefitResponse[]
@@ -177,4 +177,69 @@ export async function getRegions(): Promise<string[]> {
   })
 
   return regions.map(r => r.region).filter((r): r is string => r !== null)
+}
+
+export async function getBenefitDetailWithRelated(id: string): Promise<BenefitDetailResponse | null> {
+  // 상세 정보 조회 및 viewCount 증가
+  const benefit = await prisma.benefit.findUnique({
+    where: { id }
+  })
+
+  if (!benefit) return null
+
+  // viewCount 증가
+  const updatedBenefit = await prisma.benefit.update({
+    where: { id },
+    data: {
+      viewCount: (benefit.viewCount || 0) + 1
+    }
+  })
+
+  // 같은 카테고리의 관련 서비스 조회 (viewCount 높은 순, 현재 benefit 제외, 3개)
+  const relatedBenefits = await prisma.benefit.findMany({
+    where: {
+      category: benefit.category,
+      id: { not: id }
+    },
+    orderBy: {
+      viewCount: 'desc'
+    },
+    take: 3
+  })
+
+  const benefitDetail: BenefitDetail = {
+    id: updatedBenefit.id,
+    name: updatedBenefit.name,
+    category: updatedBenefit.category,
+    description: updatedBenefit.description,
+    supportDetails: updatedBenefit.supportDetails,
+    targetAudience: updatedBenefit.targetAudience,
+    selectionCriteria: updatedBenefit.selectionCriteria,
+    requiredDocuments: updatedBenefit.requiredDocuments,
+    applicationMethod: updatedBenefit.applicationMethod,
+    applicationDeadline: updatedBenefit.applicationDeadline,
+    organizationName: updatedBenefit.organizationName,
+    contactInfo: updatedBenefit.contactInfo,
+    link: updatedBenefit.link,
+    viewCount: updatedBenefit.viewCount || 0,
+    minAge: updatedBenefit.minAge,
+    maxAge: updatedBenefit.maxAge,
+    minIncome: updatedBenefit.minIncome,
+    maxIncome: updatedBenefit.maxIncome,
+    region: updatedBenefit.region
+  }
+
+  const simpleBenefits: SimpleBenefit[] = relatedBenefits.map(b => ({
+    id: b.id,
+    name: b.name,
+    category: b.category,
+    description: b.description,
+    link: b.link,
+    viewCount: b.viewCount || 0
+  }))
+
+  return {
+    benefit: benefitDetail,
+    relatedBenefits: simpleBenefits
+  }
 }
