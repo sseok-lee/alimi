@@ -16,6 +16,19 @@ export interface BenefitSearchRequest {
   age?: number;        // 0-150, optional
   income?: number;     // 원 단위, 0 = 무소득, optional
   region?: string;     // 서울/경기/전국 등, optional
+
+  // 카테고리 필터
+  category?: string;   // 복지서비스/일자리 등
+
+  // 생애주기 필터 (임신/출산)
+  lifePregnancy?: boolean; // 임신/출산 관련 (JA0301, JA0302, JA0303)
+
+  // 특수 대상 필터
+  targetDisabled?: boolean;      // 장애인 (JA0328)
+
+  // 가족 상황 필터
+  familySingleParent?: boolean;  // 한부모/조손 (JA0403)
+  familyMultiChild?: boolean;    // 다자녀 (JA0411)
 }
 
 /**
@@ -34,6 +47,10 @@ export interface BenefitResponse {
   minIncome?: number;
   maxIncome?: number;
   region?: string;
+  lifePregnancy?: boolean;
+  targetDisabled?: boolean;
+  familySingleParent?: boolean;
+  familyMultiChild?: boolean;
 }
 
 /**

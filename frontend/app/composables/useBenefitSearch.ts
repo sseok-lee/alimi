@@ -4,6 +4,11 @@ export interface BenefitSearchRequest {
   age: number
   income: number
   region: string
+  category?: string
+  lifePregnancy?: boolean
+  targetDisabled?: boolean
+  familySingleParent?: boolean
+  familyMultiChild?: boolean
 }
 
 export interface BenefitResponse {
@@ -27,23 +32,31 @@ export function useBenefitSearch() {
 
     try {
       const config = useRuntimeConfig()
-      const queryParams = new URLSearchParams({
-        age: params.age.toString(),
-        income: params.income.toString(),
-        region: params.region,
-      })
 
-      const response = await fetch(
-        `${config.public.apiBase}/api/v1/benefits/search?${queryParams}`,
-      )
+      const response = await fetch(`${config.public.apiBase}/api/benefits/search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          age: params.age,
+          income: params.income,
+          region: params.region,
+          category: params.category,
+          lifePregnancy: params.lifePregnancy,
+          targetDisabled: params.targetDisabled,
+          familySingleParent: params.familySingleParent,
+          familyMultiChild: params.familyMultiChild,
+        }),
+      })
 
       if (!response.ok) {
         throw new Error('검색에 실패했습니다')
       }
 
       const data = await response.json()
-      results.value = data
-      return data
+      results.value = data.benefits || data
+      return data.benefits || data
     } catch (err) {
       error.value = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다'
       throw err
