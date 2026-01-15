@@ -1,51 +1,6 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { setupServer } from 'msw/node'
-import { http, HttpResponse } from 'msw'
 import SearchForm from '../../app/components/SearchForm.vue'
-
-// Mock API 서버 설정
-const handlers = [
-  http.post('http://localhost:8000/api/benefits/search', async ({ request }) => {
-    const body = await request.json() as any
-    const { age, income, region } = body
-
-    if (!age || income === undefined || !region) {
-      return HttpResponse.json({ error: 'Missing parameters' }, { status: 422 })
-    }
-
-    return HttpResponse.json({
-      benefits: [
-        {
-          id: 'benefit-001',
-          name: '청년도약계좌',
-          category: '금융지원',
-          description: '5년간 매월 납입 시 정부기여금 지원',
-          estimated_amount: '5년 후 5,000만원',
-          eligibility: ['19~34세', '연소득 7,500만원 이하'],
-          link: 'https://www.kinfa.or.kr/',
-        },
-        {
-          id: 'benefit-002',
-          name: '청년 월세 지원',
-          category: '주거지원',
-          description: '무주택 청년의 월세 지원',
-          estimated_amount: '월 최대 20만원',
-          eligibility: ['19~34세', '무주택자', '일정 소득 이하'],
-          link: 'https://www.molit.go.kr/',
-        },
-      ],
-      total: 2,
-      searchParams: { age, income, region },
-    })
-  }),
-]
-
-const server = setupServer(...handlers)
-
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
 
 describe('SearchForm.vue', () => {
   it('컴포넌트가 렌더링되어야 한다', () => {
@@ -99,7 +54,7 @@ describe('SearchForm.vue', () => {
     expect(checkboxes.length).toBe(4) // 임신/출산, 장애인, 한부모/조손, 다자녀
   })
 
-  it('폼 입력 후 검색 버튼 클릭 시 API 호출되어야 한다', async () => {
+  it('폼 입력 후 검색 버튼 클릭 시 submit 이벤트가 emit되어야 한다', async () => {
     const wrapper = mount(SearchForm)
 
     // 폼 입력
@@ -110,11 +65,16 @@ describe('SearchForm.vue', () => {
     // 폼 제출
     await wrapper.find('form').trigger('submit')
 
-    // 약간의 대기 (API 호출 시간)
-    await new Promise((resolve) => setTimeout(resolve, 100))
-
-    // 결과가 emit 되었는지 확인
-    expect(wrapper.emitted('search-results')).toBeTruthy()
+    // submit 이벤트가 emit되었는지 확인
+    expect(wrapper.emitted('submit')).toBeTruthy()
+    const emittedParams = wrapper.emitted('submit')![0][0] as {
+      age: number
+      income: number
+      region: string
+    }
+    expect(emittedParams.age).toBe(27)
+    expect(emittedParams.income).toBe(0)
+    expect(emittedParams.region).toBe('서울')
   })
 
   it('필수 필드가 비어있으면 검색이 동작하지 않아야 한다', async () => {
@@ -123,67 +83,65 @@ describe('SearchForm.vue', () => {
     // 빈 폼으로 제출 시도
     await wrapper.find('form').trigger('submit')
 
-    // API 호출이 일어나지 않아야 함
-    await new Promise((resolve) => setTimeout(resolve, 100))
-    expect(wrapper.emitted('search-results')).toBeFalsy()
+    // submit 이벤트가 emit되지 않아야 함
+    expect(wrapper.emitted('submit')).toBeFalsy()
   })
 
-  it('로딩 상태가 올바르게 표시되어야 한다', async () => {
-    const wrapper = mount(SearchForm)
+  it('loading prop이 true면 로딩 상태가 표시되어야 한다', () => {
+    const wrapper = mount(SearchForm, {
+      props: {
+        loading: true,
+      },
+    })
 
-    // 초기 상태: 로딩 아님
-    expect(wrapper.find('.loading').exists()).toBe(false)
-
-    // 폼 입력
-    await wrapper.find('input[name="age"]').setValue('27')
-    await wrapper.find('select[name="income"]').setValue('0')
-    await wrapper.find('select[name="region"]').setValue('서울')
-
-    // 폼 제출
-    await wrapper.find('form').trigger('submit')
-
-    // 로딩 중 상태 확인 (짧은 시간)
-    // Note: 실제로는 타이밍이 중요하지만, 테스트에서는 간단히 처리
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    // 로딩 클래스가 있어야 함
+    const button = wrapper.find('button[type="submit"]')
+    expect(button.classes()).toContain('loading')
+    expect(button.text()).toContain('검색 중')
+    expect(button.attributes('disabled')).toBeDefined()
   })
 
-  it('에러 발생 시 에러 메시지가 표시되어야 한다', async () => {
-    // 에러를 반환하도록 Mock 재설정
-    server.use(
-      http.post('http://localhost:8000/api/benefits/search', () => {
-        return HttpResponse.json({ error: 'Server error' }, { status: 500 })
-      }),
-    )
-
-    const wrapper = mount(SearchForm)
-
-    await wrapper.find('input[name="age"]').setValue('27')
-    await wrapper.find('select[name="income"]').setValue('0')
-    await wrapper.find('select[name="region"]').setValue('서울')
-
-    await wrapper.find('form').trigger('submit')
-    await new Promise((resolve) => setTimeout(resolve, 100))
+  it('error prop이 있으면 에러 메시지가 표시되어야 한다', () => {
+    const wrapper = mount(SearchForm, {
+      props: {
+        error: '검색에 실패했습니다',
+      },
+    })
 
     // 에러 메시지가 표시되어야 함
     const errorMessage = wrapper.find('.error-message')
     expect(errorMessage.exists()).toBe(true)
+    expect(errorMessage.text()).toContain('검색에 실패했습니다')
   })
 
-  it('검색 결과를 부모 컴포넌트에 emit 해야 한다', async () => {
+  it('카테고리와 대상조건 필터가 emit에 포함되어야 한다', async () => {
     const wrapper = mount(SearchForm)
 
-    await wrapper.find('input[name="age"]').setValue('27')
-    await wrapper.find('select[name="income"]').setValue('0')
-    await wrapper.find('select[name="region"]').setValue('서울')
+    // 폼 입력
+    await wrapper.find('input[name="age"]').setValue('30')
+    await wrapper.find('select[name="income"]').setValue('40000000')
+    await wrapper.find('select[name="region"]').setValue('경기')
+    await wrapper.find('select[name="category"]').setValue('생활안정')
 
+    // 체크박스 선택
+    const checkboxes = wrapper.findAll('input[type="checkbox"]')
+    await checkboxes[0].setValue(true) // 임신/출산
+    await checkboxes[1].setValue(true) // 장애인
+
+    // 폼 제출
     await wrapper.find('form').trigger('submit')
-    await new Promise((resolve) => setTimeout(resolve, 100))
 
-    const emitted = wrapper.emitted('search-results')
-    expect(emitted).toBeTruthy()
-    if (emitted) {
-      expect(Array.isArray(emitted[0][0])).toBe(true)
-      expect(emitted[0][0].length).toBe(2) // Mock에서 2개 반환
+    // submit 이벤트 확인
+    const emittedParams = wrapper.emitted('submit')![0][0] as {
+      age: number
+      income: number
+      region: string
+      category?: string
+      lifePregnancy?: boolean
+      targetDisabled?: boolean
     }
+    expect(emittedParams.category).toBe('생활안정')
+    expect(emittedParams.lifePregnancy).toBe(true)
+    expect(emittedParams.targetDisabled).toBe(true)
   })
 })

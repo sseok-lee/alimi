@@ -133,18 +133,18 @@
       </div>
 
       <!-- 에러 메시지 -->
-      <div v-if="error" class="error-message text-red-600 text-sm">
-        {{ error }}
+      <div v-if="props.error" class="error-message text-red-600 text-sm">
+        {{ props.error }}
       </div>
 
       <!-- 검색 버튼 -->
       <button
         type="submit"
-        :disabled="loading"
+        :disabled="props.loading"
         class="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        :class="{ loading: loading }"
+        :class="{ loading: props.loading }"
       >
-        <span v-if="loading">검색 중...</span>
+        <span v-if="props.loading">검색 중...</span>
         <span v-else>검색하기</span>
       </button>
     </form>
@@ -153,13 +153,24 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useBenefitSearch } from '../composables/useBenefitSearch'
 
 const emit = defineEmits<{
-  'search-results': [results: any[]]
+  'submit': [params: {
+    age: number
+    income: number
+    region: string
+    category?: string
+    lifePregnancy?: boolean
+    targetDisabled?: boolean
+    familySingleParent?: boolean
+    familyMultiChild?: boolean
+  }]
 }>()
 
-const { loading, error, search } = useBenefitSearch()
+const props = defineProps<{
+  loading?: boolean
+  error?: string | null
+}>()
 
 const formData = ref<{
   age: number | null
@@ -195,47 +206,50 @@ const categories = [
   { value: '농림축산어업', label: '농림축산어업' },
 ]
 
-const handleSubmit = async () => {
+const handleSubmit = () => {
   // 폼 검증
   if (!formData.value.age || formData.value.income === '' || !formData.value.region) {
     return
   }
 
-  try {
-    const searchParams: any = {
-      age: formData.value.age,
-      income: Number(formData.value.income),
-      region: formData.value.region,
-    }
-
-    // 카테고리 필터 (값이 있을 때만)
-    if (formData.value.category) {
-      searchParams.category = formData.value.category
-    }
-
-    // 대상조건 필터 (체크된 것만)
-    if (formData.value.lifePregnancy) {
-      searchParams.lifePregnancy = true
-    }
-    if (formData.value.targetDisabled) {
-      searchParams.targetDisabled = true
-    }
-    if (formData.value.familySingleParent) {
-      searchParams.familySingleParent = true
-    }
-    if (formData.value.familyMultiChild) {
-      searchParams.familyMultiChild = true
-    }
-
-    console.log('검색 파라미터:', searchParams)
-
-    const results = await search(searchParams)
-
-    // 검색 결과를 부모 컴포넌트에 emit
-    emit('search-results', results)
-  } catch (err) {
-    // 에러는 useBenefitSearch에서 처리됨
+  const searchParams: {
+    age: number
+    income: number
+    region: string
+    category?: string
+    lifePregnancy?: boolean
+    targetDisabled?: boolean
+    familySingleParent?: boolean
+    familyMultiChild?: boolean
+  } = {
+    age: formData.value.age,
+    income: Number(formData.value.income),
+    region: formData.value.region,
   }
+
+  // 카테고리 필터 (값이 있을 때만)
+  if (formData.value.category) {
+    searchParams.category = formData.value.category
+  }
+
+  // 대상조건 필터 (체크된 것만)
+  if (formData.value.lifePregnancy) {
+    searchParams.lifePregnancy = true
+  }
+  if (formData.value.targetDisabled) {
+    searchParams.targetDisabled = true
+  }
+  if (formData.value.familySingleParent) {
+    searchParams.familySingleParent = true
+  }
+  if (formData.value.familyMultiChild) {
+    searchParams.familyMultiChild = true
+  }
+
+  console.log('검색 파라미터:', searchParams)
+
+  // 검색 파라미터를 부모 컴포넌트에 emit
+  emit('submit', searchParams)
 }
 </script>
 

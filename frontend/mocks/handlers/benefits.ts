@@ -7,14 +7,13 @@
 import { http, HttpResponse } from 'msw';
 import type {
   BenefitSearchRequest,
-  SearchResultResponse,
 } from '../../../../contracts/benefits.contract';
 import { mockBenefits } from '../data/benefits';
 
 export const benefitHandlers = [
   // POST /api/benefits/search
   http.post('/api/benefits/search', async ({ request }) => {
-    const body = await request.json() as BenefitSearchRequest;
+    const body = await request.json() as BenefitSearchRequest & { page?: number; limit?: number };
 
     // 검색 파라미터
     const searchParams: BenefitSearchRequest = {
@@ -27,6 +26,9 @@ export const benefitHandlers = [
       familySingleParent: body.familySingleParent,
       familyMultiChild: body.familyMultiChild,
     };
+
+    const page = body.page || 1;
+    const limit = body.limit || 20;
 
     // Mock 데이터 필터링
     let filteredBenefits = [...mockBenefits];
@@ -101,10 +103,19 @@ export const benefitHandlers = [
       });
     }
 
+    // 페이징 적용
+    const totalCount = filteredBenefits.length;
+    const totalPages = Math.ceil(totalCount / limit);
+    const startIndex = (page - 1) * limit;
+    const pagedBenefits = filteredBenefits.slice(startIndex, startIndex + limit);
+
     // 응답 생성
-    const response: SearchResultResponse = {
-      benefits: filteredBenefits,
-      total: filteredBenefits.length,
+    const response = {
+      benefits: pagedBenefits,
+      totalCount,
+      page,
+      limit,
+      totalPages,
       searchParams,
     };
 

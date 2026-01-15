@@ -27,22 +27,35 @@ const mockBenefits = [
 ]
 
 const handlers = [
-  http.get('http://localhost:8000/api/v1/benefits/search', ({ request }) => {
-    const url = new URL(request.url)
-    const age = url.searchParams.get('age')
-    const income = url.searchParams.get('income')
-    const region = url.searchParams.get('region')
+  http.post('http://localhost:8000/api/benefits/search', async ({ request }) => {
+    const body = await request.json() as { age?: number; income?: number; region?: string; page?: number; limit?: number }
 
-    if (!age || !income || !region) {
+    if (!body.age || body.income === undefined || !body.region) {
       return HttpResponse.json({ error: 'Missing parameters' }, { status: 422 })
     }
 
     // 빈 결과를 반환하도록 쿼리 파라미터 확인 (age=99는 테스트용)
-    if (age === '99') {
-      return HttpResponse.json([])
+    if (body.age === 99) {
+      return HttpResponse.json({
+        benefits: [],
+        totalCount: 0,
+        page: 1,
+        limit: 20,
+        totalPages: 0,
+      })
     }
 
-    return HttpResponse.json(mockBenefits)
+    const page = body.page || 1
+    const limit = body.limit || 20
+    const totalCount = mockBenefits.length
+
+    return HttpResponse.json({
+      benefits: mockBenefits,
+      totalCount,
+      page,
+      limit,
+      totalPages: Math.ceil(totalCount / limit),
+    })
   }),
 ]
 
@@ -122,7 +135,7 @@ describe('search.vue', () => {
   it('에러 발생 시 에러 메시지가 표시되어야 한다', async () => {
     // 에러를 반환하도록 Mock 재설정
     server.use(
-      http.get('http://localhost:8000/api/v1/benefits/search', () => {
+      http.post('http://localhost:8000/api/benefits/search', () => {
         return HttpResponse.json({ error: 'Server error' }, { status: 500 })
       }),
     )
@@ -153,9 +166,9 @@ describe('search.vue', () => {
 
     await new Promise((resolve) => setTimeout(resolve, 100))
 
-    // "총 X개의 지원금을 찾았습니다" 메시지 확인
+    // "총 X개의 지원금 중" 메시지 확인 (새 형식)
     expect(wrapper.text()).toContain('총')
-    expect(wrapper.text()).toContain('개의 지원금을 찾았습니다')
+    expect(wrapper.text()).toContain('개의 지원금 중')
   })
 
   it('반응형 그리드가 적용되어야 한다', async () => {

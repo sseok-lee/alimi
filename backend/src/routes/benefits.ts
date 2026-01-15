@@ -30,7 +30,7 @@ router.post('/search', async (req: Request, res: Response, next: NextFunction) =
       })
     }
 
-    const benefits = await benefitService.searchBenefits(result.data)
+    const searchResult = await benefitService.searchBenefits(result.data)
 
     // Record search log (don't fail request if logging fails)
     try {
@@ -40,7 +40,7 @@ router.post('/search', async (req: Request, res: Response, next: NextFunction) =
           age: result.data.age ?? null,
           income: result.data.income ?? null,
           region: result.data.region ?? null,
-          resultCount: benefits.length,
+          resultCount: searchResult.totalCount,
           searchedAt: new Date()
         }
       })
@@ -50,8 +50,11 @@ router.post('/search', async (req: Request, res: Response, next: NextFunction) =
     }
 
     res.json({
-      benefits,
-      total: benefits.length,
+      benefits: searchResult.benefits,
+      totalCount: searchResult.totalCount,
+      page: searchResult.page,
+      limit: searchResult.limit,
+      totalPages: searchResult.totalPages,
       searchParams: result.data
     })
   } catch (error) {

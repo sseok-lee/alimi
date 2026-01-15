@@ -17,7 +17,10 @@ describe('Benefits API', () => {
       expect(response.status).toBe(200)
       expect(response.body).toHaveProperty('benefits')
       expect(Array.isArray(response.body.benefits)).toBe(true)
-      expect(response.body).toHaveProperty('total')
+      expect(response.body).toHaveProperty('totalCount')
+      expect(response.body).toHaveProperty('page')
+      expect(response.body).toHaveProperty('limit')
+      expect(response.body).toHaveProperty('totalPages')
       expect(response.body).toHaveProperty('searchParams')
     })
 
@@ -96,7 +99,7 @@ describe('Benefits API', () => {
       expect(logs[0].age).toBe(27)
       expect(logs[0].income).toBe(0)
       expect(logs[0].region).toBe('서울')
-      expect(logs[0].resultCount).toBe(response.body.benefits.length)
+      expect(logs[0].resultCount).toBe(response.body.totalCount)
       expect(logs[0].sessionId).toBeTruthy() // Should have some session ID
     })
 
@@ -115,7 +118,7 @@ describe('Benefits API', () => {
       expect(logs[0].age).toBeNull()
       expect(logs[0].income).toBeNull()
       expect(logs[0].region).toBeNull()
-      expect(logs[0].resultCount).toBe(response.body.benefits.length)
+      expect(logs[0].resultCount).toBe(response.body.totalCount)
     })
   })
 })

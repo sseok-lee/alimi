@@ -14,7 +14,11 @@
       <!-- 검색 폼 -->
       <section class="max-w-2xl mx-auto mb-12">
         <div class="bg-white rounded-2xl shadow-xl p-8">
-          <SearchForm @search-results="handleSearchResults" />
+          <SearchForm
+            :loading="loading"
+            :error="error"
+            @submit="handleSearch"
+          />
         </div>
       </section>
 
@@ -32,11 +36,24 @@
       <section v-else-if="results.length > 0" class="max-w-6xl mx-auto">
         <div class="mb-6">
           <p class="text-gray-700">
-            총 <strong>{{ results.length }}</strong>개의 지원금을 찾았습니다
+            총 <strong>{{ totalCount.toLocaleString() }}</strong>개의 지원금 중
+            <strong>{{ results.length }}</strong>개 표시
           </p>
         </div>
         <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <BenefitCard v-for="benefit in results" :key="benefit.id" :benefit="benefit" />
+        </div>
+
+        <!-- 더 보기 버튼 -->
+        <div v-if="hasMore()" class="mt-8 text-center">
+          <button
+            :disabled="loadingMore"
+            class="px-8 py-3 bg-white border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            @click="handleLoadMore"
+          >
+            <span v-if="loadingMore">로딩 중...</span>
+            <span v-else>더 보기 ({{ currentPage }}/{{ totalPages }} 페이지)</span>
+          </button>
         </div>
       </section>
     </div>
@@ -47,7 +64,7 @@
 import { ref } from 'vue'
 import SearchForm from '../components/SearchForm.vue'
 import BenefitCard from '../components/BenefitCard.vue'
-import type { BenefitResponse } from '../composables/useBenefitSearch'
+import { useBenefitSearch, type BenefitSearchRequest } from '../composables/useBenefitSearch'
 
 // SEO 메타태그
 useSeoMeta({
@@ -55,13 +72,39 @@ useSeoMeta({
   description: '맞춤형 정부 지원금 검색 결과를 확인하세요',
 })
 
+// 검색 composable
+const {
+  loading,
+  loadingMore,
+  error,
+  results,
+  totalCount,
+  currentPage,
+  totalPages,
+  search,
+  loadMore,
+  hasMore,
+} = useBenefitSearch()
+
 // 상태 관리
-const results = ref<BenefitResponse[]>([])
 const searchPerformed = ref(false)
 
-// 검색 결과 핸들러
-const handleSearchResults = (searchResults: BenefitResponse[]) => {
-  results.value = searchResults
-  searchPerformed.value = true
+// 검색 핸들러
+const handleSearch = async (params: BenefitSearchRequest) => {
+  try {
+    await search(params)
+    searchPerformed.value = true
+  } catch {
+    // 에러는 composable에서 처리됨
+  }
+}
+
+// 더 보기 핸들러
+const handleLoadMore = async () => {
+  try {
+    await loadMore()
+  } catch {
+    // 에러는 composable에서 처리됨
+  }
 }
 </script>

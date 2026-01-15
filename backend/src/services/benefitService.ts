@@ -2,7 +2,15 @@ import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma.js'
 import { BenefitSearchInput, BenefitResponse } from '../schemas/benefit.js'
 
-export async function searchBenefits(params: BenefitSearchInput): Promise<BenefitResponse[]> {
+export interface SearchResult {
+  benefits: BenefitResponse[]
+  totalCount: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export async function searchBenefits(params: BenefitSearchInput): Promise<SearchResult> {
   const { age, income, region, category, lifePregnancy, targetDisabled, familySingleParent, familyMultiChild, page = 1, limit = 20 } = params
 
   const where: Prisma.BenefitWhereInput = {}
@@ -90,14 +98,18 @@ export async function searchBenefits(params: BenefitSearchInput): Promise<Benefi
   const skip = (page - 1) * limit
   const take = limit
 
-  const benefits = await prisma.benefit.findMany({
-    where,
-    skip,
-    take,
-    orderBy: { fetchedAt: 'desc' }
-  })
+  // 병렬로 데이터와 총 개수 조회
+  const [benefits, totalCount] = await Promise.all([
+    prisma.benefit.findMany({
+      where,
+      skip,
+      take,
+      orderBy: { fetchedAt: 'desc' }
+    }),
+    prisma.benefit.count({ where })
+  ])
 
-  return benefits.map(benefit => ({
+  const mappedBenefits = benefits.map(benefit => ({
     id: benefit.id,
     name: benefit.name,
     category: benefit.category,
@@ -111,6 +123,14 @@ export async function searchBenefits(params: BenefitSearchInput): Promise<Benefi
     maxIncome: benefit.maxIncome,
     region: benefit.region
   }))
+
+  return {
+    benefits: mappedBenefits,
+    totalCount,
+    page,
+    limit,
+    totalPages: Math.ceil(totalCount / limit)
+  }
 }
 
 export async function getBenefitById(id: string): Promise<BenefitResponse | null> {
