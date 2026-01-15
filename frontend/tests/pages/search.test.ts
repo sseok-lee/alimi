@@ -34,8 +34,8 @@ const handlers = [
       return HttpResponse.json({ error: 'Missing parameters' }, { status: 422 })
     }
 
-    // 빈 결과를 반환하도록 쿼리 파라미터 확인 (age=99는 테스트용)
-    if (body.age === 99) {
+    // 빈 결과를 반환하도록 쿼리 파라미터 확인 (age >= 95는 테스트용)
+    if (body.age && body.age >= 95) {
       return HttpResponse.json({
         benefits: [],
         totalCount: 0,
@@ -66,6 +66,8 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
 describe('search.vue', () => {
+  // 페이지 테스트는 실제 타이머 사용 (API 호출 대기 필요)
+
   it('페이지가 렌더링되어야 한다', () => {
     const wrapper = mount(SearchPage)
     expect(wrapper.exists()).toBe(true)
@@ -87,8 +89,8 @@ describe('search.vue', () => {
     const wrapper = mount(SearchPage)
     const searchForm = wrapper.findComponent({ name: 'SearchForm' })
 
-    // 검색 폼에서 입력 및 제출
-    await searchForm.find('input[name="age"]').setValue('27')
+    // 검색 폼에서 입력 및 제출 (1998-06-15 → 만 27세)
+    await searchForm.find('input[name="birthdate"]').setValue('1998-06-15')
     await searchForm.find('select[name="income"]').setValue('0')
     await searchForm.find('select[name="region"]').setValue('서울')
     await searchForm.find('form').trigger('submit')
@@ -105,7 +107,7 @@ describe('search.vue', () => {
     const wrapper = mount(SearchPage)
     const searchForm = wrapper.findComponent({ name: 'SearchForm' })
 
-    await searchForm.find('input[name="age"]').setValue('27')
+    await searchForm.find('input[name="birthdate"]').setValue('1998-06-15')
     await searchForm.find('select[name="income"]').setValue('0')
     await searchForm.find('select[name="region"]').setValue('서울')
     await searchForm.find('form').trigger('submit')
@@ -120,8 +122,8 @@ describe('search.vue', () => {
     const wrapper = mount(SearchPage)
     const searchForm = wrapper.findComponent({ name: 'SearchForm' })
 
-    // 빈 결과를 받기 위해 age=99 사용 (Mock 서버에서 빈 배열 반환)
-    await searchForm.find('input[name="age"]').setValue('99')
+    // 빈 결과를 받기 위해 1926-06-15 사용 (만 99세 → Mock 서버에서 빈 배열 반환)
+    await searchForm.find('input[name="birthdate"]').setValue('1926-06-15')
     await searchForm.find('select[name="income"]').setValue('0')
     await searchForm.find('select[name="region"]').setValue('서울')
     await searchForm.find('form').trigger('submit')
@@ -143,7 +145,7 @@ describe('search.vue', () => {
     const wrapper = mount(SearchPage)
     const searchForm = wrapper.findComponent({ name: 'SearchForm' })
 
-    await searchForm.find('input[name="age"]').setValue('27')
+    await searchForm.find('input[name="birthdate"]').setValue('1998-06-15')
     await searchForm.find('select[name="income"]').setValue('0')
     await searchForm.find('select[name="region"]').setValue('서울')
     await searchForm.find('form').trigger('submit')
@@ -159,7 +161,7 @@ describe('search.vue', () => {
     const wrapper = mount(SearchPage)
     const searchForm = wrapper.findComponent({ name: 'SearchForm' })
 
-    await searchForm.find('input[name="age"]').setValue('27')
+    await searchForm.find('input[name="birthdate"]').setValue('1998-06-15')
     await searchForm.find('select[name="income"]').setValue('0')
     await searchForm.find('select[name="region"]').setValue('서울')
     await searchForm.find('form').trigger('submit')
@@ -175,7 +177,7 @@ describe('search.vue', () => {
     const wrapper = mount(SearchPage)
     const searchForm = wrapper.findComponent({ name: 'SearchForm' })
 
-    await searchForm.find('input[name="age"]').setValue('27')
+    await searchForm.find('input[name="birthdate"]').setValue('1998-06-15')
     await searchForm.find('select[name="income"]').setValue('0')
     await searchForm.find('select[name="region"]').setValue('서울')
     await searchForm.find('form').trigger('submit')

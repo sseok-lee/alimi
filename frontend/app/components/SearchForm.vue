@@ -1,22 +1,24 @@
 <template>
   <div class="search-form-container">
     <form class="space-y-6" @submit.prevent="handleSubmit">
-      <!-- 나이 입력 -->
+      <!-- 생년월일 입력 -->
       <div>
-        <label for="search-age" class="block text-sm font-medium text-gray-700 mb-2">
-          나이
+        <label for="search-birthdate" class="block text-sm font-medium text-gray-700 mb-2">
+          생년월일
         </label>
         <input
-          id="search-age"
-          v-model.number="formData.age"
-          type="number"
-          name="age"
-          placeholder="예: 27"
+          id="search-birthdate"
+          v-model="formData.birthDate"
+          type="date"
+          name="birthdate"
           required
-          min="0"
-          max="150"
+          :max="maxDate"
+          :min="minDate"
           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        <p v-if="calculatedAge !== null" class="mt-2 text-sm text-gray-600">
+          만 {{ calculatedAge }}세
+        </p>
       </div>
 
       <!-- 소득 선택 -->
@@ -152,7 +154,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const emit = defineEmits<{
   'submit': [params: {
@@ -173,7 +175,7 @@ const props = defineProps<{
 }>()
 
 const formData = ref<{
-  age: number | null
+  birthDate: string
   income: string | number
   region: string
   category: string
@@ -182,7 +184,7 @@ const formData = ref<{
   familySingleParent: boolean
   familyMultiChild: boolean
 }>({
-  age: null,
+  birthDate: '',
   income: '',
   region: '',
   category: '',
@@ -190,6 +192,34 @@ const formData = ref<{
   targetDisabled: false,
   familySingleParent: false,
   familyMultiChild: false,
+})
+
+// 날짜 범위 설정
+const today = new Date()
+const maxDate = computed(() => {
+  return today.toISOString().split('T')[0]
+})
+const minDate = computed(() => {
+  const min = new Date(today.getFullYear() - 150, today.getMonth(), today.getDate())
+  return min.toISOString().split('T')[0]
+})
+
+// 만 나이 계산
+const calculatedAge = computed(() => {
+  if (!formData.value.birthDate) return null
+
+  const birthDate = new Date(formData.value.birthDate)
+  const today = new Date()
+
+  let age = today.getFullYear() - birthDate.getFullYear()
+  const monthDiff = today.getMonth() - birthDate.getMonth()
+
+  // 생일이 아직 안 지났으면 1살 빼기
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--
+  }
+
+  return age
 })
 
 const categories = [
@@ -208,7 +238,7 @@ const categories = [
 
 const handleSubmit = () => {
   // 폼 검증
-  if (!formData.value.age || formData.value.income === '' || !formData.value.region) {
+  if (calculatedAge.value === null || formData.value.income === '' || !formData.value.region) {
     return
   }
 
@@ -222,7 +252,7 @@ const handleSubmit = () => {
     familySingleParent?: boolean
     familyMultiChild?: boolean
   } = {
-    age: formData.value.age,
+    age: calculatedAge.value,
     income: Number(formData.value.income),
     region: formData.value.region,
   }

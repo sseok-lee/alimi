@@ -55,15 +55,17 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
 describe('랜딩 페이지 (index.vue)', () => {
+  // 페이지 테스트는 실제 타이머 사용 (API 호출 대기 필요)
+
   it('페이지 타이틀 "맞춤형 지원금 찾기"를 표시해야 한다', () => {
     const wrapper = mount(Index)
     expect(wrapper.text()).toContain('맞춤형 지원금 찾기')
   })
 
-  it('나이 입력 필드를 표시해야 한다', () => {
+  it('생년월일 입력 필드를 표시해야 한다', () => {
     const wrapper = mount(Index)
-    const ageInput = wrapper.find('input[name="age"]')
-    expect(ageInput.exists()).toBe(true)
+    const birthdateInput = wrapper.find('input[name="birthdate"]')
+    expect(birthdateInput.exists()).toBe(true)
   })
 
   it('소득 선택 필드를 표시해야 한다', () => {
@@ -88,8 +90,8 @@ describe('랜딩 페이지 (index.vue)', () => {
   it('폼 제출 시 검색 결과를 표시해야 한다', async () => {
     const wrapper = mount(Index)
 
-    // 폼 데이터 입력
-    await wrapper.find('input[name="age"]').setValue('27')
+    // 폼 데이터 입력 (1998-06-15 → 만 27세)
+    await wrapper.find('input[name="birthdate"]').setValue('1998-06-15')
     await wrapper.find('select[name="income"]').setValue('0')
     await wrapper.find('select[name="region"]').setValue('서울')
 
@@ -109,7 +111,7 @@ describe('랜딩 페이지 (index.vue)', () => {
     const wrapper = mount(Index)
 
     // 3개의 입력 필드와 1개의 버튼
-    expect(wrapper.find('input[name="age"]').exists()).toBe(true)
+    expect(wrapper.find('input[name="birthdate"]').exists()).toBe(true)
     expect(wrapper.find('select[name="income"]').exists()).toBe(true)
     expect(wrapper.find('select[name="region"]').exists()).toBe(true)
     expect(wrapper.find('button').exists()).toBe(true)
