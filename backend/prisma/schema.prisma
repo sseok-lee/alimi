@@ -1,4 +1,5 @@
 // Prisma Schema for 복지알리미
+// 마지막 업데이트: 2026-01-15
 
 generator client {
   provider = "prisma-client-js"
@@ -11,31 +12,112 @@ datasource db {
 
 // 지원금 정보 테이블
 model Benefit {
-  id              String   @id @default(cuid())
+  id              String   @id // 보조금24 서비스ID 사용
   name            String   @db.VarChar(255)
   category        String   @db.VarChar(100)
   description     String?  @db.Text
+
+  // ===== serviceList 필드 (기본 동기화) =====
+  targetAudience      String?  @map("target_audience") @db.Text        // 지원대상
+  selectionCriteria   String?  @map("selection_criteria") @db.Text     // 선정기준
+  supportDetails      String?  @map("support_details") @db.Text        // 지원내용
+  applicationMethod   String?  @map("application_method") @db.VarChar(500) // 신청방법
+  applicationDeadline String?  @map("application_deadline") @db.VarChar(255) // 신청기한
+  organizationName    String?  @map("organization_name") @db.VarChar(255) // 소관기관명
+  contactInfo         String?  @map("contact_info") @db.Text           // 전화문의
+  link                String   @db.VarChar(500)                        // 상세조회URL
+
+  // serviceList 추가 필드
+  supportType         String?  @map("support_type") @db.VarChar(100)   // 지원유형 (현금/현물/서비스 등)
+  userType            String?  @map("user_type") @db.VarChar(50)       // 사용자구분 (개인/가구/법인)
+  applyAgency         String?  @map("apply_agency") @db.VarChar(255)   // 접수기관
+  viewCount           Int?     @map("view_count")                      // 조회수 (인기순 정렬용)
+
+  // ===== supportConditions 필드 (나이/소득/대상 매칭용) =====
+
+  // 성별 (JA0101, JA0102)
+  targetMale          Boolean? @map("target_male")                     // JA0101: 남성
+  targetFemale        Boolean? @map("target_female")                   // JA0102: 여성
+
+  // 연령 (JA0110, JA0111)
+  minAge              Int?     @map("min_age")                         // JA0110: 대상연령(시작)
+  maxAge              Int?     @map("max_age")                         // JA0111: 대상연령(종료)
+
+  // 소득 수준 (JA0201~JA0205)
+  incomeLevel0to50    Boolean? @map("income_level_0_50")               // JA0201: 중위소득 0~50%
+  incomeLevel51to75   Boolean? @map("income_level_51_75")              // JA0202: 중위소득 51~75%
+  incomeLevel76to100  Boolean? @map("income_level_76_100")             // JA0203: 중위소득 76~100%
+  incomeLevel101to200 Boolean? @map("income_level_101_200")            // JA0204: 중위소득 101~200%
+  incomeLevelOver200  Boolean? @map("income_level_over_200")           // JA0205: 중위소득 200% 초과
+
+  // 생애주기 (JA0301~JA0303)
+  lifePregnancyPlan   Boolean? @map("life_pregnancy_plan")             // JA0301: 예비부모/난임
+  lifePregnant        Boolean? @map("life_pregnant")                   // JA0302: 임산부
+  lifeBirth           Boolean? @map("life_birth")                      // JA0303: 출산/입양
+
+  // 학생 (JA0317~JA0320)
+  lifeElementary      Boolean? @map("life_elementary")                 // JA0317: 초등학생
+  lifeMiddleSchool    Boolean? @map("life_middle_school")              // JA0318: 중학생
+  lifeHighSchool      Boolean? @map("life_high_school")                // JA0319: 고등학생
+  lifeUniversity      Boolean? @map("life_university")                 // JA0320: 대학생/대학원생
+
+  // 직업 (JA0313~JA0316, JA0326~JA0327)
+  jobFarmer           Boolean? @map("job_farmer")                      // JA0313: 농업인
+  jobFisherman        Boolean? @map("job_fisherman")                   // JA0314: 어업인
+  jobLivestock        Boolean? @map("job_livestock")                   // JA0315: 축산업인
+  jobForester         Boolean? @map("job_forester")                    // JA0316: 임업인
+  jobEmployee         Boolean? @map("job_employee")                    // JA0326: 근로자/직장인
+  jobSeeker           Boolean? @map("job_seeker")                      // JA0327: 구직자/실업자
+
+  // 특수 상황 (JA0328~JA0330)
+  targetDisabled      Boolean? @map("target_disabled")                 // JA0328: 장애인
+  targetVeteran       Boolean? @map("target_veteran")                  // JA0329: 국가보훈대상자
+  targetDisease       Boolean? @map("target_disease")                  // JA0330: 질병/질환자
+
+  // 가족 상황 (JA0401~JA0413)
+  familyMulticultural Boolean? @map("family_multicultural")            // JA0401: 다문화가족
+  familyNKDefector    Boolean? @map("family_nk_defector")              // JA0402: 북한이탈주민
+  familySingleParent  Boolean? @map("family_single_parent")            // JA0403: 한부모/조손가정
+  familySinglePerson  Boolean? @map("family_single_person")            // JA0404: 1인가구
+  familyMultiChild    Boolean? @map("family_multi_child")              // JA0411: 다자녀가구
+  familyNoHouse       Boolean? @map("family_no_house")                 // JA0412: 무주택세대
+  familyNewResident   Boolean? @map("family_new_resident")             // JA0413: 신규전입
+
+  // ===== serviceDetail 필드 (온디맨드 조회) =====
+  requiredDocuments     String?  @map("required_documents") @db.Text   // 구비서류
+  officialConfirmDocs   String?  @map("official_confirm_docs") @db.Text // 공무원확인구비서류
+  identityConfirmDocs   String?  @map("identity_confirm_docs") @db.Text // 본인확인필요구비서류
+  onlineApplyUrl        String?  @map("online_apply_url") @db.VarChar(500) // 온라인신청사이트URL
+  relatedLaws           String?  @map("related_laws") @db.Text         // 법령
+  detailFetchedAt       DateTime? @map("detail_fetched_at")            // 상세정보 조회 시간
+
+  // ===== 레거시 필드 (하위 호환성 유지) =====
   estimatedAmount String?  @map("estimated_amount") @db.VarChar(100)
   eligibility     Json?
-  link            String   @db.VarChar(500)
-
-  // 자격 조건
-  minAge          Int?     @map("min_age")
-  maxAge          Int?     @map("max_age")
   minIncome       Int?     @map("min_income")
   maxIncome       Int?     @map("max_income")
   region          String?  @db.VarChar(50)
 
-  // 메타데이터
+  // ===== 메타데이터 =====
   source          String?  @db.VarChar(100)
   fetchedAt       DateTime @default(now()) @map("fetched_at")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
-  // 인덱스
-  @@index([region, minAge, maxAge, minIncome, maxIncome])
+  // ===== 인덱스 =====
   @@index([category])
+  @@index([supportType])
+  @@index([minAge, maxAge])
+  @@index([viewCount(sort: Desc)])
   @@index([fetchedAt(sort: Desc)])
+  // 소득 수준 인덱스
+  @@index([incomeLevel0to50, incomeLevel51to75, incomeLevel76to100, incomeLevel101to200, incomeLevelOver200])
+  // 생애주기 인덱스
+  @@index([lifePregnancyPlan, lifePregnant, lifeBirth])
+  // 학생 인덱스
+  @@index([lifeElementary, lifeMiddleSchool, lifeHighSchool, lifeUniversity])
+  // 가족 상황 인덱스
+  @@index([familySingleParent, familySinglePerson, familyMultiChild, familyNoHouse])
   @@map("benefits")
 }
 

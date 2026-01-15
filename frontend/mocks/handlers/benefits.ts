@@ -12,18 +12,14 @@ import type {
 import { mockBenefits } from '../data/benefits';
 
 export const benefitHandlers = [
-  // GET /api/benefits/search
-  http.get('/api/benefits/search', ({ request }) => {
-    const url = new URL(request.url);
-    const ageParam = url.searchParams.get('age');
-    const incomeParam = url.searchParams.get('income');
-    const regionParam = url.searchParams.get('region');
-
-    // 검색 파라미터 파싱
+  // POST /api/benefits/search (백엔드 API 스펙에 맞춤)
+  http.post('/api/benefits/search', async ({ request }) => {
+    // POST body에서 검색 파라미터 파싱
+    const body = await request.json() as Record<string, unknown>;
     const searchParams: BenefitSearchRequest = {
-      age: ageParam ? parseInt(ageParam, 10) : undefined,
-      income: incomeParam ? parseInt(incomeParam, 10) : undefined,
-      region: regionParam || undefined,
+      age: typeof body.age === 'number' ? body.age : undefined,
+      income: typeof body.income === 'number' ? body.income : undefined,
+      region: typeof body.region === 'string' ? body.region : undefined,
     };
 
     // Mock 데이터 필터링

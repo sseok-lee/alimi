@@ -769,47 +769,119 @@ cd ../welfare-notifier-phase3-search-page
 
 ## M4: 통합 & E2E 테스트 (Phase 4)
 
-### [ ] Phase 4, T4.1: 보조금24 데이터 동기화 & 통합
+### [x] Phase 4, T4.1: 보조금24 데이터 동기화 & 통합
 
 **담당**: backend-specialist
 
 **Git Worktree 설정**:
 ```bash
-git worktree add ../welfare-notifier-phase4-integration -b phase/4-integration
-cd ../welfare-notifier-phase4-integration
+git worktree add ../alimi-phase4-integration -b phase/4-integration
+cd ../alimi-phase4-integration
 ```
 
+**동기화 전략**: 하이브리드 방식 (옵션 B)
+- **1단계**: serviceList + supportConditions 기본 동기화 (2-3시간)
+- **2단계**: serviceDetail 온디맨드 조회 + DB 캐싱
+
+**총 서비스 수**: 약 10,924개
+
+---
+
 **작업 내용**:
-1. **보조금24 데이터 동기화 스크립트 구현**
+
+1. **Prisma 스키마 확장** ✅ (완료)
+   - serviceList 필드 추가 (16개: 지원대상, 선정기준, 지원내용, 신청방법, 신청기한, 소관기관, 연락처, 지원유형, 사용자구분, 접수기관, 조회수 등)
+   - supportConditions 필드 추가 (30+개: 성별, 나이, 소득수준, 생애주기, 학생, 직업, 특수상황, 가족상황)
+   - serviceDetail 필드 추가 (5개: 구비서류, 공무원확인구비서류, 본인확인필요구비서류, 온라인신청URL, 관련법령)
+   - 복합 인덱스 추가 (소득수준, 생애주기, 학생, 가족상황 등)
+   - 마이그레이션 실행: `npx prisma migrate dev`
+
+2. **보조금24 API 클라이언트 구현**
+   - `backend/src/services/gov24ApiClient.ts` 작성
+   - `fetchServiceList()` - 서비스 목록 조회
+   - `fetchSupportConditions()` - 지원조건 조회 (나이/소득 매칭용)
+   - `fetchServiceDetail()` - 상세정보 조회 (온디맨드)
+
+3. **데이터 동기화 스크립트 구현**
    - `backend/src/services/syncBenefits.ts` 작성
-   - API에서 전체 서비스 목록 가져오기 (페이징)
-   - 각 서비스별 지원조건 조회
+   - 페이징으로 전체 서비스 목록 조회
+   - 각 서비스별 지원조건 조회 (매칭 조건)
    - Prisma Upsert로 DB 저장
    - Rate Limiting (1초 대기)
+   - 진행률 로깅
 
-2. **npm 스크립트 추가**
+4. **npm 스크립트 추가**
    - `package.json`에 `sync:benefits` 추가
    - 수동 실행: `npm run sync:benefits`
 
-3. **첫 데이터 동기화 실행**
-   - 실제 API로 데이터 가져오기
-   - DB 저장 확인 (`npm run db:studio`)
+5. **검색 API 수정**
+   - `benefitService.ts` 소득 매칭 로직 추가 (중위소득 기반)
+   - 상세 조회 시 serviceDetail 온디맨드 호출
 
-4. **검색 API 실제 데이터 연동**
-   - `benefitService.searchBenefits()` 수정
-   - Mock 데이터 대신 DB 조회
-
-5. **프론트엔드 MSW Mock 제거**
-   - MSW 비활성화 또는 제거
+6. **프론트엔드 API 연동**
+   - API 호출 방식 수정 (GET → POST)
    - 실제 백엔드 API 호출
-   - CORS 설정 확인
+   - MSW Mock은 개발환경에서만 사용 (이미 설정됨)
+
+---
+
+**보조금24 API 데이터 매핑** (총 40+ 필드):
+
+> 자세한 매핑 정보는 `docs/planning/08-api-integration.md` 참조
+
+**serviceList 필드**:
+
+| 보조금24 필드 | Prisma 필드 | 설명 |
+|-------------|-------------|------|
+| 서비스ID | `id` | PK |
+| 서비스명 | `name` | 지원금 이름 |
+| 서비스분야 | `category` | 카테고리 |
+| 서비스목적요약 | `description` | 간략 설명 |
+| 지원대상 | `targetAudience` | 대상자 정보 |
+| 선정기준 | `selectionCriteria` | 자격 조건 |
+| 지원내용 | `supportDetails` | 지원 금액/내용 |
+| 신청방법 | `applicationMethod` | 신청 방법 |
+| 신청기한 | `applicationDeadline` | 신청 기간 |
+| 상세조회URL | `link` | 정부24 링크 |
+| 소관기관명 | `organizationName` | 담당 기관 |
+| 전화문의 | `contactInfo` | 문의처 |
+| 지원유형 | `supportType` | 현금/현물/서비스 등 |
+| 사용자구분 | `userType` | 개인/가구/법인 |
+| 접수기관명 | `applyAgency` | 접수 기관 |
+| 조회수 | `viewCount` | 인기순 정렬용 |
+
+**supportConditions 필드** (성별/나이/소득/생애주기/학생/직업/특수상황/가족):
+
+| 보조금24 코드 | Prisma 필드 | 설명 |
+|-------------|-------------|------|
+| JA0101, JA0102 | `targetMale`, `targetFemale` | 성별 |
+| JA0110, JA0111 | `minAge`, `maxAge` | 나이 |
+| JA0201~JA0205 | `incomeLevel0to50`~`incomeLevelOver200` | 소득 5단계 |
+| JA0301~JA0303 | `lifePregnancyPlan`, `lifePregnant`, `lifeBirth` | 생애주기 |
+| JA0317~JA0320 | `lifeElementary`~`lifeUniversity` | 학생 |
+| JA0313~JA0327 | `jobFarmer`~`jobSeeker` | 직업 6종 |
+| JA0328~JA0330 | `targetDisabled`, `targetVeteran`, `targetDisease` | 특수상황 |
+| JA0401~JA0413 | `familyMulticultural`~`familyNewResident` | 가족상황 7종 |
+
+**serviceDetail 필드** (온디맨드):
+
+| 보조금24 필드 | Prisma 필드 | 설명 |
+|-------------|-------------|------|
+| 구비서류 | `requiredDocuments` | 필요 서류 |
+| 공무원확인구비서류 | `officialConfirmDocs` | 공무원 확인 서류 |
+| 본인확인필요구비서류 | `identityConfirmDocs` | 본인 확인 서류 |
+| 온라인신청사이트URL | `onlineApplyUrl` | 직접 신청 링크 |
+| 법령 | `relatedLaws` | 관련 법령 |
+
+---
 
 **산출물**:
+- `backend/prisma/schema.prisma` - 스키마 확장 ✅
+- `backend/src/services/gov24ApiClient.ts` - 보조금24 API 클라이언트
 - `backend/src/services/syncBenefits.ts` - 동기화 스크립트
 - `backend/package.json` - `sync:benefits` 스크립트
-- `backend/src/services/benefitService.ts` - DB 조회로 변경
-- `frontend/nuxt.config.ts` - API base URL 설정
-- `backend/src/app.ts` - CORS 설정 (이미 완료)
+- `backend/src/services/benefitService.ts` - 소득 매칭 로직 추가
+- `frontend/app/composables/useBenefitSearch.ts` - API 호출 방식 수정
 
 **환경변수**:
 ```bash
@@ -821,41 +893,45 @@ DATABASE_URL=mysql://alimi:password@localhost:3306/alimi
 
 **실행 순서**:
 ```bash
-# 1. 데이터 동기화
+# 1. Prisma 마이그레이션
 cd backend
+npx prisma migrate dev --name add_gov24_fields
+
+# 2. 데이터 동기화 (약 2-3시간 소요)
 npm run sync:benefits
 
-# 2. DB 확인
+# 3. DB 확인
 npm run db:studio
 
-# 3. 백엔드 서버 실행
+# 4. 백엔드 서버 실행
 npm run dev
 
-# 4. 프론트엔드 실행
+# 5. 프론트엔드 실행
 cd ../frontend
 npm run dev
 
-# 5. 검색 테스트
+# 6. 검색 테스트
 # 브라우저에서 localhost:3000 접속
 # 나이/소득/지역 입력 후 검색
 ```
 
 **참고 문서**:
-- `docs/planning/08-api-integration.md` (API 통합 가이드)
-- `docs/planning/04-database-design.md` (데이터 동기화 전략)
+- `docs/planning/08-api-integration.md` (API 통합 가이드) ✅ 업데이트됨
 
 **완료 조건**:
-- [ ] `syncBenefits.ts` 구현 완료
-- [ ] 첫 동기화 성공 (DB에 데이터 확인)
-- [ ] 검색 API가 실제 DB 데이터 반환
-- [ ] 프론트엔드 MSW Mock 제거
-- [ ] 실제 API 호출 성공 (FE → BE → DB)
-- [ ] CORS 에러 없음
-- [ ] 통합 테스트 통과
+- [x] Prisma 스키마 확장 및 마이그레이션
+- [x] `gov24ApiClient.ts` 구현 완료
+- [x] `syncBenefits.ts` 구현 완료
+- [x] 첫 동기화 성공 (DB에 10,924개 데이터 확인)
+- [x] 검색 API가 실제 DB 데이터 반환 (나이/소득 매칭)
+- [x] 프론트엔드 API 호출 방식 수정 (GET → POST)
+- [x] 실제 API 호출 성공 (FE → BE → DB)
+- [x] CORS 에러 없음
+- [x] 통합 테스트 통과
 
 **완료 시**:
-- [ ] 사용자 승인 후 병합
-- [ ] worktree 정리
+- [x] 구현 완료 (2026-01-15)
+- [ ] 사용자 승인 후 커밋
 
 ---
 
