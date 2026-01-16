@@ -21,8 +21,8 @@ describe('SearchForm.vue', () => {
   it('생년월일 선택 필드가 표시되어야 한다 (년/월/일 select)', () => {
     const wrapper = mount(SearchForm)
     const selects = wrapper.findAll('select')
-    // 년, 월, 일, 소득, 지역, 카테고리, 지원유형, 정렬 = 8개
-    expect(selects.length).toBe(8)
+    // 년, 월, 일, 소득, 지역, 카테고리, 지원유형 = 7개 (정렬은 결과 화면에서 처리)
+    expect(selects.length).toBe(7)
     expect(wrapper.text()).toContain('생년월일')
     expect(wrapper.text()).toContain('년도')
     expect(wrapper.text()).toContain('월')

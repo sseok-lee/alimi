@@ -256,24 +256,6 @@
         </div>
       </div>
 
-      <!-- 정렬 옵션 -->
-      <div class="border-t border-gray-100 pt-5">
-        <label for="search-sort" class="flex items-center gap-2 text-sm font-semibold text-text-primary mb-2">
-          <span class="material-symbols-outlined text-primary text-xl">sort</span>
-          정렬 (선택)
-        </label>
-        <select
-          id="search-sort"
-          v-model="formData.sortBy"
-          name="sortBy"
-          class="w-full h-14 px-4 border border-gray-200 rounded-xl text-base font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-        >
-          <option value="">기본 정렬</option>
-          <option value="latest">최신순</option>
-          <option value="popular">인기순</option>
-        </select>
-      </div>
-
       <!-- 에러 메시지 -->
       <div v-if="props.error" class="flex items-center gap-2 p-3 bg-red-50 text-red-600 text-sm rounded-xl">
         <span class="material-symbols-outlined text-lg">error</span>
@@ -321,7 +303,6 @@ const emit = defineEmits<{
     supportType?: string
     onlineApplyAvailable?: boolean
     alwaysOpen?: boolean
-    sortBy?: 'latest' | 'popular'
   }]
 }>()
 
@@ -362,7 +343,6 @@ const formData = ref({
   supportType: '',
   onlineApplyAvailable: false,
   alwaysOpen: false,
-  sortBy: '' as '' | 'latest' | 'popular',
 })
 
 // 해당 월의 일수 계산
@@ -437,7 +417,6 @@ const handleSubmit = () => {
     supportType?: string
     onlineApplyAvailable?: boolean
     alwaysOpen?: boolean
-    sortBy?: 'latest' | 'popular'
   } = {
     age: calculatedAge.value,
     income: Number(formData.value.income),
@@ -486,9 +465,6 @@ const handleSubmit = () => {
   }
   if (formData.value.alwaysOpen) {
     searchParams.alwaysOpen = true
-  }
-  if (formData.value.sortBy) {
-    searchParams.sortBy = formData.value.sortBy
   }
 
   emit('submit', searchParams)

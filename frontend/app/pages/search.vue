@@ -130,10 +130,15 @@
 
                 <!-- 정렬 옵션 -->
                 <div class="flex items-center gap-3">
-                  <button class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:border-primary text-text-secondary rounded-xl text-sm font-medium transition-colors">
-                    <span class="material-symbols-outlined text-lg">sort</span>
-                    정렬
-                  </button>
+                  <select
+                    v-model="currentSortBy"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:border-primary text-text-secondary rounded-xl text-sm font-medium transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    @change="handleSortChange"
+                  >
+                    <option value="">기본 정렬</option>
+                    <option value="latest">최신순</option>
+                    <option value="popular">인기순</option>
+                  </select>
                 </div>
               </div>
 
@@ -225,6 +230,7 @@ const {
 // 상태 관리
 const searchPerformed = ref(false)
 const lastSearchParams = ref<BenefitSearchRequest | null>(null)
+const currentSortBy = ref<'' | 'latest' | 'popular'>('')
 
 // 소득 포맷팅
 const formatIncome = (income: number): string => {
@@ -259,6 +265,22 @@ const handleLoadMore = async () => {
 const resetSearch = () => {
   searchPerformed.value = false
   lastSearchParams.value = null
+  currentSortBy.value = ''
+}
+
+// 정렬 변경 핸들러
+const handleSortChange = async () => {
+  if (!lastSearchParams.value) return
+
+  try {
+    const paramsWithSort = {
+      ...lastSearchParams.value,
+      ...(currentSortBy.value ? { sortBy: currentSortBy.value } : {})
+    }
+    await search(paramsWithSort)
+  } catch {
+    // 에러는 composable에서 처리됨
+  }
 }
 
 // 카드 클릭 핸들러 (상세 페이지로 이동 - Phase 6에서 구현 예정)
