@@ -6,9 +6,19 @@ export interface BenefitSearchRequest {
   region: string
   category?: string
   lifePregnancy?: boolean
+  lifeUniversity?: boolean
   targetDisabled?: boolean
+  targetVeteran?: boolean
+  jobSeeker?: boolean
+  jobEmployee?: boolean
   familySingleParent?: boolean
   familyMultiChild?: boolean
+  familySinglePerson?: boolean
+  familyNoHouse?: boolean
+  supportType?: string
+  onlineApplyAvailable?: boolean
+  alwaysOpen?: boolean
+  sortBy?: 'latest' | 'popular'
   page?: number
   limit?: number
 }
@@ -62,9 +72,19 @@ export function useBenefitSearch() {
           region: params.region,
           category: params.category,
           lifePregnancy: params.lifePregnancy,
+          lifeUniversity: params.lifeUniversity,
           targetDisabled: params.targetDisabled,
+          targetVeteran: params.targetVeteran,
+          jobSeeker: params.jobSeeker,
+          jobEmployee: params.jobEmployee,
           familySingleParent: params.familySingleParent,
           familyMultiChild: params.familyMultiChild,
+          familySinglePerson: params.familySinglePerson,
+          familyNoHouse: params.familyNoHouse,
+          supportType: params.supportType,
+          onlineApplyAvailable: params.onlineApplyAvailable,
+          alwaysOpen: params.alwaysOpen,
+          sortBy: params.sortBy,
           page: 1,
           limit: limit.value,
         }),

@@ -119,11 +119,11 @@
         </select>
       </div>
 
-      <!-- 대상 조건 필터 -->
+      <!-- 주요 대상 조건 필터 -->
       <div class="border-t border-gray-100 pt-5">
         <label class="flex items-center gap-2 text-sm font-semibold text-text-primary mb-3">
           <span class="material-symbols-outlined text-primary text-xl">tune</span>
-          대상 조건 (선택)
+          주요 대상 (선택)
         </label>
         <div class="grid grid-cols-2 gap-3">
           <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.lifePregnancy }">
@@ -161,6 +161,129 @@
         </div>
       </div>
 
+      <!-- 추가 대상 필터 -->
+      <div class="border-t border-gray-100 pt-5">
+        <label class="flex items-center gap-2 text-sm font-semibold text-text-primary mb-3">
+          <span class="material-symbols-outlined text-primary text-xl">group_add</span>
+          추가 대상 (선택)
+        </label>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.jobSeeker }">
+            <input
+              v-model="formData.jobSeeker"
+              type="checkbox"
+              class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
+            />
+            <span class="text-sm text-text-primary">구직자/실업자</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.lifeUniversity }">
+            <input
+              v-model="formData.lifeUniversity"
+              type="checkbox"
+              class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
+            />
+            <span class="text-sm text-text-primary">대학생/대학원생</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.familySinglePerson }">
+            <input
+              v-model="formData.familySinglePerson"
+              type="checkbox"
+              class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
+            />
+            <span class="text-sm text-text-primary">1인가구</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.familyNoHouse }">
+            <input
+              v-model="formData.familyNoHouse"
+              type="checkbox"
+              class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
+            />
+            <span class="text-sm text-text-primary">무주택세대</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.jobEmployee }">
+            <input
+              v-model="formData.jobEmployee"
+              type="checkbox"
+              class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
+            />
+            <span class="text-sm text-text-primary">근로자/직장인</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.targetVeteran }">
+            <input
+              v-model="formData.targetVeteran"
+              type="checkbox"
+              class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
+            />
+            <span class="text-sm text-text-primary">국가보훈대상자</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 지원 유형 필터 -->
+      <div class="border-t border-gray-100 pt-5">
+        <label for="search-support-type" class="flex items-center gap-2 text-sm font-semibold text-text-primary mb-2">
+          <span class="material-symbols-outlined text-primary text-xl">card_giftcard</span>
+          지원 유형 (선택)
+        </label>
+        <select
+          id="search-support-type"
+          v-model="formData.supportType"
+          name="supportType"
+          class="w-full h-14 px-4 border border-gray-200 rounded-xl text-base font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+        >
+          <option value="">전체</option>
+          <option value="현금">현금</option>
+          <option value="현물">현물</option>
+          <option value="서비스">서비스</option>
+          <option value="이용권">이용권</option>
+          <option value="감면">감면</option>
+        </select>
+      </div>
+
+      <!-- 신청 조건 필터 -->
+      <div class="border-t border-gray-100 pt-5">
+        <label class="flex items-center gap-2 text-sm font-semibold text-text-primary mb-3">
+          <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+          신청 조건 (선택)
+        </label>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.onlineApplyAvailable }">
+            <input
+              v-model="formData.onlineApplyAvailable"
+              type="checkbox"
+              class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
+            />
+            <span class="text-sm text-text-primary">온라인 신청 가능</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.alwaysOpen }">
+            <input
+              v-model="formData.alwaysOpen"
+              type="checkbox"
+              class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
+            />
+            <span class="text-sm text-text-primary">상시 신청</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 정렬 옵션 -->
+      <div class="border-t border-gray-100 pt-5">
+        <label for="search-sort" class="flex items-center gap-2 text-sm font-semibold text-text-primary mb-2">
+          <span class="material-symbols-outlined text-primary text-xl">sort</span>
+          정렬 (선택)
+        </label>
+        <select
+          id="search-sort"
+          v-model="formData.sortBy"
+          name="sortBy"
+          class="w-full h-14 px-4 border border-gray-200 rounded-xl text-base font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+        >
+          <option value="">기본 정렬</option>
+          <option value="latest">최신순</option>
+          <option value="popular">인기순</option>
+        </select>
+      </div>
+
       <!-- 에러 메시지 -->
       <div v-if="props.error" class="flex items-center gap-2 p-3 bg-red-50 text-red-600 text-sm rounded-xl">
         <span class="material-symbols-outlined text-lg">error</span>
@@ -196,9 +319,19 @@ const emit = defineEmits<{
     region: string
     category?: string
     lifePregnancy?: boolean
+    lifeUniversity?: boolean
     targetDisabled?: boolean
+    targetVeteran?: boolean
+    jobSeeker?: boolean
+    jobEmployee?: boolean
     familySingleParent?: boolean
     familyMultiChild?: boolean
+    familySinglePerson?: boolean
+    familyNoHouse?: boolean
+    supportType?: string
+    onlineApplyAvailable?: boolean
+    alwaysOpen?: boolean
+    sortBy?: 'latest' | 'popular'
   }]
 }>()
 
@@ -227,9 +360,19 @@ const formData = ref({
   region: '',
   category: '',
   lifePregnancy: false,
+  lifeUniversity: false,
   targetDisabled: false,
+  targetVeteran: false,
+  jobSeeker: false,
+  jobEmployee: false,
   familySingleParent: false,
   familyMultiChild: false,
+  familySinglePerson: false,
+  familyNoHouse: false,
+  supportType: '',
+  onlineApplyAvailable: false,
+  alwaysOpen: false,
+  sortBy: '' as '' | 'latest' | 'popular',
 })
 
 // 해당 월의 일수 계산
@@ -292,9 +435,19 @@ const handleSubmit = () => {
     region: string
     category?: string
     lifePregnancy?: boolean
+    lifeUniversity?: boolean
     targetDisabled?: boolean
+    targetVeteran?: boolean
+    jobSeeker?: boolean
+    jobEmployee?: boolean
     familySingleParent?: boolean
     familyMultiChild?: boolean
+    familySinglePerson?: boolean
+    familyNoHouse?: boolean
+    supportType?: string
+    onlineApplyAvailable?: boolean
+    alwaysOpen?: boolean
+    sortBy?: 'latest' | 'popular'
   } = {
     age: calculatedAge.value,
     income: Number(formData.value.income),
@@ -308,14 +461,44 @@ const handleSubmit = () => {
   if (formData.value.lifePregnancy) {
     searchParams.lifePregnancy = true
   }
+  if (formData.value.lifeUniversity) {
+    searchParams.lifeUniversity = true
+  }
   if (formData.value.targetDisabled) {
     searchParams.targetDisabled = true
+  }
+  if (formData.value.targetVeteran) {
+    searchParams.targetVeteran = true
+  }
+  if (formData.value.jobSeeker) {
+    searchParams.jobSeeker = true
+  }
+  if (formData.value.jobEmployee) {
+    searchParams.jobEmployee = true
   }
   if (formData.value.familySingleParent) {
     searchParams.familySingleParent = true
   }
   if (formData.value.familyMultiChild) {
     searchParams.familyMultiChild = true
+  }
+  if (formData.value.familySinglePerson) {
+    searchParams.familySinglePerson = true
+  }
+  if (formData.value.familyNoHouse) {
+    searchParams.familyNoHouse = true
+  }
+  if (formData.value.supportType) {
+    searchParams.supportType = formData.value.supportType
+  }
+  if (formData.value.onlineApplyAvailable) {
+    searchParams.onlineApplyAvailable = true
+  }
+  if (formData.value.alwaysOpen) {
+    searchParams.alwaysOpen = true
+  }
+  if (formData.value.sortBy) {
+    searchParams.sortBy = formData.value.sortBy
   }
 
   emit('submit', searchParams)

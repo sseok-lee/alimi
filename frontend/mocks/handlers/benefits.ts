@@ -22,9 +22,19 @@ export const benefitHandlers = [
       region: body.region,
       category: body.category,
       lifePregnancy: body.lifePregnancy,
+      lifeUniversity: body.lifeUniversity,
       targetDisabled: body.targetDisabled,
+      targetVeteran: body.targetVeteran,
+      jobSeeker: body.jobSeeker,
+      jobEmployee: body.jobEmployee,
       familySingleParent: body.familySingleParent,
       familyMultiChild: body.familyMultiChild,
+      familySinglePerson: body.familySinglePerson,
+      familyNoHouse: body.familyNoHouse,
+      supportType: body.supportType,
+      onlineApplyAvailable: body.onlineApplyAvailable,
+      alwaysOpen: body.alwaysOpen,
+      sortBy: body.sortBy,
     };
 
     const page = body.page || 1;
@@ -101,6 +111,78 @@ export const benefitHandlers = [
       filteredBenefits = filteredBenefits.filter((benefit) => {
         return benefit.familyMultiChild === true;
       });
+    }
+
+    // 대학생/대학원생 필터
+    if (searchParams.lifeUniversity === true) {
+      filteredBenefits = filteredBenefits.filter((benefit) => {
+        return benefit.lifeUniversity === true;
+      });
+    }
+
+    // 국가보훈대상자 필터
+    if (searchParams.targetVeteran === true) {
+      filteredBenefits = filteredBenefits.filter((benefit) => {
+        return benefit.targetVeteran === true;
+      });
+    }
+
+    // 구직자/실업자 필터
+    if (searchParams.jobSeeker === true) {
+      filteredBenefits = filteredBenefits.filter((benefit) => {
+        return benefit.jobSeeker === true;
+      });
+    }
+
+    // 근로자/직장인 필터
+    if (searchParams.jobEmployee === true) {
+      filteredBenefits = filteredBenefits.filter((benefit) => {
+        return benefit.jobEmployee === true;
+      });
+    }
+
+    // 1인가구 필터
+    if (searchParams.familySinglePerson === true) {
+      filteredBenefits = filteredBenefits.filter((benefit) => {
+        return benefit.familySinglePerson === true;
+      });
+    }
+
+    // 무주택세대 필터
+    if (searchParams.familyNoHouse === true) {
+      filteredBenefits = filteredBenefits.filter((benefit) => {
+        return benefit.familyNoHouse === true;
+      });
+    }
+
+    // 지원 유형 필터
+    if (searchParams.supportType && searchParams.supportType !== '') {
+      filteredBenefits = filteredBenefits.filter((benefit) => {
+        return benefit.supportType === searchParams.supportType;
+      });
+    }
+
+    // 온라인 신청 가능 필터
+    if (searchParams.onlineApplyAvailable === true) {
+      filteredBenefits = filteredBenefits.filter((benefit) => {
+        return benefit.onlineApplyAvailable === true;
+      });
+    }
+
+    // 상시 신청 필터
+    if (searchParams.alwaysOpen === true) {
+      filteredBenefits = filteredBenefits.filter((benefit) => {
+        return benefit.alwaysOpen === true;
+      });
+    }
+
+    // 정렬 처리
+    if (searchParams.sortBy === 'latest') {
+      // 최신순 정렬 (id 역순으로 가정)
+      filteredBenefits = [...filteredBenefits].reverse();
+    } else if (searchParams.sortBy === 'popular') {
+      // 인기순 정렬 (Mock에서는 이름순으로 가정)
+      filteredBenefits = [...filteredBenefits].sort((a, b) => a.name.localeCompare(b.name));
     }
 
     // 페이징 적용

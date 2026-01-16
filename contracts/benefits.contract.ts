@@ -22,13 +22,31 @@ export interface BenefitSearchRequest {
 
   // 생애주기 필터 (임신/출산)
   lifePregnancy?: boolean; // 임신/출산 관련 (JA0301, JA0302, JA0303)
+  lifeUniversity?: boolean; // 대학생/대학원생
 
   // 특수 대상 필터
   targetDisabled?: boolean;      // 장애인 (JA0328)
+  targetVeteran?: boolean;       // 국가보훈대상자
+
+  // 직업 상황 필터
+  jobSeeker?: boolean;           // 구직자/실업자
+  jobEmployee?: boolean;         // 근로자/직장인
 
   // 가족 상황 필터
   familySingleParent?: boolean;  // 한부모/조손 (JA0403)
   familyMultiChild?: boolean;    // 다자녀 (JA0411)
+  familySinglePerson?: boolean;  // 1인가구
+  familyNoHouse?: boolean;       // 무주택세대
+
+  // 지원 유형 필터
+  supportType?: string;          // 현금/현물/서비스/이용권/감면 등
+
+  // 신청 조건 필터
+  onlineApplyAvailable?: boolean; // 온라인 신청 가능
+  alwaysOpen?: boolean;           // 상시 신청
+
+  // 정렬 옵션
+  sortBy?: 'latest' | 'popular';  // 최신순/인기순
 }
 
 /**
@@ -48,9 +66,18 @@ export interface BenefitResponse {
   maxIncome?: number;
   region?: string;
   lifePregnancy?: boolean;
+  lifeUniversity?: boolean;
   targetDisabled?: boolean;
+  targetVeteran?: boolean;
+  jobSeeker?: boolean;
+  jobEmployee?: boolean;
   familySingleParent?: boolean;
   familyMultiChild?: boolean;
+  familySinglePerson?: boolean;
+  familyNoHouse?: boolean;
+  supportType?: string;
+  onlineApplyAvailable?: boolean;
+  alwaysOpen?: boolean;
 }
 
 /**

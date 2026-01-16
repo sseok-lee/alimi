@@ -21,8 +21,8 @@ describe('SearchForm.vue', () => {
   it('생년월일 선택 필드가 표시되어야 한다 (년/월/일 select)', () => {
     const wrapper = mount(SearchForm)
     const selects = wrapper.findAll('select')
-    // 년, 월, 일, 소득, 지역, 카테고리 = 6개
-    expect(selects.length).toBe(6)
+    // 년, 월, 일, 소득, 지역, 카테고리, 지원유형, 정렬 = 8개
+    expect(selects.length).toBe(8)
     expect(wrapper.text()).toContain('생년월일')
     expect(wrapper.text()).toContain('년도')
     expect(wrapper.text()).toContain('월')
@@ -63,7 +63,8 @@ describe('SearchForm.vue', () => {
   it('대상 조건 체크박스가 표시되어야 한다', () => {
     const wrapper = mount(SearchForm)
     const checkboxes = wrapper.findAll('input[type="checkbox"]')
-    expect(checkboxes.length).toBe(4) // 임신/출산, 장애인, 한부모/조손, 다자녀
+    // 주요 대상 4개 + 추가 대상 6개 + 신청 조건 2개 = 12개
+    expect(checkboxes.length).toBe(12)
   })
 
   it('생년월일 입력 시 만 나이가 계산되어 표시되어야 한다', async () => {
