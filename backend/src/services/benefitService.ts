@@ -12,7 +12,29 @@ export interface SearchResult {
 }
 
 export async function searchBenefits(params: BenefitSearchInput): Promise<SearchResult> {
-  const { age, income, region, category, lifePregnancy, targetDisabled, familySingleParent, familyMultiChild, page = 1, limit = 20 } = params
+  const {
+    age,
+    income,
+    region,
+    category,
+    lifePregnancy,
+    targetDisabled,
+    familySingleParent,
+    familyMultiChild,
+    // Phase 8 추가 필터
+    jobSeeker,
+    lifeUniversity,
+    familySinglePerson,
+    familyNoHouse,
+    jobEmployee,
+    targetVeteran,
+    supportType,
+    onlineApplyAvailable,
+    alwaysOpen,
+    sortBy = 'latest',
+    page = 1,
+    limit = 20
+  } = params
 
   const where: Prisma.BenefitWhereInput = {}
 
@@ -96,8 +118,62 @@ export async function searchBenefits(params: BenefitSearchInput): Promise<Search
     where.familyMultiChild = true
   }
 
+  // Phase 8 추가 필터 - Boolean 필터
+  if (jobSeeker === true) {
+    where.jobSeeker = true
+  }
+
+  if (lifeUniversity === true) {
+    where.lifeUniversity = true
+  }
+
+  if (familySinglePerson === true) {
+    where.familySinglePerson = true
+  }
+
+  if (familyNoHouse === true) {
+    where.familyNoHouse = true
+  }
+
+  if (jobEmployee === true) {
+    where.jobEmployee = true
+  }
+
+  if (targetVeteran === true) {
+    where.targetVeteran = true
+  }
+
+  // 지원유형 필터
+  if (supportType) {
+    where.supportType = supportType
+  }
+
+  // 온라인 신청 가능 필터
+  if (onlineApplyAvailable === true) {
+    where.onlineApplyUrl = { not: null }
+  }
+
+  // 상시 신청 가능 필터
+  if (alwaysOpen === true) {
+    where.AND = [
+      ...(Array.isArray(where.AND) ? where.AND : []),
+      {
+        OR: [
+          { applicationDeadline: { contains: '상시' } },
+          { applicationDeadline: { contains: '수시' } },
+          { applicationDeadline: null }
+        ]
+      }
+    ]
+  }
+
   const skip = (page - 1) * limit
   const take = limit
+
+  // 정렬 조건 설정
+  const orderBy = sortBy === 'popular'
+    ? { viewCount: 'desc' as const }
+    : { fetchedAt: 'desc' as const }
 
   // 병렬로 데이터와 총 개수 조회
   const [benefits, totalCount] = await Promise.all([
@@ -105,7 +181,7 @@ export async function searchBenefits(params: BenefitSearchInput): Promise<Search
       where,
       skip,
       take,
-      orderBy: { fetchedAt: 'desc' }
+      orderBy
     }),
     prisma.benefit.count({ where })
   ])
