@@ -20,6 +20,11 @@ export interface BenefitDetail {
   minIncome: number | null
   maxIncome: number | null
   region: string | null
+  supportType: string | null
+  applyAgency: string | null
+  officialConfirmDocs: string | null
+  identityConfirmDocs: string | null
+  relatedLaws: string | null
 }
 
 export interface SimpleBenefit {

@@ -9,35 +9,71 @@ describe('ApplySidebar.vue', () => {
         applicationDeadline: '2024-12-31',
         link: 'https://www.gov.kr',
         organizationName: '서울시청',
+        applyAgency: null,
+        contactInfo: null,
       },
     })
     expect(wrapper.exists()).toBe(true)
   })
 
-  it('신청 마감일이 표시되어야 한다', () => {
+  it('신청 기간이 표시되어야 한다', () => {
     const wrapper = mount(ApplySidebar, {
       props: {
         applicationDeadline: '2024-12-31',
         link: 'https://www.gov.kr',
         organizationName: null,
+        applyAgency: null,
+        contactInfo: null,
       },
     })
-    expect(wrapper.text()).toContain('신청 마감')
+    expect(wrapper.text()).toContain('신청 기간')
   })
 
-  it('D-Day가 계산되어 표시되어야 한다', () => {
+  it('기간형 신청 기간에 D-Day가 계산되어 표시되어야 한다', () => {
+    const today = new Date()
     const futureDate = new Date()
-    futureDate.setDate(futureDate.getDate() + 5)
-    const dateString = futureDate.toISOString().split('T')[0]
+    futureDate.setDate(futureDate.getDate() + 30)
+    // 기간형 형식으로 변경 (시작일~종료일)
+    const startStr = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`
+    const endStr = `${futureDate.getFullYear()}.${String(futureDate.getMonth() + 1).padStart(2, '0')}.${String(futureDate.getDate()).padStart(2, '0')}`
+    const dateRange = `${startStr}~${endStr}`
 
     const wrapper = mount(ApplySidebar, {
       props: {
-        applicationDeadline: dateString,
+        applicationDeadline: dateRange,
         link: 'https://www.gov.kr',
         organizationName: null,
+        applyAgency: null,
+        contactInfo: null,
       },
     })
     expect(wrapper.text()).toContain('D-')
+  })
+
+  it('상시형 신청 기간이 배지로 표시되어야 한다', () => {
+    const wrapper = mount(ApplySidebar, {
+      props: {
+        applicationDeadline: '상시',
+        link: 'https://www.gov.kr',
+        organizationName: null,
+        applyAgency: null,
+        contactInfo: null,
+      },
+    })
+    expect(wrapper.text()).toContain('상시 신청')
+  })
+
+  it('예산 소진형이 선착순 배지로 표시되어야 한다', () => {
+    const wrapper = mount(ApplySidebar, {
+      props: {
+        applicationDeadline: '2025.01.01 ~ 예산 소진 시까지',
+        link: 'https://www.gov.kr',
+        organizationName: null,
+        applyAgency: null,
+        contactInfo: null,
+      },
+    })
+    expect(wrapper.text()).toContain('선착순')
   })
 
   it('신청 버튼이 표시되어야 한다', () => {
@@ -46,6 +82,8 @@ describe('ApplySidebar.vue', () => {
         applicationDeadline: null,
         link: 'https://www.gov.kr',
         organizationName: null,
+        applyAgency: null,
+        contactInfo: null,
       },
     })
     const button = wrapper.find('a.apply-button')
@@ -59,6 +97,8 @@ describe('ApplySidebar.vue', () => {
         applicationDeadline: null,
         link: 'https://www.gov.kr',
         organizationName: null,
+        applyAgency: null,
+        contactInfo: null,
       },
     })
     const button = wrapper.find('a.apply-button')
@@ -71,6 +111,8 @@ describe('ApplySidebar.vue', () => {
         applicationDeadline: null,
         link: 'https://www.gov.kr',
         organizationName: null,
+        applyAgency: null,
+        contactInfo: null,
       },
     })
     const button = wrapper.find('a.apply-button')
@@ -83,6 +125,8 @@ describe('ApplySidebar.vue', () => {
         applicationDeadline: null,
         link: 'https://www.gov.kr',
         organizationName: null,
+        applyAgency: null,
+        contactInfo: null,
       },
     })
     expect(wrapper.classes()).toContain('sticky')
@@ -94,6 +138,8 @@ describe('ApplySidebar.vue', () => {
         applicationDeadline: null,
         link: 'https://www.gov.kr',
         organizationName: '서울시청',
+        applyAgency: null,
+        contactInfo: null,
       },
     })
     expect(wrapper.text()).toContain('서울시청')

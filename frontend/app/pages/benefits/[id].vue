@@ -69,7 +69,14 @@
             />
 
             <!-- 구비 서류 -->
-            <DocumentsCard :documents="benefit.requiredDocuments" />
+            <DocumentsCard
+              :documents="benefit.requiredDocuments"
+              :official-confirm-docs="benefit.officialConfirmDocs"
+              :identity-confirm-docs="benefit.identityConfirmDocs"
+            />
+
+            <!-- 관련 법령 -->
+            <RelatedLawsCard v-if="benefit.relatedLaws" :related-laws="benefit.relatedLaws" />
 
             <!-- 신청 절차 -->
             <ProcessSteps
@@ -86,9 +93,11 @@
           <aside class="lg:col-span-4 hidden lg:block">
             <div class="sticky top-24">
               <ApplySidebar
+                :application-deadline="benefit.applicationDeadline"
                 :link="benefit.link"
-                :contact-info="benefit.contactInfo"
                 :organization-name="benefit.organizationName"
+                :apply-agency="benefit.applyAgency"
+                :contact-info="benefit.contactInfo"
               />
             </div>
           </aside>
@@ -121,6 +130,7 @@ import { onMounted } from 'vue'
 import BenefitHero from '../../components/benefit/BenefitHero.vue'
 import EligibilityCard from '../../components/benefit/EligibilityCard.vue'
 import DocumentsCard from '../../components/benefit/DocumentsCard.vue'
+import RelatedLawsCard from '../../components/benefit/RelatedLawsCard.vue'
 import ProcessSteps from '../../components/benefit/ProcessSteps.vue'
 import ApplySidebar from '../../components/benefit/ApplySidebar.vue'
 import RelatedBenefits from '../../components/benefit/RelatedBenefits.vue'

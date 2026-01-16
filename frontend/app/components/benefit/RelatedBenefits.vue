@@ -4,12 +4,10 @@
 
     <!-- 관련 서비스 카드 -->
     <div v-if="benefits.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-      <a
+      <NuxtLink
         v-for="benefit in benefits"
         :key="benefit.id"
-        :href="benefit.link"
-        target="_blank"
-        rel="noopener noreferrer"
+        :to="`/benefits/${benefit.id}`"
         class="group block bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow"
       >
         <!-- 카테고리 그라디언트 헤더 -->
@@ -31,7 +29,7 @@
             <span>조회수: {{ benefit.viewCount.toLocaleString() }}</span>
           </div>
         </div>
-      </a>
+      </NuxtLink>
     </div>
 
     <!-- 빈 상태 -->

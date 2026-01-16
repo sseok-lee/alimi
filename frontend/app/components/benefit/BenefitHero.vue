@@ -8,6 +8,13 @@
         <span class="material-symbols-outlined text-[14px] icon-filled">home</span>
         {{ benefit.category }}
       </span>
+      <span
+        v-if="benefit.supportType"
+        class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-200 border border-green-100 dark:border-green-800"
+      >
+        <span class="material-symbols-outlined text-[14px] icon-filled">{{ supportTypeIcon }}</span>
+        {{ benefit.supportType }}
+      </span>
     </div>
 
     <!-- 서비스명 -->
@@ -40,6 +47,7 @@ interface BenefitHeroProp {
   description: string | null
   supportDetails: string | null
   viewCount: number
+  supportType: string | null
 }
 
 const props = defineProps<{
@@ -58,6 +66,16 @@ const highlightAmount = computed(() => {
     props.benefit.supportDetails,
     `<strong class="text-gray-900 dark:text-white font-bold">${props.benefit.supportDetails}</strong>`
   )
+})
+
+// 지원유형 아이콘 매핑
+const supportTypeIcon = computed(() => {
+  const type = props.benefit.supportType?.toLowerCase() || ''
+  if (type.includes('현금')) return 'payments'
+  if (type.includes('현물')) return 'inventory_2'
+  if (type.includes('서비스')) return 'support_agent'
+  if (type.includes('이용권')) return 'confirmation_number'
+  return 'card_giftcard' // 기본 아이콘
 })
 </script>
 

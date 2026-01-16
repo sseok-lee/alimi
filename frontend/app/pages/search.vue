@@ -106,8 +106,8 @@
                 검색 조건을 변경해서 다시 시도해보세요
               </p>
               <button
-                @click="resetSearch"
                 class="inline-flex items-center gap-2 px-6 py-2.5 bg-primary/10 text-primary rounded-xl text-sm font-semibold hover:bg-primary/20 transition-colors"
+                @click="resetSearch"
               >
                 <span class="material-symbols-outlined text-lg">refresh</span>
                 조건 변경하기

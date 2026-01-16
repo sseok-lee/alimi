@@ -11,19 +11,19 @@
     <!-- 내용 -->
     <div class="p-6 sm:p-8">
       <!-- 데이터가 있을 때 -->
-      <ul v-if="hasEligibilityData" class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
-        <li v-if="targetAudience" class="flex items-start gap-3">
-          <span class="material-symbols-outlined text-green-600 mt-0.5 text-[20px]">check</span>
+      <ul v-if="hasEligibilityData" class="space-y-5">
+        <li v-if="cleanedTargetAudience" class="flex items-start gap-3">
+          <span class="material-symbols-outlined text-green-600 mt-0.5 text-[20px] flex-shrink-0">check</span>
           <div>
-            <p class="font-bold text-sm">대상자</p>
-            <p class="text-sm text-gray-600">{{ targetAudience }}</p>
+            <p class="font-bold text-sm mb-1">대상자</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{{ cleanedTargetAudience }}</p>
           </div>
         </li>
-        <li v-if="selectionCriteria" class="flex items-start gap-3">
-          <span class="material-symbols-outlined text-green-600 mt-0.5 text-[20px]">check</span>
+        <li v-if="cleanedSelectionCriteria" class="flex items-start gap-3">
+          <span class="material-symbols-outlined text-green-600 mt-0.5 text-[20px] flex-shrink-0">check</span>
           <div>
-            <p class="font-bold text-sm">선발 기준</p>
-            <p class="text-sm text-gray-600">{{ selectionCriteria }}</p>
+            <p class="font-bold text-sm mb-1">선발 기준</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{{ cleanedSelectionCriteria }}</p>
           </div>
         </li>
       </ul>
@@ -45,8 +45,21 @@ const props = defineProps<{
   selectionCriteria: string | null
 }>()
 
+// 불필요한 특수문자 제거 및 || 구분자 처리
+const cleanText = (text: string | null): string => {
+  if (!text) return ''
+  return text
+    .replace(/[○●◎◇◆□■▶▷►▻☞☜★☆◀◁▲△▼▽◐◑]/g, '') // 특수 기호 제거
+    .replace(/\|\|/g, ', ') // || 구분자를 쉼표로 변환
+    .replace(/\s+/g, ' ')  // 연속 공백 정리
+    .trim()
+}
+
+const cleanedTargetAudience = computed(() => cleanText(props.targetAudience))
+const cleanedSelectionCriteria = computed(() => cleanText(props.selectionCriteria))
+
 const hasEligibilityData = computed(() => {
-  return props.targetAudience || props.selectionCriteria
+  return cleanedTargetAudience.value || cleanedSelectionCriteria.value
 })
 </script>
 

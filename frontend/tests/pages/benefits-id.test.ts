@@ -74,7 +74,7 @@ const mockRoute = {
 // Nuxt auto-imports 모킹
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 global.useRoute = (() => mockRoute) as any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 global.useRuntimeConfig = (() => ({
   public: {
     apiBase: 'http://localhost:8000',

@@ -68,7 +68,13 @@ export const BenefitDetailSchema = z.object({
   maxAge: z.number().nullable(),
   minIncome: z.number().nullable(),
   maxIncome: z.number().nullable(),
-  region: z.string().nullable()
+  region: z.string().nullable(),
+  onlineApplyUrl: z.string().nullable(),
+  relatedLaws: z.string().nullable(),
+  supportType: z.string().nullable(),
+  applyAgency: z.string().nullable(),
+  officialConfirmDocs: z.string().nullable(),
+  identityConfirmDocs: z.string().nullable()
 })
 
 export type BenefitDetail = z.infer<typeof BenefitDetailSchema>

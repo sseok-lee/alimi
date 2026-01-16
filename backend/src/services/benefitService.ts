@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma.js'
 import { BenefitSearchInput, BenefitResponse, BenefitDetailResponse, BenefitDetail, SimpleBenefit } from '../schemas/benefit.js'
+import { fetchServiceDetail } from './gov24ApiClient.js'
 
 export interface SearchResult {
   benefits: BenefitResponse[]
@@ -184,11 +185,38 @@ const viewedBenefits = new Set<string>()
 
 export async function getBenefitDetailWithRelated(id: string, sessionId?: string): Promise<BenefitDetailResponse | null> {
   // 상세 정보 조회
-  const benefit = await prisma.benefit.findUnique({
+  let benefit = await prisma.benefit.findUnique({
     where: { id }
   })
 
   if (!benefit) return null
+
+  // 온디맨드 조회: detailFetchedAt이 NULL이면 API 호출하여 상세 정보 가져오기
+  if (!benefit.detailFetchedAt) {
+    try {
+      console.log(`[BenefitService] Fetching detail for ${id} on-demand`)
+      const detailData = await fetchServiceDetail(id)
+
+      if (detailData) {
+        // DB 업데이트: requiredDocuments, onlineApplyUrl, relatedLaws, detailFetchedAt
+        benefit = await prisma.benefit.update({
+          where: { id },
+          data: {
+            requiredDocuments: detailData.구비서류 || null,
+            onlineApplyUrl: detailData.온라인신청사이트URL || null,
+            relatedLaws: detailData.법령 || null,
+            detailFetchedAt: new Date()
+          }
+        })
+        console.log(`[BenefitService] Detail fetched and saved for ${id}`)
+      } else {
+        console.warn(`[BenefitService] Detail not found for ${id}`)
+      }
+    } catch (error) {
+      console.error(`[BenefitService] Failed to fetch detail for ${id}:`, error)
+      // 에러 발생 시에도 기존 데이터로 계속 진행
+    }
+  }
 
   // 세션 기반 중복 조회 방지: 같은 세션에서 이미 본 benefit은 viewCount 증가 안 함
   const viewKey = sessionId ? `${sessionId}-${id}` : null
@@ -236,7 +264,13 @@ export async function getBenefitDetailWithRelated(id: string, sessionId?: string
     maxAge: updatedBenefit.maxAge,
     minIncome: updatedBenefit.minIncome,
     maxIncome: updatedBenefit.maxIncome,
-    region: updatedBenefit.region
+    region: updatedBenefit.region,
+    onlineApplyUrl: updatedBenefit.onlineApplyUrl,
+    relatedLaws: updatedBenefit.relatedLaws,
+    supportType: updatedBenefit.supportType,
+    applyAgency: updatedBenefit.applyAgency,
+    officialConfirmDocs: updatedBenefit.officialConfirmDocs,
+    identityConfirmDocs: updatedBenefit.identityConfirmDocs
   }
 
   const simpleBenefits: SimpleBenefit[] = relatedBenefits.map(b => ({

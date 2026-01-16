@@ -8,6 +8,7 @@ const mockBenefit = {
   description: '서울 거주 청년의 주거 안정을 위해 월 최대 200,000원을 12개월간 지원',
   supportDetails: '월 최대 200,000원',
   viewCount: 2405,
+  supportType: null,
 }
 
 describe('BenefitHero.vue', () => {

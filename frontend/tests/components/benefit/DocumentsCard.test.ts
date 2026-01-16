@@ -7,6 +7,8 @@ describe('DocumentsCard.vue', () => {
     const wrapper = mount(DocumentsCard, {
       props: {
         documents: '임대차 계약서\n가족관계증명서',
+        officialConfirmDocs: null,
+        identityConfirmDocs: null,
       },
     })
     expect(wrapper.exists()).toBe(true)
@@ -16,6 +18,8 @@ describe('DocumentsCard.vue', () => {
     const wrapper = mount(DocumentsCard, {
       props: {
         documents: '임대차 계약서',
+        officialConfirmDocs: null,
+        identityConfirmDocs: null,
       },
     })
     expect(wrapper.text()).toContain('구비 서류')
@@ -25,6 +29,8 @@ describe('DocumentsCard.vue', () => {
     const wrapper = mount(DocumentsCard, {
       props: {
         documents: '임대차 계약서\n가족관계증명서\n통장 사본',
+        officialConfirmDocs: null,
+        identityConfirmDocs: null,
       },
     })
     expect(wrapper.text()).toContain('임대차 계약서')
@@ -36,6 +42,8 @@ describe('DocumentsCard.vue', () => {
     const wrapper = mount(DocumentsCard, {
       props: {
         documents: null,
+        officialConfirmDocs: null,
+        identityConfirmDocs: null,
       },
     })
     expect(wrapper.text()).toContain('구비 서류 정보가 없습니다')
@@ -45,6 +53,8 @@ describe('DocumentsCard.vue', () => {
     const wrapper = mount(DocumentsCard, {
       props: {
         documents: '',
+        officialConfirmDocs: null,
+        identityConfirmDocs: null,
       },
     })
     expect(wrapper.text()).toContain('구비 서류 정보가 없습니다')

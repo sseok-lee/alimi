@@ -9,52 +9,20 @@
     </div>
 
     <!-- 내용 -->
-    <div class="p-6 relative">
-      <!-- 단계들이 있을 때 -->
-      <template v-if="steps.length > 0">
-        <!-- 연결선 (데스크탑) -->
-        <div class="absolute left-6 top-6 bottom-6 w-0.5 bg-gray-100 dark:bg-gray-700 hidden sm:block md:left-8"></div>
-
-        <div class="space-y-8 sm:pl-10 relative">
-          <div
-            v-for="(step, index) in steps"
-            :key="index"
-            class="relative flex flex-col sm:flex-row gap-4"
-          >
-            <!-- 단계 번호 배지 (데스크탑) -->
-            <div
-              :class="[
-                'step-badge',
-                'hidden sm:flex absolute -left-[45px] top-0 size-8 rounded-full items-center justify-center font-bold text-sm shadow-md ring-4 ring-white dark:ring-gray-800',
-                index === 0
-                  ? 'bg-primary text-white'
-                  : 'bg-white border-2 border-gray-200 text-gray-600 dark:bg-gray-700 dark:border-gray-600'
-              ]"
-            >
-              {{ index + 1 }}
-            </div>
-
-            <!-- 단계 번호 배지 (모바일) -->
-            <div
-              :class="[
-                'step-badge',
-                'sm:hidden mb-2 inline-flex size-8 rounded-full items-center justify-center font-bold text-sm',
-                index === 0
-                  ? 'bg-primary text-white'
-                  : 'bg-white border border-gray-200 text-gray-500'
-              ]"
-            >
-              {{ index + 1 }}
-            </div>
-
-            <div>
-              <h3 class="font-bold text-gray-900 dark:text-white">{{ step }}</h3>
-            </div>
-          </div>
+    <div class="p-6">
+      <!-- 신청 방법이 있을 때 -->
+      <div v-if="steps.length > 0" class="flex flex-wrap gap-3">
+        <div
+          v-for="(step, index) in steps"
+          :key="index"
+          class="method-tag inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+        >
+          <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+          {{ step }}
         </div>
-      </template>
+      </div>
 
-      <!-- 단계가 없을 때 -->
+      <!-- 신청 방법이 없을 때 -->
       <div v-else class="text-center py-8 text-gray-500">
         <span class="material-symbols-outlined text-4xl mb-2 block text-gray-300">info</span>
         <p>신청 방법 정보가 없습니다</p>
@@ -70,14 +38,15 @@ const props = defineProps<{
   applicationMethod: string | null
 }>()
 
-// 줄바꿈으로 구분된 단계를 배열로 변환
+// 신청 방법을 배열로 변환 (|| 또는 줄바꿈으로 구분)
 const steps = computed(() => {
   if (!props.applicationMethod || props.applicationMethod.trim() === '') {
     return []
   }
   return props.applicationMethod
-    .split('\n')
+    .split(/\|\||\n/)
     .map(step => step.trim())
+    .map(step => step.replace(/^기타\s*/, '')) // "기타" 접두어 제거
     .filter(step => step.length > 0)
 })
 </script>
