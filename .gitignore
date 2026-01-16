@@ -39,8 +39,7 @@ htmlcov/
 tmp/
 temp/
 
-# Planning & Design (별도 관리)
-docs/
+# Design assets (별도 관리)
 design/
 
 # Claude Code
