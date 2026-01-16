@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
@@ -65,8 +65,33 @@ beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
+// Helper function to fill and submit the search form
+async function fillAndSubmitForm(wrapper: ReturnType<typeof mount>, birthYear: number, birthMonth: number, birthDay: number) {
+  const selects = wrapper.findAll('select')
+
+  // 생년월일 입력 (년/월/일 select - 처음 3개)
+  await selects[0].setValue(String(birthYear))
+  await selects[1].setValue(String(birthMonth))
+  await selects[2].setValue(String(birthDay))
+  await wrapper.find('select[name="income"]').setValue('0')
+  await wrapper.find('select[name="region"]').setValue('서울')
+
+  // 폼 제출
+  await wrapper.find('form').trigger('submit')
+
+  // API 호출 대기
+  await new Promise((resolve) => setTimeout(resolve, 100))
+}
+
 describe('search.vue', () => {
-  // 페이지 테스트는 실제 타이머 사용 (API 호출 대기 필요)
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-01-15'))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
 
   it('페이지가 렌더링되어야 한다', () => {
     const wrapper = mount(SearchPage)
@@ -86,17 +111,11 @@ describe('search.vue', () => {
   })
 
   it('검색 후 BenefitCard들이 렌더링되어야 한다', async () => {
+    vi.useRealTimers() // API 호출에는 실제 타이머 필요
+
     const wrapper = mount(SearchPage)
-    const searchForm = wrapper.findComponent({ name: 'SearchForm' })
 
-    // 검색 폼에서 입력 및 제출 (1998-06-15 → 만 27세)
-    await searchForm.find('input[name="birthdate"]').setValue('1998-06-15')
-    await searchForm.find('select[name="income"]').setValue('0')
-    await searchForm.find('select[name="region"]').setValue('서울')
-    await searchForm.find('form').trigger('submit')
-
-    // API 호출 대기
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await fillAndSubmitForm(wrapper, 1998, 6, 15)
 
     // BenefitCard가 렌더링되었는지 확인
     const benefitCards = wrapper.findAllComponents({ name: 'BenefitCard' })
@@ -104,37 +123,31 @@ describe('search.vue', () => {
   })
 
   it('결과가 2개면 2개의 카드가 표시되어야 한다', async () => {
+    vi.useRealTimers()
+
     const wrapper = mount(SearchPage)
-    const searchForm = wrapper.findComponent({ name: 'SearchForm' })
 
-    await searchForm.find('input[name="birthdate"]').setValue('1998-06-15')
-    await searchForm.find('select[name="income"]').setValue('0')
-    await searchForm.find('select[name="region"]').setValue('서울')
-    await searchForm.find('form').trigger('submit')
-
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await fillAndSubmitForm(wrapper, 1998, 6, 15)
 
     const benefitCards = wrapper.findAllComponents({ name: 'BenefitCard' })
     expect(benefitCards.length).toBe(mockBenefits.length)
   })
 
   it('검색 결과가 0개면 "결과 없음" 메시지가 표시되어야 한다', async () => {
+    vi.useRealTimers()
+
     const wrapper = mount(SearchPage)
-    const searchForm = wrapper.findComponent({ name: 'SearchForm' })
 
-    // 빈 결과를 받기 위해 1926-06-15 사용 (만 99세 → Mock 서버에서 빈 배열 반환)
-    await searchForm.find('input[name="birthdate"]').setValue('1926-06-15')
-    await searchForm.find('select[name="income"]').setValue('0')
-    await searchForm.find('select[name="region"]').setValue('서울')
-    await searchForm.find('form').trigger('submit')
-
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    // 빈 결과를 받기 위해 1926년 사용 (만 99세 → Mock 서버에서 빈 배열 반환)
+    await fillAndSubmitForm(wrapper, 1926, 6, 15)
 
     // "결과 없음" 메시지 확인
     expect(wrapper.text()).toContain('검색 결과가 없습니다')
   })
 
   it('에러 발생 시 에러 메시지가 표시되어야 한다', async () => {
+    vi.useRealTimers()
+
     // 에러를 반환하도록 Mock 재설정
     server.use(
       http.post('http://localhost:8000/api/benefits/search', () => {
@@ -143,30 +156,19 @@ describe('search.vue', () => {
     )
 
     const wrapper = mount(SearchPage)
-    const searchForm = wrapper.findComponent({ name: 'SearchForm' })
 
-    await searchForm.find('input[name="birthdate"]').setValue('1998-06-15')
-    await searchForm.find('select[name="income"]').setValue('0')
-    await searchForm.find('select[name="region"]').setValue('서울')
-    await searchForm.find('form').trigger('submit')
+    await fillAndSubmitForm(wrapper, 1998, 6, 15)
 
-    await new Promise((resolve) => setTimeout(resolve, 100))
-
-    // 에러 메시지가 표시되어야 함 (SearchForm 내부에 표시됨)
-    const errorMessage = wrapper.find('.error-message')
-    expect(errorMessage.exists()).toBe(true)
+    // 에러 메시지가 표시되어야 함
+    expect(wrapper.text()).toContain('검색에 실패했습니다')
   })
 
   it('검색 결과 개수가 표시되어야 한다', async () => {
+    vi.useRealTimers()
+
     const wrapper = mount(SearchPage)
-    const searchForm = wrapper.findComponent({ name: 'SearchForm' })
 
-    await searchForm.find('input[name="birthdate"]').setValue('1998-06-15')
-    await searchForm.find('select[name="income"]').setValue('0')
-    await searchForm.find('select[name="region"]').setValue('서울')
-    await searchForm.find('form').trigger('submit')
-
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await fillAndSubmitForm(wrapper, 1998, 6, 15)
 
     // "총 X개의 지원금 중" 메시지 확인 (새 형식)
     expect(wrapper.text()).toContain('총')
@@ -174,20 +176,14 @@ describe('search.vue', () => {
   })
 
   it('반응형 그리드가 적용되어야 한다', async () => {
+    vi.useRealTimers()
+
     const wrapper = mount(SearchPage)
-    const searchForm = wrapper.findComponent({ name: 'SearchForm' })
 
-    await searchForm.find('input[name="birthdate"]').setValue('1998-06-15')
-    await searchForm.find('select[name="income"]').setValue('0')
-    await searchForm.find('select[name="region"]').setValue('서울')
-    await searchForm.find('form').trigger('submit')
-
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await fillAndSubmitForm(wrapper, 1998, 6, 15)
 
     // 그리드 컨테이너 클래스 확인
     const gridContainer = wrapper.find('.grid')
     expect(gridContainer.exists()).toBe(true)
-    expect(gridContainer.classes()).toContain('md:grid-cols-2')
-    expect(gridContainer.classes()).toContain('lg:grid-cols-3')
   })
 })

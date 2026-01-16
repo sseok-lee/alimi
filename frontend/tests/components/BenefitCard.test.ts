@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import BenefitCard from '../../app/components/BenefitCard.vue'
 import type { BenefitResponse } from '../../app/composables/useBenefitSearch'
@@ -85,17 +85,14 @@ describe('BenefitCard.vue', () => {
         benefit: mockBenefit,
       },
     })
-    const linkButton = wrapper.find('button')
-    expect(linkButton.exists()).toBe(true)
-    expect(linkButton.text()).toContain('상세보기')
+    // 상세보기 버튼은 두 번째 버튼 (첫 번째는 북마크 버튼)
+    const buttons = wrapper.findAll('button')
+    const detailButton = buttons[1]
+    expect(detailButton.exists()).toBe(true)
+    expect(detailButton.text()).toContain('상세보기')
   })
 
-  it('카드 클릭 시 상세 페이지로 이동해야 한다', async () => {
-    // Mock navigateTo
-    const navigateToMock = vi.fn()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    global.navigateTo = navigateToMock as any
-
+  it('카드 클릭 시 click 이벤트가 emit되어야 한다', async () => {
     const wrapper = mount(BenefitCard, {
       props: {
         benefit: mockBenefit,
@@ -103,24 +100,22 @@ describe('BenefitCard.vue', () => {
     })
 
     await wrapper.trigger('click')
-    expect(navigateToMock).toHaveBeenCalledWith('/benefits/benefit-001')
+    expect(wrapper.emitted('click')).toBeTruthy()
+    expect(wrapper.emitted('click')![0]).toEqual([mockBenefit])
   })
 
-  it('버튼 클릭 시 상세 페이지로 이동해야 한다', async () => {
-    // Mock navigateTo
-    const navigateToMock = vi.fn()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    global.navigateTo = navigateToMock as any
-
+  it('상세보기 버튼 클릭 시 click 이벤트가 emit되어야 한다', async () => {
     const wrapper = mount(BenefitCard, {
       props: {
         benefit: mockBenefit,
       },
     })
 
-    const button = wrapper.find('button')
-    await button.trigger('click')
-    expect(navigateToMock).toHaveBeenCalled()
+    // 상세보기 버튼은 두 번째 버튼 (첫 번째는 북마크 버튼)
+    const buttons = wrapper.findAll('button')
+    const detailButton = buttons[1]
+    await detailButton.trigger('click')
+    expect(wrapper.emitted('click')).toBeTruthy()
   })
 
   it('카드에 클릭 가능한 스타일이 적용되어야 한다', () => {

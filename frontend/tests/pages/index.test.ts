@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
@@ -55,17 +55,27 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
 describe('랜딩 페이지 (index.vue)', () => {
-  // 페이지 테스트는 실제 타이머 사용 (API 호출 대기 필요)
-
-  it('페이지 타이틀 "맞춤형 지원금 찾기"를 표시해야 한다', () => {
-    const wrapper = mount(Index)
-    expect(wrapper.text()).toContain('맞춤형 지원금 찾기')
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-01-15'))
   })
 
-  it('생년월일 입력 필드를 표시해야 한다', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('메인 타이틀이 표시되어야 한다', () => {
     const wrapper = mount(Index)
-    const birthdateInput = wrapper.find('input[name="birthdate"]')
-    expect(birthdateInput.exists()).toBe(true)
+    expect(wrapper.text()).toContain('나에게 맞는')
+    expect(wrapper.text()).toContain('정부 지원금')
+  })
+
+  it('생년월일 선택 필드가 표시되어야 한다 (년/월/일 select)', () => {
+    const wrapper = mount(Index)
+    expect(wrapper.text()).toContain('생년월일')
+    // SearchForm 컴포넌트가 년/월/일 select를 포함
+    const selects = wrapper.findAll('select')
+    expect(selects.length).toBeGreaterThan(3) // 년, 월, 일 + 소득, 지역, 카테고리
   })
 
   it('소득 선택 필드를 표시해야 한다', () => {
@@ -80,18 +90,23 @@ describe('랜딩 페이지 (index.vue)', () => {
     expect(regionSelect.exists()).toBe(true)
   })
 
-  it('"검색하기" 버튼을 표시해야 한다', () => {
+  it('"지원금 찾기" 버튼을 표시해야 한다', () => {
     const wrapper = mount(Index)
     const button = wrapper.find('button[type="submit"]')
     expect(button.exists()).toBe(true)
-    expect(button.text()).toContain('검색하기')
+    expect(button.text()).toContain('지원금 찾기')
   })
 
   it('폼 제출 시 검색 결과를 표시해야 한다', async () => {
-    const wrapper = mount(Index)
+    vi.useRealTimers() // API 호출에는 실제 타이머 필요
 
-    // 폼 데이터 입력 (1998-06-15 → 만 27세)
-    await wrapper.find('input[name="birthdate"]').setValue('1998-06-15')
+    const wrapper = mount(Index)
+    const selects = wrapper.findAll('select')
+
+    // 생년월일 입력 (년/월/일 select - 처음 3개)
+    await selects[0].setValue('1998') // 년
+    await selects[1].setValue('6')    // 월
+    await selects[2].setValue('15')   // 일
     await wrapper.find('select[name="income"]').setValue('0')
     await wrapper.find('select[name="region"]').setValue('서울')
 
@@ -110,10 +125,9 @@ describe('랜딩 페이지 (index.vue)', () => {
   it('모든 필수 폼 요소가 존재해야 한다', () => {
     const wrapper = mount(Index)
 
-    // 3개의 입력 필드와 1개의 버튼
-    expect(wrapper.find('input[name="birthdate"]').exists()).toBe(true)
+    // select 필드들과 버튼
     expect(wrapper.find('select[name="income"]').exists()).toBe(true)
     expect(wrapper.find('select[name="region"]').exists()).toBe(true)
-    expect(wrapper.find('button').exists()).toBe(true)
+    expect(wrapper.find('button[type="submit"]').exists()).toBe(true)
   })
 })
