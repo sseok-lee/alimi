@@ -14,6 +14,24 @@ export const BenefitSearchSchema = z.object({
   familySingleParent: z.boolean().optional(), // 한부모/조손 (familySingleParent)
   familyMultiChild: z.boolean().optional(),  // 다자녀 (familyMultiChild)
 
+  // Phase 8 추가 필터
+  jobSeeker: z.boolean().optional(),           // 구직자/실업자
+  lifeUniversity: z.boolean().optional(),      // 대학생/대학원생
+  familySinglePerson: z.boolean().optional(),  // 1인가구
+  familyNoHouse: z.boolean().optional(),       // 무주택세대
+  jobEmployee: z.boolean().optional(),         // 근로자/직장인
+  targetVeteran: z.boolean().optional(),       // 국가보훈대상자
+
+  // 지원유형 필터
+  supportType: z.string().optional(),          // 현금/현물/서비스 등
+
+  // 신청 필터
+  onlineApplyAvailable: z.boolean().optional(), // 온라인 신청 가능 여부
+  alwaysOpen: z.boolean().optional(),          // 상시 신청 가능 여부
+
+  // 정렬
+  sortBy: z.enum(['latest', 'popular']).default('latest').optional(),
+
   // 페이지네이션
   page: z.number().int().min(1).default(1).optional(),
   limit: z.number().int().min(1).max(100).default(20).optional()
