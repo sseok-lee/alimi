@@ -10,8 +10,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      // 프로덕션: 빈 문자열 (Nginx 프록시 사용), 개발: localhost:8000
-      apiBase: process.env.API_BASE_URL ?? (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000'),
+      // API_BASE_URL 미설정 시 localhost:8000 (로컬 개발용)
+      // GitHub Actions에서 API_BASE_URL='' 로 빌드 → 프로덕션에서 Nginx 프록시 사용
+      apiBase: process.env.API_BASE_URL !== undefined ? process.env.API_BASE_URL : 'http://localhost:8000',
       gaId: process.env.NUXT_PUBLIC_GA_ID || '',
     },
   },
