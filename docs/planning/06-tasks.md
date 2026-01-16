@@ -33,7 +33,8 @@
 | M3 | FEAT-1: 지원금 검색 (프론트엔드) | Phase 3 | ✅ |
 | M4 | 보조금24 데이터 동기화 & 통합 테스트 | Phase 4 | ✅ |
 | M5 | CI/CD 구축 & 배포 | Phase 5 | ✅ |
-| M6 | FEAT-1-3: 지원금 상세 페이지 | Phase 6 | 🔲 |
+| M6 | FEAT-1-3: 지원금 상세 페이지 | Phase 6 | ✅ |
+| M7 | 데이터 동기화 복구 | Phase 7 | 🔲 |
 
 ---
 
@@ -2165,3 +2166,129 @@ flowchart TD
 
 **완료**: T6.1 ~ T6.12, T6.8 (배포 및 검증)
 **Phase 6 전체 완료** ✅
+
+---
+
+## M7: 데이터 동기화 복구 (Phase 7)
+
+> 보조금24 데이터 일일 동기화 기능 복구
+
+### [ ] Phase 7, T7.1: syncBenefits.ts 수정
+
+**담당**: backend-specialist
+
+**작업 내용**:
+- import 경로 수정: `publicApiClient.js` → `gov24ApiClient.js`
+- 함수명 수정: `fetchGov24ServiceList` → `fetchAllServiceList`
+- 함수명 수정: `fetchGov24SupportConditions` → `fetchAllSupportConditions`
+- DB 필드 매핑 업데이트
+
+**완료 조건**:
+- [ ] import 오류 해결
+- [ ] 타입 오류 없음
+
+---
+
+### [ ] Phase 7, T7.2: tsconfig.json 수정
+
+**담당**: backend-specialist
+
+**의존성**: T7.1
+
+**작업 내용**:
+- exclude 목록에서 `src/services/syncBenefits.ts` 제거
+
+**완료 조건**:
+- [ ] `npm run build` 성공
+- [ ] `dist/services/syncBenefits.js` 생성 확인
+
+---
+
+### [ ] Phase 7, T7.3: 로컬 테스트
+
+**담당**: backend-specialist
+
+**의존성**: T7.2
+
+**작업 내용**:
+- `npm run sync:benefits` 로컬 실행
+- API 호출 및 DB 저장 확인
+
+**완료 조건**:
+- [ ] 동기화 스크립트 정상 실행
+- [ ] DB에 데이터 저장 확인
+
+---
+
+### [ ] Phase 7, T7.4: 배포
+
+**담당**: all
+
+**의존성**: T7.3
+
+**작업 내용**:
+- GitHub에 푸시
+- GitHub Actions 배포 완료
+
+**완료 조건**:
+- [ ] GitHub Actions 성공
+- [ ] 서버에 `dist/services/syncBenefits.js` 존재
+
+---
+
+### [ ] Phase 7, T7.5: 서버 초기 동기화
+
+**담당**: all
+
+**의존성**: T7.4
+
+**작업 내용**:
+```bash
+cd /home/project1/alimi/backend
+node dist/services/syncBenefits.js
+```
+
+**완료 조건**:
+- [ ] 동기화 완료 (~10,924개 서비스)
+- [ ] 검색 API 정상 동작
+
+---
+
+### [ ] Phase 7, T7.6: 크론잡 설정
+
+**담당**: all
+
+**의존성**: T7.5
+
+**작업 내용**:
+```bash
+# 매일 새벽 3시 동기화
+crontab -e
+0 3 * * * cd /home/project1/alimi/backend && node dist/services/syncBenefits.js >> /var/log/alimi-sync.log 2>&1
+```
+
+**완료 조건**:
+- [ ] 크론잡 등록 확인: `crontab -l`
+- [ ] 로그 파일 생성 확인
+
+---
+
+## Phase 7 의존성 그래프
+
+```mermaid
+flowchart TD
+    T7.1[T7.1: syncBenefits.ts 수정] --> T7.2[T7.2: tsconfig.json 수정]
+    T7.2 --> T7.3[T7.3: 로컬 테스트]
+    T7.3 --> T7.4[T7.4: 배포]
+    T7.4 --> T7.5[T7.5: 서버 초기 동기화]
+    T7.4 --> T7.6[T7.6: 크론잡 설정]
+
+    style T7.1 fill:#FFD700
+    style T7.2 fill:#FFFFFF
+    style T7.3 fill:#FFFFFF
+    style T7.4 fill:#FFFFFF
+    style T7.5 fill:#FFFFFF
+    style T7.6 fill:#FFFFFF
+```
+
+**현재 진행**: T7.1 (syncBenefits.ts 수정)
