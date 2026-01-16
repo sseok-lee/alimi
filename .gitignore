@@ -8,6 +8,7 @@ vendor/
 dist/
 build/
 .next/
+.nuxt/
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -37,6 +38,10 @@ htmlcov/
 # Misc
 tmp/
 temp/
+
+# Planning & Design (별도 관리)
+docs/
+design/
 
 # Claude Code
 .claude/
