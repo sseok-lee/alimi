@@ -7,7 +7,20 @@ describe('GET /api/benefits/:id - 지원금 상세 조회', () => {
   let testBenefitId: string
   let sameCategoryBenefitIds: string[] = []
 
+  const TEST_IDS = [
+    'TEST_DETAIL_MAIN_001',
+    'TEST_DETAIL_RELATED_001',
+    'TEST_DETAIL_RELATED_002',
+    'TEST_DETAIL_RELATED_003',
+    'TEST_DETAIL_OTHER_001'
+  ]
+
   beforeAll(async () => {
+    // 먼저 기존 테스트 데이터 정리 (이전 실행에서 남아있을 수 있음)
+    await prisma.benefit.deleteMany({
+      where: { id: { in: TEST_IDS } }
+    })
+
     // 테스트용 데이터 생성
     // 메인 benefit (조회 대상)
     const mainBenefit = await prisma.benefit.create({
@@ -101,15 +114,7 @@ describe('GET /api/benefits/:id - 지원금 상세 조회', () => {
   afterAll(async () => {
     // 테스트 데이터 정리
     await prisma.benefit.deleteMany({
-      where: {
-        id: {
-          in: [
-            testBenefitId,
-            ...sameCategoryBenefitIds,
-            'TEST_DETAIL_OTHER_001'
-          ]
-        }
-      }
+      where: { id: { in: TEST_IDS } }
     })
     await prisma.$disconnect()
   })
