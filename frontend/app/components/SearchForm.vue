@@ -119,11 +119,11 @@
         </select>
       </div>
 
-      <!-- 주요 대상 조건 필터 -->
+      <!-- 대상 필터 -->
       <div class="border-t border-gray-100 pt-5">
         <label class="flex items-center gap-2 text-sm font-semibold text-text-primary mb-3">
-          <span class="material-symbols-outlined text-primary text-xl">tune</span>
-          주요 대상 (선택)
+          <span class="material-symbols-outlined text-primary text-xl">person</span>
+          대상 (선택)
         </label>
         <div class="grid grid-cols-2 gap-3">
           <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.lifePregnancy }">
@@ -158,16 +158,6 @@
             />
             <span class="text-sm text-text-primary">다자녀</span>
           </label>
-        </div>
-      </div>
-
-      <!-- 추가 대상 필터 -->
-      <div class="border-t border-gray-100 pt-5">
-        <label class="flex items-center gap-2 text-sm font-semibold text-text-primary mb-3">
-          <span class="material-symbols-outlined text-primary text-xl">group_add</span>
-          추가 대상 (선택)
-        </label>
-        <div class="grid grid-cols-2 gap-3">
           <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.jobSeeker }">
             <input
               v-model="formData.jobSeeker"
