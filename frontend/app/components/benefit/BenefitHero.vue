@@ -25,7 +25,7 @@
     <div class="mt-6 flex flex-wrap gap-4 pt-6 border-t border-gray-100 dark:border-gray-700">
       <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
         <span class="material-symbols-outlined text-[20px] text-gray-400">visibility</span>
-        <span>{{ formattedViewCount }} views today</span>
+        <span>조회 {{ formattedViewCount }}회</span>
       </div>
     </div>
   </section>
