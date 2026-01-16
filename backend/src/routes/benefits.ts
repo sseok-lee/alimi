@@ -66,7 +66,8 @@ router.post('/search', async (req: Request, res: Response, next: NextFunction) =
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id
-    const result = await benefitService.getBenefitDetailWithRelated(id)
+    const sessionId = generateSessionId(req)
+    const result = await benefitService.getBenefitDetailWithRelated(id, sessionId)
 
     if (!result) {
       return res.status(404).json({ error: 'Benefit not found' })

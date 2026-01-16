@@ -179,21 +179,31 @@ export async function getRegions(): Promise<string[]> {
   return regions.map(r => r.region).filter((r): r is string => r !== null)
 }
 
-export async function getBenefitDetailWithRelated(id: string): Promise<BenefitDetailResponse | null> {
-  // 상세 정보 조회 및 viewCount 증가
+// 세션별 조회 기록 (메모리 기반, 서버 재시작 시 초기화)
+const viewedBenefits = new Set<string>()
+
+export async function getBenefitDetailWithRelated(id: string, sessionId?: string): Promise<BenefitDetailResponse | null> {
+  // 상세 정보 조회
   const benefit = await prisma.benefit.findUnique({
     where: { id }
   })
 
   if (!benefit) return null
 
-  // viewCount 증가
-  const updatedBenefit = await prisma.benefit.update({
-    where: { id },
-    data: {
-      viewCount: (benefit.viewCount || 0) + 1
-    }
-  })
+  // 세션 기반 중복 조회 방지: 같은 세션에서 이미 본 benefit은 viewCount 증가 안 함
+  const viewKey = sessionId ? `${sessionId}-${id}` : null
+  const shouldIncrement = viewKey && !viewedBenefits.has(viewKey)
+
+  let updatedBenefit = benefit
+  if (shouldIncrement) {
+    viewedBenefits.add(viewKey)
+    updatedBenefit = await prisma.benefit.update({
+      where: { id },
+      data: {
+        viewCount: (benefit.viewCount || 0) + 1
+      }
+    })
+  }
 
   // 같은 카테고리의 관련 서비스 조회 (viewCount 높은 순, 현재 benefit 제외, 3개)
   const relatedBenefits = await prisma.benefit.findMany({
