@@ -11,10 +11,22 @@ dotenv.config()
 
 const app: Express = express()
 
+// CORS 설정 (쉼표로 구분된 여러 origin 지원)
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
+  .split(',')
+  .map(origin => origin.trim())
+
 // Middlewares
 app.use(helmet())
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    // origin이 없으면 (같은 origin 요청, curl 등) 허용
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error(`CORS policy: ${origin} not allowed`))
+    }
+  },
   credentials: true
 }))
 app.use(express.json())
