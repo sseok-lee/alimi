@@ -143,7 +143,8 @@ describe('GET /api/benefits/:id - 지원금 상세 조회', () => {
     expect(benefit.organizationName).toBe('고용노동부')
     expect(benefit.contactInfo).toBe('1350')
     expect(benefit.link).toBe('https://www.work.go.kr/youngtomorrow')
-    expect(benefit.viewCount).toBe(11) // 조회 후 1 증가
+    expect(benefit.viewCount).toBe(10) // viewCount는 오픈API 값 (변경되지 않음)
+    expect(benefit.siteViewCount).toBe(1) // siteViewCount는 조회 후 1 증가
     expect(benefit.minAge).toBe(15)
     expect(benefit.maxAge).toBe(34)
     expect(benefit.region).toBe('전국')
@@ -164,12 +165,12 @@ describe('GET /api/benefits/:id - 지원금 상세 조회', () => {
     expect(response.body.error).toBe('Benefit not found')
   })
 
-  it('새로운 세션에서 조회 시 viewCount 1 증가 확인', async () => {
-    // 조회 전 viewCount 확인
+  it('새로운 세션에서 조회 시 siteViewCount 1 증가 확인', async () => {
+    // 조회 전 siteViewCount 확인
     const beforeBenefit = await prisma.benefit.findUnique({
       where: { id: testBenefitId }
     })
-    const beforeViewCount = beforeBenefit?.viewCount || 0
+    const beforeSiteViewCount = beforeBenefit?.siteViewCount || 0
 
     // 새로운 세션으로 조회 (고유한 User-Agent 사용)
     const uniqueUserAgent = `TestAgent-${Date.now()}-${Math.random()}`
@@ -178,16 +179,16 @@ describe('GET /api/benefits/:id - 지원금 상세 조회', () => {
       .set('User-Agent', uniqueUserAgent)
       .expect(200)
 
-    // 조회 후 viewCount 확인
+    // 조회 후 siteViewCount 확인
     const afterBenefit = await prisma.benefit.findUnique({
       where: { id: testBenefitId }
     })
-    const afterViewCount = afterBenefit?.viewCount || 0
+    const afterSiteViewCount = afterBenefit?.siteViewCount || 0
 
-    expect(afterViewCount).toBe(beforeViewCount + 1)
+    expect(afterSiteViewCount).toBe(beforeSiteViewCount + 1)
   })
 
-  it('같은 세션에서 중복 조회 시 viewCount 증가하지 않음', async () => {
+  it('같은 세션에서 중복 조회 시 siteViewCount 증가하지 않음', async () => {
     // 고유한 세션 생성
     const uniqueUserAgent = `TestAgent-Duplicate-${Date.now()}`
 
@@ -197,11 +198,11 @@ describe('GET /api/benefits/:id - 지원금 상세 조회', () => {
       .set('User-Agent', uniqueUserAgent)
       .expect(200)
 
-    // 조회 후 viewCount 확인
+    // 조회 후 siteViewCount 확인
     const afterFirstBenefit = await prisma.benefit.findUnique({
       where: { id: testBenefitId }
     })
-    const afterFirstViewCount = afterFirstBenefit?.viewCount || 0
+    const afterFirstSiteViewCount = afterFirstBenefit?.siteViewCount || 0
 
     // 같은 세션으로 두 번째 조회
     await request(app)
@@ -209,13 +210,13 @@ describe('GET /api/benefits/:id - 지원금 상세 조회', () => {
       .set('User-Agent', uniqueUserAgent)
       .expect(200)
 
-    // 두 번째 조회 후 viewCount 확인 - 증가하지 않아야 함
+    // 두 번째 조회 후 siteViewCount 확인 - 증가하지 않아야 함
     const afterSecondBenefit = await prisma.benefit.findUnique({
       where: { id: testBenefitId }
     })
-    const afterSecondViewCount = afterSecondBenefit?.viewCount || 0
+    const afterSecondSiteViewCount = afterSecondBenefit?.siteViewCount || 0
 
-    expect(afterSecondViewCount).toBe(afterFirstViewCount)
+    expect(afterSecondSiteViewCount).toBe(afterFirstSiteViewCount)
   })
 
   it('관련 서비스는 같은 카테고리 + viewCount 높은 순 3개', async () => {

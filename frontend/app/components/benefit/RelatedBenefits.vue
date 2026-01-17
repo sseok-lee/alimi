@@ -26,7 +26,7 @@
             {{ benefit.description }}
           </p>
           <div class="mt-4 flex items-center justify-between text-xs text-gray-400">
-            <span>조회수: {{ benefit.viewCount.toLocaleString() }}</span>
+            <span>조회수: {{ (benefit.siteViewCount ?? 0).toLocaleString() }}</span>
           </div>
         </div>
       </NuxtLink>
@@ -48,6 +48,7 @@ export interface SimpleBenefit {
   description: string | null
   link: string
   viewCount: number
+  siteViewCount: number
 }
 
 defineProps<{

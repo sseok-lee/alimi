@@ -78,6 +78,8 @@ export interface BenefitResponse {
   supportType?: string;
   onlineApplyAvailable?: boolean;
   alwaysOpen?: boolean;
+  viewCount?: number;
+  siteViewCount?: number;
 }
 
 /**

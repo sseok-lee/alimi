@@ -15,6 +15,7 @@ export interface BenefitDetail {
   contactInfo: string | null
   link: string
   viewCount: number
+  siteViewCount: number
   minAge: number | null
   maxAge: number | null
   minIncome: number | null
@@ -34,6 +35,7 @@ export interface SimpleBenefit {
   description: string | null
   link: string
   viewCount: number
+  siteViewCount: number
 }
 
 export interface BenefitDetailResponse {

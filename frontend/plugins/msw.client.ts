@@ -3,11 +3,18 @@
  *
  * 개발 환경에서만 MSW를 활성화하여 API를 모킹합니다.
  * 클라이언트 사이드에서만 실행됩니다 (.client.ts).
+ *
+ * MSW 비활성화: NUXT_PUBLIC_DISABLE_MSW=true 환경변수 설정
  */
 
 export default defineNuxtPlugin(async () => {
-  // 개발 환경에서만 MSW 활성화
-  if (process.dev) {
+  const config = useRuntimeConfig();
+
+  // MSW 비활성화 옵션 확인
+  const disableMsw = config.public.disableMsw === true || config.public.disableMsw === 'true';
+
+  // 개발 환경에서만 MSW 활성화 (비활성화 옵션이 없을 때)
+  if (process.dev && !disableMsw) {
     const { worker } = await import('~/mocks/browser');
 
     await worker.start({

@@ -21,6 +21,7 @@ const mockBenefitDetail = {
     contactInfo: '1350',
     link: 'https://www.work.go.kr/youngtomorrow',
     viewCount: 150,
+    siteViewCount: 42,
     minAge: 15,
     maxAge: 34,
     minIncome: null,
@@ -35,6 +36,7 @@ const mockBenefitDetail = {
       description: '구직자 취업 지원 서비스',
       link: 'https://example.com/1',
       viewCount: 100,
+      siteViewCount: 28,
     },
     {
       id: 'benefit-003',
@@ -43,6 +45,7 @@ const mockBenefitDetail = {
       description: '중소기업 청년 채용 지원',
       link: 'https://example.com/2',
       viewCount: 50,
+      siteViewCount: 15,
     },
   ],
 }

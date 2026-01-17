@@ -304,7 +304,7 @@ export async function getBenefitDetailWithRelated(id: string, sessionId?: string
     updatedBenefit = await prisma.benefit.update({
       where: { id },
       data: {
-        viewCount: (benefit.viewCount || 0) + 1
+        siteViewCount: (benefit.siteViewCount || 0) + 1
       }
     })
   }
@@ -336,6 +336,7 @@ export async function getBenefitDetailWithRelated(id: string, sessionId?: string
     contactInfo: updatedBenefit.contactInfo,
     link: updatedBenefit.link,
     viewCount: updatedBenefit.viewCount || 0,
+    siteViewCount: updatedBenefit.siteViewCount || 0,
     minAge: updatedBenefit.minAge,
     maxAge: updatedBenefit.maxAge,
     minIncome: updatedBenefit.minIncome,
@@ -355,7 +356,8 @@ export async function getBenefitDetailWithRelated(id: string, sessionId?: string
     category: b.category,
     description: b.description,
     link: b.link,
-    viewCount: b.viewCount || 0
+    viewCount: b.viewCount || 0,
+    siteViewCount: b.siteViewCount || 0
   }))
 
   return {

@@ -30,6 +30,8 @@ export const mockBenefits: BenefitResponse[] = [
     targetDisabled: false,
     familySingleParent: false,
     familyMultiChild: false,
+    viewCount: 1520,
+    siteViewCount: 245,
   },
   {
     id: 'benefit-002',
@@ -52,6 +54,8 @@ export const mockBenefits: BenefitResponse[] = [
     targetDisabled: false,
     familySingleParent: false,
     familyMultiChild: false,
+    viewCount: 890,
+    siteViewCount: 120,
   },
   {
     id: 'benefit-003',
@@ -75,6 +79,8 @@ export const mockBenefits: BenefitResponse[] = [
     targetDisabled: false,
     familySingleParent: false,
     familyMultiChild: false,
+    viewCount: 2340,
+    siteViewCount: 380,
   },
   {
     id: 'benefit-004',
@@ -98,6 +104,8 @@ export const mockBenefits: BenefitResponse[] = [
     targetDisabled: false,
     familySingleParent: false,
     familyMultiChild: false,
+    viewCount: 3120,
+    siteViewCount: 512,
   },
   {
     id: 'benefit-005',
@@ -120,6 +128,8 @@ export const mockBenefits: BenefitResponse[] = [
     targetDisabled: false,
     familySingleParent: false,
     familyMultiChild: false,
+    viewCount: 1870,
+    siteViewCount: 287,
   },
   {
     id: 'benefit-006',
@@ -144,6 +154,8 @@ export const mockBenefits: BenefitResponse[] = [
     targetDisabled: false,
     familySingleParent: false,
     familyMultiChild: false,
+    viewCount: 2780,
+    siteViewCount: 423,
   },
   {
     id: 'benefit-007',
@@ -166,6 +178,8 @@ export const mockBenefits: BenefitResponse[] = [
     targetDisabled: false,
     familySingleParent: false,
     familyMultiChild: false,
+    viewCount: 1230,
+    siteViewCount: 189,
   },
   {
     id: 'benefit-008',
@@ -189,6 +203,8 @@ export const mockBenefits: BenefitResponse[] = [
     targetDisabled: false,
     familySingleParent: false,
     familyMultiChild: false,
+    viewCount: 4560,
+    siteViewCount: 678,
   },
   {
     id: 'benefit-009',
@@ -212,6 +228,8 @@ export const mockBenefits: BenefitResponse[] = [
     targetDisabled: false,
     familySingleParent: false,
     familyMultiChild: false,
+    viewCount: 670,
+    siteViewCount: 95,
   },
   {
     id: 'benefit-010',
@@ -235,6 +253,8 @@ export const mockBenefits: BenefitResponse[] = [
     targetDisabled: false,
     familySingleParent: false,
     familyMultiChild: false,
+    viewCount: 3890,
+    siteViewCount: 567,
   },
   {
     id: 'benefit-011',
@@ -257,6 +277,8 @@ export const mockBenefits: BenefitResponse[] = [
     targetDisabled: false,
     familySingleParent: false,
     familyMultiChild: true,
+    viewCount: 1050,
+    siteViewCount: 156,
   },
   {
     id: 'benefit-012',
@@ -280,6 +302,8 @@ export const mockBenefits: BenefitResponse[] = [
     targetDisabled: false,
     familySingleParent: true,
     familyMultiChild: false,
+    viewCount: 2100,
+    siteViewCount: 312,
   },
   {
     id: 'benefit-013',
@@ -302,6 +326,8 @@ export const mockBenefits: BenefitResponse[] = [
     targetDisabled: true,
     familySingleParent: false,
     familyMultiChild: false,
+    viewCount: 560,
+    siteViewCount: 78,
   },
   {
     id: 'benefit-014',
@@ -324,5 +350,7 @@ export const mockBenefits: BenefitResponse[] = [
     targetDisabled: false,
     familySingleParent: false,
     familyMultiChild: false,
+    viewCount: 5230,
+    siteViewCount: 789,
   },
 ];

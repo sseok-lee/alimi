@@ -177,13 +177,14 @@ export const benefitHandlers = [
     }
 
     // 정렬 처리
-    if (searchParams.sortBy === 'latest') {
-      // 최신순 정렬 (id 역순으로 가정)
-      filteredBenefits = [...filteredBenefits].reverse();
-    } else if (searchParams.sortBy === 'popular') {
-      // 인기순 정렬 (Mock에서는 이름순으로 가정)
-      filteredBenefits = [...filteredBenefits].sort((a, b) => a.name.localeCompare(b.name));
+    if (searchParams.sortBy === 'popular') {
+      // 인기순 정렬 (viewCount 내림차순)
+      filteredBenefits = [...filteredBenefits].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
+    } else if (searchParams.sortBy === 'latest') {
+      // 최신순 정렬 (id 역순 - 높은 id가 최신)
+      filteredBenefits = [...filteredBenefits].sort((a, b) => b.id.localeCompare(a.id));
     }
+    // 기본 정렬은 원래 순서 유지
 
     // 페이징 적용
     const totalCount = filteredBenefits.length;
@@ -220,7 +221,56 @@ export const benefitHandlers = [
       );
     }
 
-    return HttpResponse.json(benefit, { status: 200 });
+    // 같은 카테고리의 관련 서비스 조회 (현재 benefit 제외, viewCount 높은 순 3개)
+    const relatedBenefits = mockBenefits
+      .filter((b) => b.category === benefit.category && b.id !== id)
+      .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
+      .slice(0, 3)
+      .map((b) => ({
+        id: b.id,
+        name: b.name,
+        category: b.category,
+        description: b.description,
+        link: b.link,
+        viewCount: b.viewCount || 0,
+        siteViewCount: b.siteViewCount || 0,
+      }));
+
+    // 백엔드 API 응답 구조와 동일하게 반환
+    return HttpResponse.json(
+      {
+        benefit: {
+          id: benefit.id,
+          name: benefit.name,
+          category: benefit.category,
+          description: benefit.description,
+          supportDetails: benefit.estimatedAmount || null,
+          targetAudience: benefit.eligibility?.age || null,
+          selectionCriteria: benefit.eligibility?.income || null,
+          requiredDocuments: null,
+          applicationMethod: null,
+          applicationDeadline: null,
+          organizationName: null,
+          contactInfo: null,
+          link: benefit.link,
+          viewCount: benefit.viewCount || 0,
+          siteViewCount: benefit.siteViewCount || 0,
+          minAge: benefit.minAge,
+          maxAge: benefit.maxAge,
+          minIncome: benefit.minIncome,
+          maxIncome: benefit.maxIncome,
+          region: benefit.region,
+          onlineApplyUrl: null,
+          relatedLaws: null,
+          supportType: benefit.supportType || null,
+          applyAgency: null,
+          officialConfirmDocs: null,
+          identityConfirmDocs: null,
+        },
+        relatedBenefits,
+      },
+      { status: 200 }
+    );
   }),
 
   // GET /api/benefits/meta/categories

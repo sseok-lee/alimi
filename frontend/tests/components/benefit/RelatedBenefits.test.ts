@@ -17,6 +17,7 @@ const mockBenefits = [
     description: '전세 자금 대출 이자 최대 3% 지원',
     link: 'https://example.com/1',
     viewCount: 1500,
+    siteViewCount: 234,
   },
   {
     id: 'b2',
@@ -25,6 +26,7 @@ const mockBenefits = [
     description: '취업을 위한 종합 지원 프로그램',
     link: 'https://example.com/2',
     viewCount: 2000,
+    siteViewCount: 312,
   },
   {
     id: 'b3',
@@ -33,6 +35,7 @@ const mockBenefits = [
     description: '무료 전문 상담 서비스',
     link: 'https://example.com/3',
     viewCount: 800,
+    siteViewCount: 156,
   },
 ]
 

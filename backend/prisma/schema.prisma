@@ -31,7 +31,8 @@ model Benefit {
   supportType         String?  @map("support_type") @db.VarChar(100)   // 지원유형 (현금/현물/서비스 등)
   userType            String?  @map("user_type") @db.VarChar(50)       // 사용자구분 (개인/가구/법인)
   applyAgency         String?  @map("apply_agency") @db.VarChar(255)   // 접수기관
-  viewCount           Int?     @map("view_count")                      // 조회수 (인기순 정렬용)
+  viewCount           Int?     @map("view_count")                      // 조회수 (인기순 정렬용) - 오픈API에서 가져온 값
+  siteViewCount       Int      @default(0) @map("site_view_count")      // 사이트 내 조회수 (상세 페이지 표시용)
 
   // ===== supportConditions 필드 (나이/소득/대상 매칭용) =====
 

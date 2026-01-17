@@ -82,6 +82,7 @@ export const BenefitDetailSchema = z.object({
   contactInfo: z.string().nullable(),
   link: z.string(),
   viewCount: z.number(),
+  siteViewCount: z.number(),
   minAge: z.number().nullable(),
   maxAge: z.number().nullable(),
   minIncome: z.number().nullable(),
@@ -104,7 +105,8 @@ export const SimpleBenefitSchema = z.object({
   category: z.string(),
   description: z.string().nullable(),
   link: z.string(),
-  viewCount: z.number()
+  viewCount: z.number(),
+  siteViewCount: z.number()
 })
 
 export type SimpleBenefit = z.infer<typeof SimpleBenefitSchema>

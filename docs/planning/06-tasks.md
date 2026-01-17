@@ -35,7 +35,7 @@
 | M5 | CI/CD 구축 & 배포 | Phase 5 | ✅ |
 | M6 | FEAT-1-3: 지원금 상세 페이지 | Phase 6 | ✅ |
 | M7 | 데이터 동기화 복구 | Phase 7 | ✅ |
-| M8 | 검색 필터 확장 및 정렬 기능 | Phase 8 | 🔲 |
+| M8 | 검색 필터 확장 및 정렬 기능 | Phase 8 | ✅ |
 
 ---
 
@@ -2482,4 +2482,92 @@ flowchart TD
 ```
 
 **완료**: T8.1 ~ T8.4 전체 완료
-**Phase 8 전체 완료** ✅
+
+---
+
+### [x] Phase 8, T8.5: 조회수 필드 분리 (viewCount vs siteViewCount)
+
+**담당**: all
+
+**의존성**: T8.4
+
+**배경**:
+- 기존 `viewCount` 필드가 오픈API 조회수와 사이트 내 클릭 수를 혼용
+- 매일 동기화 시 오픈API 값으로 덮어쓰기되어 사이트 내 조회수 소실
+- 인기순 정렬과 상세 페이지 표시용 조회수를 분리 필요
+
+**해결 방안**:
+| 필드 | 용도 | 출처 | 동기화 시 |
+|------|------|------|----------|
+| `viewCount` | 인기순 정렬 | 오픈API | 업데이트 |
+| `siteViewCount` (신규) | 상세 페이지 표시 | 사이트 클릭 | 유지 |
+
+**작업 내용**:
+
+1. **백엔드 스키마 수정**
+   - `prisma/schema.prisma` - `siteViewCount Int @default(0)` 필드 추가
+   - `npx prisma db push` 마이그레이션 적용
+
+2. **백엔드 서비스 수정**
+   - `benefitService.ts` - 상세 조회 시 `siteViewCount` 증가
+   - `syncBenefits.ts` - `siteViewCount` 유지 확인 (data에 미포함)
+
+3. **프론트엔드 수정**
+   - `BenefitHero.vue` - `siteViewCount` 표시
+   - `RelatedBenefits.vue` - `siteViewCount` 표시
+   - `useBenefitDetail.ts` - 타입 추가
+
+4. **Mock 및 테스트 업데이트**
+   - `mocks/handlers/benefits.ts` - API 응답 구조 수정
+   - `mocks/data/benefits.ts` - `siteViewCount` 추가
+   - 테스트 파일 업데이트
+
+5. **MSW 비활성화 옵션 추가**
+   - `nuxt.config.ts` - `disableMsw` 옵션
+   - `plugins/msw.client.ts` - 환경변수로 MSW 토글
+
+**산출물**:
+- `backend/prisma/schema.prisma`
+- `backend/src/schemas/benefit.ts`
+- `backend/src/services/benefitService.ts`
+- `frontend/app/components/benefit/BenefitHero.vue`
+- `frontend/app/components/benefit/RelatedBenefits.vue`
+- `frontend/app/composables/useBenefitDetail.ts`
+- `frontend/mocks/handlers/benefits.ts`
+- `frontend/mocks/data/benefits.ts`
+- `frontend/nuxt.config.ts`
+- `frontend/plugins/msw.client.ts`
+- `contracts/benefits.contract.ts`
+- 테스트 파일 4개
+
+**완료 조건**:
+- [x] Prisma 스키마 마이그레이션 완료
+- [x] 백엔드 서비스 `siteViewCount` 증가 로직 구현
+- [x] 프론트엔드 `siteViewCount` 표시
+- [x] 동기화 시 `siteViewCount` 유지 확인
+- [x] MSW 비활성화 옵션 추가 (`NUXT_PUBLIC_DISABLE_MSW=true`)
+- [x] 백엔드 테스트 통과 (42/42)
+- [x] 프론트엔드 테스트 통과 (124/124)
+
+**완료일**: 2026-01-17
+
+---
+
+## Phase 8 최종 의존성 그래프
+
+```mermaid
+flowchart TD
+    T8.1[T8.1: 백엔드 스키마/서비스] --> T8.2[T8.2: 프론트엔드 필터 UI]
+    T8.1 --> T8.3[T8.3: 정렬 기능]
+    T8.2 --> T8.4[T8.4: 테스트 및 배포]
+    T8.3 --> T8.4
+    T8.4 --> T8.5[T8.5: 조회수 필드 분리]
+    style T8.1 fill:#90EE90
+    style T8.2 fill:#90EE90
+    style T8.3 fill:#90EE90
+    style T8.4 fill:#90EE90
+    style T8.5 fill:#90EE90
+```
+
+**완료**: T8.1 ~ T8.5 전체 완료
+**Phase 8 최종 완료** ✅

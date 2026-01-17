@@ -46,7 +46,7 @@ interface BenefitHeroProp {
   category: string
   description: string | null
   supportDetails: string | null
-  viewCount: number
+  siteViewCount: number
   supportType: string | null
 }
 
@@ -54,9 +54,9 @@ const props = defineProps<{
   benefit: BenefitHeroProp
 }>()
 
-// 조회수를 3자리마다 쉼표로 포맷
+// 사이트 조회수를 3자리마다 쉼표로 포맷
 const formattedViewCount = computed(() => {
-  return props.benefit.viewCount.toLocaleString('en-US')
+  return (props.benefit.siteViewCount ?? 0).toLocaleString('en-US')
 })
 
 // 지원 금액 강조 표시

@@ -14,6 +14,8 @@ export default defineNuxtConfig({
       // GitHub Actions에서 API_BASE_URL='' 로 빌드 → 프로덕션에서 Nginx 프록시 사용
       apiBase: process.env.API_BASE_URL !== undefined ? process.env.API_BASE_URL : 'http://localhost:8000',
       gaId: process.env.NUXT_PUBLIC_GA_ID || '',
+      // NUXT_PUBLIC_DISABLE_MSW=true로 설정하면 개발 환경에서도 MSW 비활성화
+      disableMsw: process.env.NUXT_PUBLIC_DISABLE_MSW || false,
     },
   },
 
