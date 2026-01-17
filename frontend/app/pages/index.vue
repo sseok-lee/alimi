@@ -137,12 +137,17 @@
               </p>
             </div>
 
-            <!-- 필터/정렬 버튼 (추후 확장 가능) -->
+            <!-- 정렬 옵션 -->
             <div class="flex items-center gap-3">
-              <button class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-text-secondary rounded-xl text-sm font-medium transition-colors">
-                <span class="material-symbols-outlined text-lg">sort</span>
-                정렬
-              </button>
+              <select
+                v-model="currentSortBy"
+                class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-text-secondary rounded-xl text-sm font-medium transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20"
+                @change="handleSortChange"
+              >
+                <option value="">기본 정렬</option>
+                <option value="latest">최신순</option>
+                <option value="popular">인기순</option>
+              </select>
             </div>
           </div>
 
@@ -196,6 +201,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import SearchForm from '../components/SearchForm.vue'
 import BenefitCard from '../components/BenefitCard.vue'
 import { useBenefitSearch, type BenefitSearchRequest, type BenefitResponse } from '../composables/useBenefitSearch'
@@ -228,10 +234,31 @@ const {
   hasMore,
 } = useBenefitSearch()
 
+// 상태 관리
+const lastSearchParams = ref<BenefitSearchRequest | null>(null)
+const currentSortBy = ref<'' | 'latest' | 'popular'>('')
+
 // 검색 핸들러
 const handleSearch = async (params: BenefitSearchRequest) => {
   try {
+    lastSearchParams.value = params
+    currentSortBy.value = ''
     await search(params)
+  } catch {
+    // 에러는 composable에서 처리됨
+  }
+}
+
+// 정렬 변경 핸들러
+const handleSortChange = async () => {
+  if (!lastSearchParams.value) return
+
+  try {
+    const paramsWithSort = {
+      ...lastSearchParams.value,
+      ...(currentSortBy.value ? { sortBy: currentSortBy.value } : {})
+    }
+    await search(paramsWithSort)
   } catch {
     // 에러는 composable에서 처리됨
   }
