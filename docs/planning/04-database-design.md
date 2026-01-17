@@ -96,6 +96,8 @@ erDiagram
 | eligibility | TEXT | NULL | 자격 조건 JSON (복잡한 조건 저장) |
 | link | VARCHAR(500) | NOT NULL | 신청 링크 (공식 사이트) |
 | source_api | VARCHAR(100) | NOT NULL | 데이터 출처 (보조금24/서울시 등) |
+| view_count | INT | NULL | 오픈API 조회수 (인기순 정렬용) |
+| site_view_count | INT | NOT NULL, DEFAULT 0 | 사이트 내 조회수 (상세 페이지 표시용) |
 | fetched_at | DATETIME | NOT NULL | 데이터 가져온 시간 |
 | updated_at | DATETIME | NOT NULL | 마지막 업데이트 시간 |
 
@@ -104,6 +106,8 @@ erDiagram
 - `idx_benefit_income` ON (min_income, max_income)
 - `idx_benefit_region` ON region
 - `idx_benefit_category` ON category
+- `idx_benefit_view_count` ON view_count DESC (인기순 정렬용)
+- `idx_benefit_support_type` ON support_type (지원유형 필터용)
 
 **대상조건 필터 필드 (FEAT-1-2):**
 
