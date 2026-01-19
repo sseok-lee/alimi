@@ -202,16 +202,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import SearchForm from '../components/SearchForm.vue'
 import BenefitCard from '../components/BenefitCard.vue'
 import { useBenefitSearch, type BenefitSearchRequest, type BenefitResponse } from '../composables/useBenefitSearch'
-
-// SEO 메타태그
-useSeoMeta({
-  title: '검색 결과 - 복지알리미',
-  description: '맞춤형 정부 지원금 검색 결과를 확인하세요',
-})
+import { useShareUrl } from '../composables/useShareUrl'
 
 // 검색 composable
 const {
@@ -227,10 +222,49 @@ const {
   hasMore,
 } = useBenefitSearch()
 
+// URL 공유 composable
+const { decodeSearchParams, updateUrl, hasSearchParams } = useShareUrl()
+
 // 상태 관리
 const searchPerformed = ref(false)
 const lastSearchParams = ref<BenefitSearchRequest | null>(null)
 const currentSortBy = ref<'' | 'latest' | 'popular'>('')
+
+// 동적 SEO 메타태그 (검색 결과에 따라 변경)
+const seoTitle = computed(() => {
+  if (lastSearchParams.value) {
+    return `${lastSearchParams.value.region} ${lastSearchParams.value.age}세 지원금 검색 - 복지알리미`
+  }
+  return '검색 결과 - 복지알리미'
+})
+
+const seoDescription = computed(() => {
+  if (lastSearchParams.value && results.value.length > 0) {
+    return `${lastSearchParams.value.region} 지역, 만 ${lastSearchParams.value.age}세 대상 정부 지원금 ${results.value.length}건`
+  }
+  return '맞춤형 정부 지원금 검색 결과를 확인하세요'
+})
+
+useSeoMeta({
+  title: seoTitle,
+  description: seoDescription,
+  ogTitle: seoTitle,
+  ogDescription: seoDescription,
+  ogImage: '/og-image.png',
+  twitterCard: 'summary_large_image',
+})
+
+// URL 파라미터가 있으면 자동으로 검색 실행
+onMounted(async () => {
+  if (hasSearchParams()) {
+    const params = decodeSearchParams()
+    if (params) {
+      searchPerformed.value = true
+      lastSearchParams.value = params
+      await search(params)
+    }
+  }
+})
 
 // 소득 포맷팅
 const formatIncome = (income: number): string => {
@@ -244,9 +278,11 @@ const formatIncome = (income: number): string => {
 // 검색 핸들러
 const handleSearch = async (params: BenefitSearchRequest) => {
   try {
-    await search(params)
     searchPerformed.value = true
     lastSearchParams.value = params
+    currentSortBy.value = ''
+    updateUrl(params) // URL 업데이트
+    await search(params)
   } catch {
     // 에러는 composable에서 처리됨
   }

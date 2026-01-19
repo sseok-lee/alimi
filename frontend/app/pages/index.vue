@@ -201,24 +201,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import SearchForm from '../components/SearchForm.vue'
 import BenefitCard from '../components/BenefitCard.vue'
 import { useBenefitSearch, type BenefitSearchRequest, type BenefitResponse } from '../composables/useBenefitSearch'
-
-// SEO 메타태그 설정
-useSeoMeta({
-  title: '복지알리미 - 맞춤형 정부 지원금 검색',
-  description: '나이, 소득, 지역 3가지만 입력하면 당신을 위한 정부 지원금을 찾아드립니다. 청년도약계좌, 주거지원, 취업지원 등 다양한 복지 혜택을 한눈에 확인하세요.',
-  ogTitle: '복지알리미 - 맞춤형 정부 지원금 검색',
-  ogDescription: '나이, 소득, 지역 3가지만 입력하면 당신을 위한 정부 지원금을 찾아드립니다.',
-  ogImage: '/og-image.png',
-  ogUrl: 'https://welfare-notifier.vercel.app',
-  twitterCard: 'summary_large_image',
-  twitterTitle: '복지알리미 - 맞춤형 정부 지원금 검색',
-  twitterDescription: '나이, 소득, 지역 3가지만 입력하면 당신을 위한 정부 지원금을 찾아드립니다.',
-  twitterImage: '/og-image.png',
-})
+import { useShareUrl } from '../composables/useShareUrl'
 
 // 검색 composable
 const {
@@ -234,15 +221,58 @@ const {
   hasMore,
 } = useBenefitSearch()
 
+// URL 공유 composable
+const { decodeSearchParams, updateUrl, hasSearchParams } = useShareUrl()
+
 // 상태 관리
 const lastSearchParams = ref<BenefitSearchRequest | null>(null)
 const currentSortBy = ref<'' | 'latest' | 'popular'>('')
+
+// 동적 SEO 메타태그 (검색 결과에 따라 변경)
+const seoTitle = computed(() => {
+  if (lastSearchParams.value) {
+    return `${lastSearchParams.value.region} ${lastSearchParams.value.age}세 지원금 검색 - 복지알리미`
+  }
+  return '복지알리미 - 맞춤형 정부 지원금 검색'
+})
+
+const seoDescription = computed(() => {
+  if (lastSearchParams.value && results.value.length > 0) {
+    return `${lastSearchParams.value.region} 지역, 만 ${lastSearchParams.value.age}세 대상 정부 지원금 ${results.value.length}건`
+  }
+  return '나이, 소득, 지역 3가지만 입력하면 당신을 위한 정부 지원금을 찾아드립니다. 청년도약계좌, 주거지원, 취업지원 등 다양한 복지 혜택을 한눈에 확인하세요.'
+})
+
+useSeoMeta({
+  title: seoTitle,
+  description: seoDescription,
+  ogTitle: seoTitle,
+  ogDescription: seoDescription,
+  ogImage: '/og-image.png',
+  ogUrl: 'https://welfare-notifier.vercel.app',
+  twitterCard: 'summary_large_image',
+  twitterTitle: seoTitle,
+  twitterDescription: seoDescription,
+  twitterImage: '/og-image.png',
+})
+
+// URL 파라미터가 있으면 자동으로 검색 실행
+onMounted(async () => {
+  if (hasSearchParams()) {
+    const params = decodeSearchParams()
+    if (params) {
+      lastSearchParams.value = params
+      await search(params)
+    }
+  }
+})
 
 // 검색 핸들러
 const handleSearch = async (params: BenefitSearchRequest) => {
   try {
     lastSearchParams.value = params
     currentSortBy.value = ''
+    updateUrl(params) // URL 업데이트
     await search(params)
   } catch {
     // 에러는 composable에서 처리됨
