@@ -2581,7 +2581,7 @@ flowchart TD
 
 > 17개 시/도 단위 지역 필터링으로 더 정확한 지원금 매칭을 제공합니다.
 
-### [ ] Phase 9, T9.1: 지역 데이터 확장
+### [x] Phase 9, T9.1: 지역 데이터 확장 ✅
 
 **담당**: database-specialist
 
@@ -2593,13 +2593,17 @@ flowchart TD
 **수정 파일**:
 | 파일 | 변경 내용 |
 |------|----------|
-| `prisma/schema.prisma` | Region 모델 추가 (선택) |
-| `src/services/syncBenefits.ts` | 지역 코드 정규화 로직 |
+| `src/constants/regions.ts` | 17개 시/도 코드 상수 및 지역 추출 함수 (신규) |
+| `src/services/syncBenefits.ts` | 지역 코드 정규화 로직 추가 |
+| `src/services/benefitService.ts` | getRegionCounts 함수 추가 |
+| `src/routes/benefits.ts` | /meta/regions 응답 형식 변경 |
+| `src/scripts/migrateRegions.ts` | 기존 데이터 마이그레이션 스크립트 (신규) |
+| `__tests__/constants/regions.test.ts` | 지역 추출 함수 테스트 (신규) |
 
 **완료 조건**:
-- [ ] 17개 시/도 코드 정의
-- [ ] 기존 데이터 지역 코드 매핑 완료
-- [ ] 테스트 통과
+- [x] 17개 시/도 코드 정의
+- [x] 기존 데이터 지역 코드 매핑 완료 (마이그레이션 스크립트 작성)
+- [x] 테스트 통과 (8/8 tests)
 
 ---
 
