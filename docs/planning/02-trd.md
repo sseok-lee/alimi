@@ -419,6 +419,53 @@ npx playwright test
 |------|------|----------|
 | URL 경로 | /api/v1/benefits | 권장 |
 
+### 8.4 확장 API 엔드포인트 (Phase 9~11)
+
+#### 지역 관련 (Phase 9)
+| 메서드 | 엔드포인트 | 설명 |
+|--------|------------|------|
+| GET | /api/regions | 17개 시/도 목록 조회 (지원금 개수 포함) |
+
+#### 인기 지원금/검색어 (Phase 11)
+| 메서드 | 엔드포인트 | 설명 |
+|--------|------------|------|
+| GET | /api/benefits/popular | 인기 지원금 TOP 10 (viewCount 기준) |
+| GET | /api/search/trending | 인기 검색어 TOP 10 (SearchLog 기반) |
+
+**인기 지원금 응답 예시:**
+```json
+{
+  "data": [
+    {
+      "id": "SVC001",
+      "name": "청년도약계좌",
+      "category": "금융지원",
+      "viewCount": 150000,
+      "description": "청년 자산형성 지원"
+    }
+  ],
+  "meta": {
+    "total": 10,
+    "cachedAt": "2025-01-19T10:00:00Z"
+  }
+}
+```
+
+**인기 검색어 응답 예시:**
+```json
+{
+  "data": [
+    { "keyword": "청년", "count": 1500 },
+    { "keyword": "주거지원", "count": 1200 },
+    { "keyword": "취업", "count": 980 }
+  ],
+  "meta": {
+    "period": "weekly",
+    "cachedAt": "2025-01-19T10:00:00Z"
+  }
+}
+```
+
 ---
 
 ## 9. 병렬 개발 지원 (Git Worktree)
