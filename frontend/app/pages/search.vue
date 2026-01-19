@@ -128,7 +128,7 @@
                   </p>
                 </div>
 
-                <!-- 정렬 옵션 -->
+                <!-- 정렬 옵션 + 공유 버튼 -->
                 <div class="flex items-center gap-3">
                   <select
                     v-model="currentSortBy"
@@ -139,6 +139,13 @@
                     <option value="latest">최신순</option>
                     <option value="popular">인기순</option>
                   </select>
+
+                  <!-- 공유 버튼 -->
+                  <ShareButton
+                    v-if="lastSearchParams"
+                    :search-params="lastSearchParams"
+                    :result-count="results.length"
+                  />
                 </div>
               </div>
 

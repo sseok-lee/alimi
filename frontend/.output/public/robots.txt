@@ -1,0 +1,15 @@
+# robots.txt for 복지알리미
+# https://welfare-notifier.vercel.app/robots.txt
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://welfare-notifier.vercel.app/sitemap.xml
+
+# Crawl-delay (optional, in seconds)
+Crawl-delay: 1
+
+# Disallow admin/internal pages (if any in the future)
+# Disallow: /admin/
+# Disallow: /api/
