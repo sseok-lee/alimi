@@ -278,6 +278,44 @@ export async function getRegionCounts(): Promise<{ region: string; count: number
 // 세션별 조회 기록 (메모리 기반, 서버 재시작 시 초기화)
 const viewedBenefits = new Set<string>()
 
+// 인기 지원금 캐시 (5분 TTL)
+let popularBenefitsCache: { data: SimpleBenefit[]; timestamp: number } | null = null
+const POPULAR_CACHE_TTL = 5 * 60 * 1000 // 5분
+
+/**
+ * 인기 지원금 조회 (viewCount 기준)
+ * - 5분 TTL 메모리 캐시 적용
+ * - viewCount는 보조금24 API 전체 조회수
+ */
+export async function getPopularBenefits(limit: number = 10): Promise<SimpleBenefit[]> {
+  // 캐시 확인
+  if (popularBenefitsCache && Date.now() - popularBenefitsCache.timestamp < POPULAR_CACHE_TTL) {
+    return popularBenefitsCache.data.slice(0, limit)
+  }
+
+  // DB 조회 (viewCount 내림차순, 최대 20개 캐시)
+  const benefits = await prisma.benefit.findMany({
+    orderBy: { viewCount: 'desc' },
+    take: 20,
+    where: { viewCount: { not: null } }
+  })
+
+  const result: SimpleBenefit[] = benefits.map(b => ({
+    id: b.id,
+    name: b.name,
+    category: b.category,
+    description: b.description,
+    link: b.link,
+    viewCount: b.viewCount || 0,
+    siteViewCount: b.siteViewCount || 0
+  }))
+
+  // 캐시 업데이트
+  popularBenefitsCache = { data: result, timestamp: Date.now() }
+
+  return result.slice(0, limit)
+}
+
 export async function getBenefitDetailWithRelated(id: string, sessionId?: string): Promise<BenefitDetailResponse | null> {
   // 상세 정보 조회
   let benefit = await prisma.benefit.findUnique({

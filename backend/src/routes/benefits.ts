@@ -62,6 +62,17 @@ router.post('/search', async (req: Request, res: Response, next: NextFunction) =
   }
 })
 
+// GET /api/benefits/popular - 인기 지원금 TOP N
+router.get('/popular', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 10, 20) // 최대 20개
+    const popularBenefits = await benefitService.getPopularBenefits(limit)
+    res.json({ benefits: popularBenefits })
+  } catch (error) {
+    next(error)
+  }
+})
+
 // GET /api/benefits/:id - 지원금 상세 조회
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
