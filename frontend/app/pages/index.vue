@@ -98,6 +98,9 @@
         </div>
       </section>
 
+      <!-- 인기 지원금 섹션 -->
+      <HomePopularBenefits />
+
       <!-- 검색 폼 섹션 -->
       <section id="search" class="py-16 md:py-20">
         <div class="container mx-auto px-4">

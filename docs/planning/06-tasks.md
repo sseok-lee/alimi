@@ -37,8 +37,8 @@
 | M7 | 데이터 동기화 복구 | Phase 7 | ✅ |
 | M8 | 검색 필터 확장 및 정렬 기능 | Phase 8 | ✅ |
 | M9 | 지역 필터링 고도화 | Phase 9 | ✅ |
-| M10 | 검색 결과 공유 기능 | Phase 10 | 🔲 |
-| M11 | 인기 지원금 & 검색어 | Phase 11 | 🔲 |
+| M10 | 검색 결과 공유 기능 | Phase 10 | ✅ |
+| M11 | 인기 지원금 | Phase 11 | ✅ |
 
 ---
 
@@ -2729,7 +2729,7 @@ graph LR
 
 ---
 
-### [ ] Phase 11, T11.2: 인기 지원금 UI
+### [x] Phase 11, T11.2: 인기 지원금 UI ✅
 
 **담당**: frontend-specialist
 
@@ -2742,13 +2742,14 @@ graph LR
 **수정 파일**:
 | 파일 | 변경 내용 |
 |------|----------|
+| `composables/usePopularBenefits.ts` | 인기 지원금 API 호출 composable |
 | `components/home/PopularBenefits.vue` | 인기 지원금 카드 리스트 |
 | `pages/index.vue` | 인기 지원금 섹션 배치 |
 
 **완료 조건**:
-- [ ] 인기 지원금 TOP 10 표시
-- [ ] 클릭 시 상세 페이지 이동
-- [ ] 빌드 통과
+- [x] 인기 지원금 TOP 10 표시
+- [x] 클릭 시 상세 페이지 이동
+- [x] 빌드 통과
 
 ---
 
