@@ -281,10 +281,27 @@ export const benefitHandlers = [
 
   // GET /api/benefits/meta/regions
   http.get('/api/benefits/meta/regions', () => {
-    const regions = Array.from(
-      new Set(mockBenefits.map((b) => b.region).filter((r): r is string => !!r))
-    );
-    return HttpResponse.json({ regions }, { status: 200 });
+    const regionCounts = [
+      { region: '전국', count: 8500 },
+      { region: '서울', count: 1200 },
+      { region: '경기', count: 980 },
+      { region: '부산', count: 650 },
+      { region: '대구', count: 520 },
+      { region: '인천', count: 480 },
+      { region: '광주', count: 420 },
+      { region: '대전', count: 380 },
+      { region: '울산', count: 320 },
+      { region: '세종', count: 180 },
+      { region: '강원', count: 450 },
+      { region: '충북', count: 380 },
+      { region: '충남', count: 420 },
+      { region: '전북', count: 390 },
+      { region: '전남', count: 410 },
+      { region: '경북', count: 480 },
+      { region: '경남', count: 520 },
+      { region: '제주', count: 280 },
+    ]
+    return HttpResponse.json({ regions: regionCounts }, { status: 200 })
   }),
 
   // GET /api/health
