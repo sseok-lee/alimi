@@ -89,11 +89,11 @@ router.get('/meta/categories', async (_req: Request, res: Response, next: NextFu
   }
 })
 
-// GET /api/benefits/meta/regions - 지역 목록
+// GET /api/benefits/meta/regions - 지역 목록 (지원금 개수 포함)
 router.get('/meta/regions', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const regions = await benefitService.getRegions()
-    res.json({ regions })
+    const regionCounts = await benefitService.getRegionCounts()
+    res.json({ regions: regionCounts })
   } catch (error) {
     next(error)
   }
