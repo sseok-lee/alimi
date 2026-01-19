@@ -2702,9 +2702,9 @@ graph LR
 
 ---
 
-## M11: 인기 지원금 & 검색어 (Phase 11)
+## M11: 인기 지원금 (Phase 11)
 
-> 사용자 관심을 끌고 탐색을 유도하는 트렌딩 정보를 표시합니다.
+> 사용자 관심을 끌고 탐색을 유도하는 인기 지원금 정보를 표시합니다.
 
 ### [ ] Phase 11, T11.1: 인기 지원금 API
 
@@ -2729,49 +2729,26 @@ graph LR
 
 ---
 
-### [ ] Phase 11, T11.2: 인기 검색어 추적
-
-**담당**: backend-specialist
-
-**작업 내용**:
-- SearchLog 기반 인기 검색어 집계
-- 일별/주별 인기 검색어 API
-
-**수정 파일**:
-| 파일 | 변경 내용 |
-|------|----------|
-| `src/routes/search.ts` | GET /api/search/trending 엔드포인트 |
-| `src/services/searchLogService.ts` | getTrendingSearches() 함수 |
-
-**완료 조건**:
-- [ ] 인기 검색어 TOP 10 조회 API
-- [ ] 테스트 통과
-
----
-
-### [ ] Phase 11, T11.3: 트렌딩 UI 표시
+### [ ] Phase 11, T11.2: 인기 지원금 UI
 
 **담당**: frontend-specialist
 
-**의존성**: T11.1 (인기 지원금 API), T11.2 (인기 검색어 추적)
+**의존성**: T11.1 (인기 지원금 API)
 
 **작업 내용**:
 - 랜딩 페이지에 인기 지원금 섹션 추가
-- 검색 페이지에 인기 검색어 표시
-- 클릭 시 해당 검색/상세 페이지로 이동
+- 클릭 시 상세 페이지로 이동
 
 **수정 파일**:
 | 파일 | 변경 내용 |
 |------|----------|
-| `components/home/TrendingBenefits.vue` | 인기 지원금 카드 리스트 |
-| `components/search/TrendingSearches.vue` | 인기 검색어 태그 |
-| `pages/index.vue` | 트렌딩 섹션 배치 |
+| `components/home/PopularBenefits.vue` | 인기 지원금 카드 리스트 |
+| `pages/index.vue` | 인기 지원금 섹션 배치 |
 
 **완료 조건**:
-- [ ] 인기 지원금 표시
-- [ ] 인기 검색어 표시
-- [ ] 클릭 동작
-- [ ] 테스트 통과
+- [ ] 인기 지원금 TOP 10 표시
+- [ ] 클릭 시 상세 페이지 이동
+- [ ] 빌드 통과
 
 ---
 
@@ -2779,8 +2756,7 @@ graph LR
 
 ```mermaid
 graph LR
-    T11.1[T11.1: 인기 지원금 API] --> T11.3[T11.3: 트렌딩 UI 표시]
-    T11.2[T11.2: 인기 검색어 추적] --> T11.3
+    T11.1[T11.1: 인기 지원금 API] --> T11.2[T11.2: 인기 지원금 UI]
 ```
 
 ---
@@ -2797,9 +2773,8 @@ graph TD
         T10.1[T10.1: 공유 URL] --> T10.2[T10.2: 공유 버튼 UI]
     end
 
-    subgraph Phase11[Phase 11: 인기 지원금/검색어]
-        T11.1[T11.1: 인기 지원금 API] --> T11.3[T11.3: 트렌딩 UI]
-        T11.2[T11.2: 인기 검색어 API] --> T11.3
+    subgraph Phase11[Phase 11: 인기 지원금]
+        T11.1[T11.1: 인기 지원금 API] --> T11.2[T11.2: 인기 지원금 UI]
     end
 
     Phase9 --> Phase10
