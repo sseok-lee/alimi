@@ -6,6 +6,7 @@ import {
   type ServiceListItem,
   type SupportConditionItem,
 } from './gov24ApiClient.js';
+import { extractRegionFromOrganization } from '../constants/regions.js';
 
 /**
  * 보조금24 데이터 동기화 서비스
@@ -124,6 +125,9 @@ async function upsertBenefit(
     userType: service.사용자구분 || null,
     applyAgency: service.접수기관명 || null,
     viewCount: service.조회수 || null,
+
+    // 지역 코드 추출 (소관기관명 기반)
+    region: extractRegionFromOrganization(service.소관기관명),
 
     // supportConditions 필드 (있는 경우에만)
     ...(condition && {

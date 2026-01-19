@@ -256,6 +256,25 @@ export async function getRegions(): Promise<string[]> {
   return regions.map(r => r.region).filter((r): r is string => r !== null)
 }
 
+/**
+ * 지역별 지원금 개수 조회
+ * - 지역별 통계를 지원금 개수 내림차순으로 반환
+ * - NULL 지역은 제외
+ */
+export async function getRegionCounts(): Promise<{ region: string; count: number }[]> {
+  const counts = await prisma.benefit.groupBy({
+    by: ['region'],
+    _count: { id: true },
+    where: { region: { not: null } },
+    orderBy: { _count: { id: 'desc' } }
+  });
+
+  return counts.map(c => ({
+    region: c.region!,
+    count: c._count.id
+  }));
+}
+
 // 세션별 조회 기록 (메모리 기반, 서버 재시작 시 초기화)
 const viewedBenefits = new Set<string>()
 
