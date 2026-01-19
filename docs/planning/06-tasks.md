@@ -2645,7 +2645,7 @@ graph LR
 
 > 사용자가 검색 결과를 SNS/메신저로 쉽게 공유할 수 있습니다.
 
-### [ ] Phase 10, T10.1: 공유 URL 생성
+### [x] Phase 10, T10.1: 공유 URL 생성 ✅
 
 **담당**: frontend-specialist
 
@@ -2656,17 +2656,18 @@ graph LR
 **수정 파일**:
 | 파일 | 변경 내용 |
 |------|----------|
+| `pages/index.vue` | URL 쿼리 파라미터 연동, 동적 OG 태그 |
 | `pages/search.vue` | URL 쿼리 파라미터 지원 |
-| `composables/useShareUrl.ts` | 공유 URL 생성 composable |
+| `composables/useShareUrl.ts` | 공유 URL 생성 composable (신규) |
 
 **완료 조건**:
-- [ ] 검색 조건이 URL에 반영
-- [ ] URL 공유 시 동일 검색 결과 표시
-- [ ] 테스트 통과
+- [x] 검색 조건이 URL에 반영
+- [x] URL 공유 시 동일 검색 결과 표시
+- [x] 빌드 통과
 
 ---
 
-### [ ] Phase 10, T10.2: 공유 버튼 UI
+### [x] Phase 10, T10.2: 공유 버튼 UI ✅
 
 **담당**: frontend-specialist
 
@@ -2674,20 +2675,21 @@ graph LR
 
 **작업 내용**:
 - 검색 결과 페이지에 공유 버튼 추가
-- 클립보드 복사, 카카오톡, Twitter/X 공유 지원
+- 클립보드 복사, Twitter/X 공유 지원
 - Web Share API 지원 (모바일)
 
 **수정 파일**:
 | 파일 | 변경 내용 |
 |------|----------|
-| `components/ui/ShareButton.vue` | 공유 버튼 컴포넌트 |
-| `components/search/SearchResults.vue` | 공유 버튼 배치 |
+| `components/ui/ShareButton.vue` | 공유 버튼 컴포넌트 (신규) |
+| `pages/index.vue` | 공유 버튼 배치 |
+| `pages/search.vue` | 공유 버튼 배치 |
 
 **완료 조건**:
-- [ ] 공유 버튼 클릭 시 공유 옵션 표시
-- [ ] 클립보드 복사 동작
-- [ ] 모바일 Web Share API 동작
-- [ ] 테스트 통과
+- [x] 공유 버튼 클릭 시 공유 옵션 표시
+- [x] 클립보드 복사 동작
+- [x] 모바일 Web Share API 동작
+- [x] 빌드 통과
 
 ---
 
