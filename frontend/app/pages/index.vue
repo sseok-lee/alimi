@@ -150,7 +150,7 @@
               </select>
 
               <!-- 공유 버튼 -->
-              <ShareButton
+              <UiShareButton
                 v-if="lastSearchParams"
                 :search-params="lastSearchParams"
                 :result-count="results.length"
