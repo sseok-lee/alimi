@@ -80,24 +80,9 @@
           class="w-full h-14 px-4 border border-gray-200 rounded-xl text-base font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
         >
           <option value="" disabled>지역을 선택하세요</option>
-          <option value="서울">서울</option>
-          <option value="경기">경기</option>
-          <option value="인천">인천</option>
-          <option value="부산">부산</option>
-          <option value="대구">대구</option>
-          <option value="대전">대전</option>
-          <option value="광주">광주</option>
-          <option value="울산">울산</option>
-          <option value="세종">세종</option>
-          <option value="강원">강원</option>
-          <option value="충북">충북</option>
-          <option value="충남">충남</option>
-          <option value="전북">전북</option>
-          <option value="전남">전남</option>
-          <option value="경북">경북</option>
-          <option value="경남">경남</option>
-          <option value="제주">제주</option>
-          <option value="전국">전국</option>
+          <option v-for="r in regions" :key="r.region" :value="r.region">
+            {{ r.region }} ({{ r.count.toLocaleString() }}건)
+          </option>
         </select>
       </div>
 
@@ -282,7 +267,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+
+// useRegions는 Nuxt auto-import이므로 별도 import 불필요
+const { regions, fetchRegions } = useRegions()
 
 const emit = defineEmits<{
   'submit': [params: {
@@ -386,6 +374,10 @@ const categories = [
   { value: '행정·안전', label: '행정·안전' },
   { value: '농림축산어업', label: '농림축산어업' },
 ]
+
+onMounted(() => {
+  fetchRegions()
+})
 
 const handleSubmit = () => {
   if (
