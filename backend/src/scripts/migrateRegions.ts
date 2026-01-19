@@ -45,7 +45,7 @@ async function migrateRegions() {
     orderBy: { _count: { id: 'desc' } }
   });
 
-  console.log('\n📊 지역별 지원금 통계:');
+  console.log('\n📊 지역별 서비스 통계:');
   for (const stat of stats) {
     console.log(`  ${stat.region || '(미분류)'}: ${stat._count.id}개`);
   }

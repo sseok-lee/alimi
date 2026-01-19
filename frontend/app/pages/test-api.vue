@@ -4,7 +4,7 @@
 
     <!-- 검색 폼 -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">지원금 검색</h2>
+      <h2 class="text-xl font-semibold mb-4">서비스 검색</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2"> 나이 </label>
@@ -73,7 +73,7 @@
         </p>
       </div>
 
-      <!-- 지원금 목록 -->
+      <!-- 서비스 목록 -->
       <div v-if="results.benefits.length > 0" class="space-y-4">
         <div
           v-for="benefit in results.benefits"
@@ -102,7 +102,7 @@
       </div>
 
       <div v-else class="text-center text-gray-500 py-8">
-        검색 조건에 맞는 지원금이 없습니다.
+        검색 조건에 맞는 서비스이 없습니다.
       </div>
     </div>
 
@@ -156,7 +156,7 @@ const error = ref<string | null>(null);
 const results = ref<SearchResultResponse | null>(null);
 const apiTestResult = ref<string | null>(null);
 
-// 지원금 검색
+// 서비스 검색
 const searchBenefits = async () => {
   loading.value = true;
   error.value = null;

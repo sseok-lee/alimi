@@ -13,7 +13,7 @@
               홈
             </NuxtLink>
             <NuxtLink to="/search" class="text-sm font-medium text-primary">
-              지원금 검색
+              서비스 검색
             </NuxtLink>
           </nav>
         </div>
@@ -82,11 +82,11 @@
                 <span class="material-symbols-outlined text-primary text-4xl">search</span>
               </div>
               <h2 class="font-display text-xl font-bold text-text-primary mb-2">
-                지원금을 검색해보세요
+                서비스을 검색해보세요
               </h2>
               <p class="text-text-secondary">
                 왼쪽의 검색 조건을 입력하면<br />
-                맞춤 지원금 목록이 여기에 표시됩니다
+                맞춤 서비스 목록이 여기에 표시됩니다
               </p>
             </div>
 
@@ -102,7 +102,7 @@
                 검색 결과가 없습니다
               </h2>
               <p class="text-text-secondary mb-6">
-                입력하신 조건에 맞는 지원금을 찾지 못했어요<br />
+                입력하신 조건에 맞는 서비스을 찾지 못했어요<br />
                 검색 조건을 변경해서 다시 시도해보세요
               </p>
               <button
@@ -123,7 +123,7 @@
                     검색 결과
                   </h2>
                   <p class="text-sm text-text-secondary">
-                    총 <span class="font-bold text-primary">{{ totalCount.toLocaleString() }}</span>개의 지원금 중
+                    총 <span class="font-bold text-primary">{{ totalCount.toLocaleString() }}</span>개의 서비스 중
                     <span class="font-bold">{{ results.length }}</span>개 표시
                   </p>
                 </div>
@@ -184,7 +184,7 @@
               <div class="w-16 h-16 mx-auto mb-4">
                 <span class="animate-spin material-symbols-outlined text-primary text-5xl">progress_activity</span>
               </div>
-              <p class="text-text-secondary">지원금을 검색하고 있습니다...</p>
+              <p class="text-text-secondary">서비스을 검색하고 있습니다...</p>
             </div>
           </div>
         </div>
@@ -240,16 +240,16 @@ const currentSortBy = ref<'' | 'latest' | 'popular'>('')
 // 동적 SEO 메타태그 (검색 결과에 따라 변경)
 const seoTitle = computed(() => {
   if (lastSearchParams.value) {
-    return `${lastSearchParams.value.region} ${lastSearchParams.value.age}세 지원금 검색 - 복지알리미`
+    return `${lastSearchParams.value.region} ${lastSearchParams.value.age}세 서비스 검색 - 복지알리미`
   }
   return '검색 결과 - 복지알리미'
 })
 
 const seoDescription = computed(() => {
   if (lastSearchParams.value && results.value.length > 0) {
-    return `${lastSearchParams.value.region} 지역, 만 ${lastSearchParams.value.age}세 대상 정부 지원금 ${results.value.length}건`
+    return `${lastSearchParams.value.region} 지역, 만 ${lastSearchParams.value.age}세 대상 정부 서비스 ${results.value.length}건`
   }
-  return '맞춤형 정부 지원금 검색 결과를 확인하세요'
+  return '맞춤형 정부 서비스 검색 결과를 확인하세요'
 })
 
 useSeoMeta({

@@ -18,7 +18,7 @@ function generateSessionId(req: Request): string {
     .substring(0, 16)
 }
 
-// POST /api/benefits/search - 맞춤 지원금 검색
+// POST /api/benefits/search - 맞춤 서비스 검색
 router.post('/search', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = BenefitSearchSchema.safeParse(req.body)
@@ -62,7 +62,7 @@ router.post('/search', async (req: Request, res: Response, next: NextFunction) =
   }
 })
 
-// GET /api/benefits/popular - 인기 지원금 TOP N
+// GET /api/benefits/popular - 인기 서비스 TOP N
 router.get('/popular', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const limit = Math.min(Number(req.query.limit) || 10, 20) // 최대 20개
@@ -73,7 +73,7 @@ router.get('/popular', async (req: Request, res: Response, next: NextFunction) =
   }
 })
 
-// GET /api/benefits/:id - 지원금 상세 조회
+// GET /api/benefits/:id - 서비스 상세 조회
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id
@@ -100,7 +100,7 @@ router.get('/meta/categories', async (_req: Request, res: Response, next: NextFu
   }
 })
 
-// GET /api/benefits/meta/regions - 지역 목록 (지원금 개수 포함)
+// GET /api/benefits/meta/regions - 지역 목록 (서비스 개수 포함)
 router.get('/meta/regions', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const regionCounts = await benefitService.getRegionCounts()

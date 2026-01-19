@@ -66,7 +66,7 @@ export function useBenefitDetail() {
       })
 
       if (response.status === 404) {
-        error.value = '지원금을 찾을 수 없습니다'
+        error.value = '서비스를 찾을 수 없습니다'
         return null
       }
 

@@ -18,7 +18,7 @@ export function usePopularBenefits() {
       )
       benefits.value = response.benefits
     } catch (e) {
-      error.value = '인기 지원금을 불러오는데 실패했습니다.'
+      error.value = '인기 서비스를 불러오는데 실패했습니다.'
       console.error('Failed to fetch popular benefits:', e)
     } finally {
       loading.value = false

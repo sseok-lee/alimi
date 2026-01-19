@@ -7,10 +7,10 @@
           <span class="text-sm font-semibold text-primary">실시간 인기</span>
         </div>
         <h2 class="font-display text-2xl md:text-3xl font-bold text-text-primary mb-3">
-          지금 가장 인기있는 지원금
+          지금 가장 인기있는 서비스
         </h2>
         <p class="text-text-secondary">
-          많은 분들이 관심을 가지고 있는 지원금을 확인해보세요
+          많은 분들이 관심을 가지고 있는 서비스을 확인해보세요
         </p>
       </div>
 
@@ -27,7 +27,7 @@
         <p class="text-text-secondary">{{ error }}</p>
       </div>
 
-      <!-- 지원금 카드 그리드 -->
+      <!-- 서비스 카드 그리드 -->
       <div v-else-if="benefits.length > 0" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <BenefitCard
           v-for="benefit in benefits"
@@ -39,7 +39,7 @@
 
       <!-- 데이터 없음 -->
       <div v-else class="text-center py-12">
-        <p class="text-text-secondary">인기 지원금 정보가 없습니다.</p>
+        <p class="text-text-secondary">인기 서비스 정보가 없습니다.</p>
       </div>
     </div>
   </section>

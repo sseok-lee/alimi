@@ -10,7 +10,7 @@
           </div>
           <nav class="hidden md:flex items-center gap-6">
             <a href="#features" class="text-sm font-medium text-text-secondary hover:text-primary transition-colors">서비스 소개</a>
-            <a href="#search" class="text-sm font-medium text-text-secondary hover:text-primary transition-colors">지원금 검색</a>
+            <a href="#search" class="text-sm font-medium text-text-secondary hover:text-primary transition-colors">서비스 검색</a>
           </nav>
         </div>
       </div>
@@ -32,12 +32,12 @@
 
             <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold text-text-primary mb-6 leading-tight">
               나에게 맞는<br class="hidden md:block" />
-              <span class="text-primary">정부 지원금</span>을 찾아보세요
+              <span class="text-primary">정부 서비스</span>을 찾아보세요
             </h1>
 
             <p class="text-lg md:text-xl text-text-secondary mb-10 leading-relaxed">
               생년월일, 소득, 지역 3가지만 입력하면<br />
-              받을 수 있는 모든 지원금을 한눈에 확인할 수 있어요
+              받을 수 있는 모든 서비스을 한눈에 확인할 수 있어요
             </p>
 
             <!-- 스크롤 유도 버튼 -->
@@ -60,7 +60,7 @@
               왜 복지알리미인가요?
             </h2>
             <p class="text-text-secondary">
-              복잡한 지원금, 쉽고 빠르게 찾아드립니다
+              복잡한 서비스, 쉽고 빠르게 찾아드립니다
             </p>
           </div>
 
@@ -71,7 +71,7 @@
               </div>
               <h3 class="font-display text-lg font-bold text-text-primary mb-2">정확한 매칭</h3>
               <p class="text-text-secondary text-sm leading-relaxed">
-                당신의 조건에 딱 맞는<br />지원금만 추천합니다
+                당신의 조건에 딱 맞는<br />서비스만 추천합니다
               </p>
             </div>
 
@@ -98,7 +98,7 @@
         </div>
       </section>
 
-      <!-- 인기 지원금 섹션 -->
+      <!-- 인기 서비스 섹션 -->
       <HomePopularBenefits />
 
       <!-- 검색 폼 섹션 -->
@@ -106,10 +106,10 @@
         <div class="container mx-auto px-4">
           <div class="text-center mb-10">
             <h2 class="font-display text-2xl md:text-3xl font-bold text-text-primary mb-3">
-              지원금 검색
+              서비스 검색
             </h2>
             <p class="text-text-secondary">
-              아래 정보를 입력하고 받을 수 있는 지원금을 확인하세요
+              아래 정보를 입력하고 받을 수 있는 서비스을 확인하세요
             </p>
           </div>
 
@@ -135,7 +135,7 @@
                 검색 결과
               </h2>
               <p class="text-text-secondary">
-                총 <span class="font-bold text-primary">{{ totalCount.toLocaleString() }}</span>개의 지원금 중
+                총 <span class="font-bold text-primary">{{ totalCount.toLocaleString() }}</span>개의 서비스 중
                 <span class="font-bold">{{ results.length }}</span>개 표시
               </p>
             </div>
@@ -241,16 +241,16 @@ const currentSortBy = ref<'' | 'latest' | 'popular'>('')
 // 동적 SEO 메타태그 (검색 결과에 따라 변경)
 const seoTitle = computed(() => {
   if (lastSearchParams.value) {
-    return `${lastSearchParams.value.region} ${lastSearchParams.value.age}세 지원금 검색 - 복지알리미`
+    return `${lastSearchParams.value.region} ${lastSearchParams.value.age}세 서비스 검색 - 복지알리미`
   }
-  return '복지알리미 - 맞춤형 정부 지원금 검색'
+  return '복지알리미 - 맞춤형 정부 서비스 검색'
 })
 
 const seoDescription = computed(() => {
   if (lastSearchParams.value && results.value.length > 0) {
-    return `${lastSearchParams.value.region} 지역, 만 ${lastSearchParams.value.age}세 대상 정부 지원금 ${results.value.length}건`
+    return `${lastSearchParams.value.region} 지역, 만 ${lastSearchParams.value.age}세 대상 정부 서비스 ${results.value.length}건`
   }
-  return '나이, 소득, 지역 3가지만 입력하면 당신을 위한 정부 지원금을 찾아드립니다. 청년도약계좌, 주거지원, 취업지원 등 다양한 복지 혜택을 한눈에 확인하세요.'
+  return '나이, 소득, 지역 3가지만 입력하면 당신을 위한 정부 서비스을 찾아드립니다. 청년도약계좌, 주거지원, 취업지원 등 다양한 복지 혜택을 한눈에 확인하세요.'
 })
 
 useSeoMeta({

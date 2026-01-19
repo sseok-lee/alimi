@@ -29,7 +29,7 @@
       </button>
     </div>
 
-    <!-- 지원금 이름 -->
+    <!-- 서비스 이름 -->
     <h3 class="font-display text-lg font-bold text-text-primary mb-2 line-clamp-2 group-hover:text-primary transition-colors">
       {{ benefit.name }}
     </h3>

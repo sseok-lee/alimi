@@ -39,7 +39,7 @@ export const BenefitSearchSchema = z.object({
 
 export type BenefitSearchInput = z.infer<typeof BenefitSearchSchema>
 
-// 지원금 응답 스키마
+// 서비스 응답 스키마
 export const BenefitResponseSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -98,7 +98,7 @@ export const BenefitDetailSchema = z.object({
 
 export type BenefitDetail = z.infer<typeof BenefitDetailSchema>
 
-// 간단한 지원금 정보 (관련 서비스용)
+// 간단한 서비스 정보 (관련 서비스용)
 export const SimpleBenefitSchema = z.object({
   id: z.string(),
   name: z.string(),

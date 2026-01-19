@@ -13,7 +13,7 @@
               홈
             </NuxtLink>
             <NuxtLink to="/search" class="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
-              지원금 검색
+              서비스 검색
             </NuxtLink>
           </nav>
         </div>
@@ -39,7 +39,7 @@
             {{ error }}
           </h2>
           <p class="text-text-secondary mb-6">
-            요청하신 지원금을 찾을 수 없습니다
+            요청하신 서비스을 찾을 수 없습니다
           </p>
           <NuxtLink
             to="/"
@@ -154,7 +154,7 @@ onMounted(async () => {
 // SEO 메타태그
 useSeoMeta({
   title: () => (benefit.value ? `${benefit.value.name} - 복지알리미` : '복지알리미'),
-  description: () => benefit.value?.description || '맞춤형 정부 지원금 검색 서비스',
+  description: () => benefit.value?.description || '맞춤형 정부 서비스 검색 서비스',
   ogTitle: () => benefit.value?.name || '복지알리미',
   ogDescription: () => benefit.value?.supportDetails || benefit.value?.description || '',
 })

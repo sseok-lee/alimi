@@ -86,8 +86,8 @@ async function handleClick() {
     try {
       const shareUrl = getShareUrl(props.searchParams)
       await navigator.share({
-        title: `${props.searchParams.region} ${props.searchParams.age}세 지원금 검색`,
-        text: `${props.searchParams.region} 지역, 만 ${props.searchParams.age}세 대상 정부 지원금 ${props.resultCount}건을 찾았습니다!`,
+        title: `${props.searchParams.region} ${props.searchParams.age}세 서비스 검색`,
+        text: `${props.searchParams.region} 지역, 만 ${props.searchParams.age}세 대상 정부 서비스 ${props.resultCount}건을 찾았습니다!`,
         url: shareUrl,
       })
       return
@@ -133,7 +133,7 @@ async function copyToClipboard() {
 // Twitter 공유
 function shareToTwitter() {
   const shareUrl = getShareUrl(props.searchParams)
-  const text = `${props.searchParams.region} ${props.searchParams.age}세 대상 정부 지원금 ${props.resultCount}건을 찾았습니다! #복지알리미`
+  const text = `${props.searchParams.region} ${props.searchParams.age}세 대상 정부 서비스 ${props.resultCount}건을 찾았습니다! #복지알리미`
   const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`
   window.open(twitterUrl, '_blank', 'noopener,noreferrer')
   showMenu.value = false

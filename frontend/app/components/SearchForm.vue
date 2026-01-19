@@ -258,7 +258,7 @@
           검색 중...
         </span>
         <span v-else class="flex items-center gap-2">
-          지원금 찾기
+          서비스 찾기
           <span class="material-symbols-outlined text-xl">arrow_forward</span>
         </span>
       </button>

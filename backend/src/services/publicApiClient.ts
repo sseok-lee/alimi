@@ -4,7 +4,7 @@ import { getApiConfig } from '../config/api';
 
 /**
  * 공공 API 클라이언트
- * - 외부 지원금 API 호출
+ * - 외부 서비스 API 호출
  * - 응답 정규화 (외부 형식 → Prisma Benefit 스키마)
  * - 에러 처리 및 재시도 로직
  */
@@ -45,8 +45,8 @@ function createApiClient(): AxiosInstance {
 }
 
 /**
- * 공공 API에서 지원금 정보 가져오기
- * @returns Prisma Benefit 스키마 형식의 지원금 배열
+ * 공공 API에서 서비스 정보 가져오기
+ * @returns Prisma Benefit 스키마 형식의 서비스 배열
  * @throws API 호출 실패 시 에러
  */
 export async function fetchBenefits(): Promise<Benefit[]> {

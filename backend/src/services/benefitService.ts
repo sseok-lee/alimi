@@ -257,8 +257,8 @@ export async function getRegions(): Promise<string[]> {
 }
 
 /**
- * 지역별 지원금 개수 조회
- * - 지역별 통계를 지원금 개수 내림차순으로 반환
+ * 지역별 서비스 개수 조회
+ * - 지역별 통계를 서비스 개수 내림차순으로 반환
  * - NULL 지역은 제외
  */
 export async function getRegionCounts(): Promise<{ region: string; count: number }[]> {
@@ -278,12 +278,12 @@ export async function getRegionCounts(): Promise<{ region: string; count: number
 // 세션별 조회 기록 (메모리 기반, 서버 재시작 시 초기화)
 const viewedBenefits = new Set<string>()
 
-// 인기 지원금 캐시 (5분 TTL)
+// 인기 서비스 캐시 (5분 TTL)
 let popularBenefitsCache: { data: SimpleBenefit[]; timestamp: number } | null = null
 const POPULAR_CACHE_TTL = 5 * 60 * 1000 // 5분
 
 /**
- * 인기 지원금 조회 (viewCount 기준)
+ * 인기 서비스 조회 (viewCount 기준)
  * - 5분 TTL 메모리 캐시 적용
  * - viewCount는 보조금24 API 전체 조회수
  */

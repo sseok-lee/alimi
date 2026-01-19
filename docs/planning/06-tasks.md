@@ -1,4 +1,4 @@
-# TASKS: 복지알리미 - 맞춤형 정부 지원금 검색 서비스
+# TASKS: 복지알리미 - 맞춤형 정부 서비스 검색 서비스
 
 > 이 문서는 AI 개발 파트너(오케스트레이터 & 서브에이전트)가 작업을 실행하기 위한 태스크 목록입니다.
 > Contract-First TDD 방식을 채택하며, Git Worktree로 병렬 개발을 지원합니다.
@@ -7,9 +7,9 @@
 
 ## 프로젝트 개요
 
-**목표**: 국민 누구나 공공데이터 기반으로 맞춤형 지원금을 쉽게 찾을 수 있는 서비스 제공
+**목표**: 국민 누구나 공공데이터 기반으로 맞춤형 서비스을 쉽게 찾을 수 있는 서비스 제공
 
-**핵심 기능**: 나이/소득/지역 3가지 입력으로 맞춤형 지원금 매칭
+**핵심 기능**: 나이/소득/지역 3가지 입력으로 맞춤형 서비스 매칭
 
 **기술 스택**:
 - **백엔드**: Express + Prisma + MySQL + Zod
@@ -29,16 +29,16 @@
 | M0 | 프로젝트 셋업 | Phase 0 | ✅ |
 | M0.5 | 계약 & 테스트 설계 (Contract-First) | Phase 0 | ✅ |
 | M1 | FEAT-0: 랜딩 페이지 | Phase 1 | ✅ |
-| M2 | FEAT-1: 지원금 검색 (백엔드) | Phase 2 | ✅ |
-| M3 | FEAT-1: 지원금 검색 (프론트엔드) | Phase 3 | ✅ |
+| M2 | FEAT-1: 서비스 검색 (백엔드) | Phase 2 | ✅ |
+| M3 | FEAT-1: 서비스 검색 (프론트엔드) | Phase 3 | ✅ |
 | M4 | 보조금24 데이터 동기화 & 통합 테스트 | Phase 4 | ✅ |
 | M5 | CI/CD 구축 & 배포 | Phase 5 | ✅ |
-| M6 | FEAT-1-3: 지원금 상세 페이지 | Phase 6 | ✅ |
+| M6 | FEAT-1-3: 서비스 상세 페이지 | Phase 6 | ✅ |
 | M7 | 데이터 동기화 복구 | Phase 7 | ✅ |
 | M8 | 검색 필터 확장 및 정렬 기능 | Phase 8 | ✅ |
 | M9 | 지역 필터링 고도화 | Phase 9 | ✅ |
 | M10 | 검색 결과 공유 기능 | Phase 10 | ✅ |
-| M11 | 인기 지원금 | Phase 11 | ✅ |
+| M11 | 인기 서비스 | Phase 11 | ✅ |
 
 ---
 
@@ -162,7 +162,7 @@ welfare-notifier/
 **담당**: backend-specialist
 
 **작업 내용**:
-- 지원금 검색 API 계약 정의
+- 서비스 검색 API 계약 정의
 - TypeScript 타입 정의 (프론트엔드용)
 - Zod 스키마 정의 (백엔드용)
 
@@ -235,7 +235,7 @@ import request from 'supertest';
 import { app } from '../../src/index';
 
 describe('GET /api/v1/benefits/search', () => {
-  it('나이/소득/지역으로 지원금 검색 - 성공', async () => {
+  it('나이/소득/지역으로 서비스 검색 - 성공', async () => {
     const response = await request(app)
       .get('/api/v1/benefits/search')
       .query({ age: 27, income: 0, region: '서울' });
@@ -277,7 +277,7 @@ npm run test -- __tests__/api/benefits.test.ts
 
 **작업 내용**:
 - MSW (Mock Service Worker) 설정
-- 지원금 검색 API Mock 핸들러 작성
+- 서비스 검색 API Mock 핸들러 작성
 - Mock 데이터 정의
 
 **산출물**:
@@ -362,9 +362,9 @@ cd ../welfare-notifier-phase1-landing
    - 테스트 계속 통과 확인
 
 **작업 내용**:
-- 히어로 섹션: "맞춤형 지원금 찾기" 타이틀
+- 히어로 섹션: "맞춤형 서비스 찾기" 타이틀
 - 3가지 입력 필드 표시 (나이/소득/지역)
-- CTA 버튼: "지원금 찾기" → `/search` 페이지로 이동
+- CTA 버튼: "서비스 찾기" → `/search` 페이지로 이동
 - 반응형 레이아웃 (모바일/데스크톱)
 
 **산출물**:
@@ -435,7 +435,7 @@ cd ../welfare-notifier-phase1-seo
 
 ---
 
-## M2: FEAT-1 지원금 검색 (백엔드) (Phase 2)
+## M2: FEAT-1 서비스 검색 (백엔드) (Phase 2)
 
 ### [x] Phase 2, T2.1: DB 모델 & 마이그레이션 RED→GREEN
 
@@ -622,7 +622,7 @@ cd ../welfare-notifier-phase2-search-api
 
 ---
 
-## M3: FEAT-1 지원금 검색 (프론트엔드) (Phase 3)
+## M3: FEAT-1 서비스 검색 (프론트엔드) (Phase 3)
 
 ### [x] Phase 3, T3.1: 검색 폼 컴포넌트 RED→GREEN
 
@@ -724,7 +724,7 @@ cd ../welfare-notifier-phase3-benefit-card
    ```
 
 **작업 내용**:
-- 지원금 정보 표시 (이름, 카테고리, 예상 금액)
+- 서비스 정보 표시 (이름, 카테고리, 예상 금액)
 - 외부 링크 버튼 (새 탭 열기)
 - 호버 효과, 그림자
 
@@ -866,7 +866,7 @@ cd ../alimi-phase4-integration
 | 보조금24 필드 | Prisma 필드 | 설명 |
 |-------------|-------------|------|
 | 서비스ID | `id` | PK |
-| 서비스명 | `name` | 지원금 이름 |
+| 서비스명 | `name` | 서비스 이름 |
 | 서비스분야 | `category` | 카테고리 |
 | 서비스목적요약 | `description` | 간략 설명 |
 | 지원대상 | `targetAudience` | 대상자 정보 |
@@ -1000,7 +1000,7 @@ cd ../welfare-notifier-phase4-e2e
 
 **E2E 시나리오**:
 ```typescript
-test('지원금 검색 플로우', async ({ page }) => {
+test('서비스 검색 플로우', async ({ page }) => {
   // 1. 랜딩 페이지 접속
   await page.goto('http://localhost:3000')
 
@@ -1010,7 +1010,7 @@ test('지원금 검색 플로우', async ({ page }) => {
   await page.selectOption('select[name="region"]', '서울')
 
   // 3. 검색 실행
-  await page.click('button:has-text("지원금 찾기")')
+  await page.click('button:has-text("서비스 찾기")')
 
   // 4. 결과 확인
   await expect(page.locator('.benefit-card')).toHaveCount(3)
@@ -1538,7 +1538,7 @@ flowchart TD
 
 ---
 
-## M6: FEAT-1-3 지원금 상세 페이지 (Phase 6)
+## M6: FEAT-1-3 서비스 상세 페이지 (Phase 6)
 
 > 검색 결과에서 바로 외부 링크로 이동하지 않고, 상세 페이지를 거쳐 더 많은 정보를 제공하는 고도화 기능
 
@@ -1546,7 +1546,7 @@ flowchart TD
 
 | 항목 | 내용 |
 |------|------|
-| **목표** | 지원금 상세 정보 페이지 추가로 사용자 경험 개선 |
+| **목표** | 서비스 상세 정보 페이지 추가로 사용자 경험 개선 |
 | **성공 지표** | 신청 클릭률 증가 (상세 페이지 → 정부24 이동 비율) |
 | **MVP 범위** | 히어로 + 자격요건 + 구비서류 + 신청절차 + 신청버튼 + 관련추천 |
 | **디자인** | `design/benefit_details_&_application/` 목업 기준 |
@@ -1580,7 +1580,7 @@ cd ../alimi-phase6-detail-api
    ```
 
 **작업 내용**:
-- `GET /api/benefits/:id` - 지원금 상세 조회 API
+- `GET /api/benefits/:id` - 서비스 상세 조회 API
 - 조회수 카운팅 로직 (viewCount 증가)
 - 관련 서비스 추천 API (같은 카테고리 + 조회수 높은 순)
 
@@ -2579,7 +2579,7 @@ flowchart TD
 
 ## M9: 지역 필터링 고도화 (Phase 9)
 
-> 17개 시/도 단위 지역 필터링으로 더 정확한 지원금 매칭을 제공합니다.
+> 17개 시/도 단위 지역 필터링으로 더 정확한 서비스 매칭을 제공합니다.
 
 ### [x] Phase 9, T9.1: 지역 데이터 확장 ✅
 
@@ -2615,7 +2615,7 @@ flowchart TD
 
 **작업 내용**:
 - 지역 선택 드롭다운을 17개 시/도로 확장
-- 지역별 지원금 개수 표시 (badge)
+- 지역별 서비스 개수 표시 (badge)
 - "전국" 옵션 유지
 
 **수정 파일**:
@@ -2627,7 +2627,7 @@ flowchart TD
 
 **완료 조건**:
 - [x] 17개 시/도 선택 가능 (API 기반 동적 렌더링)
-- [x] 지역별 지원금 개수 표시 (예: "서울 (1,200건)")
+- [x] 지역별 서비스 개수 표시 (예: "서울 (1,200건)")
 - [x] 빌드 성공
 
 ---
@@ -2702,16 +2702,16 @@ graph LR
 
 ---
 
-## M11: 인기 지원금 (Phase 11)
+## M11: 인기 서비스 (Phase 11)
 
-> 사용자 관심을 끌고 탐색을 유도하는 인기 지원금 정보를 표시합니다.
+> 사용자 관심을 끌고 탐색을 유도하는 인기 서비스 정보를 표시합니다.
 
-### [x] Phase 11, T11.1: 인기 지원금 API ✅
+### [x] Phase 11, T11.1: 인기 서비스 API ✅
 
 **담당**: backend-specialist
 
 **작업 내용**:
-- 인기 지원금 조회 API 추가 (viewCount 기준 - 보조금24 API 조회수)
+- 인기 서비스 조회 API 추가 (viewCount 기준 - 보조금24 API 조회수)
 - 캐싱 적용 (메모리 또는 간단한 TTL)
 
 **참고**: `viewCount`는 보조금24 API에서 동기화되는 정부 사이트 전체 조회수로, `siteViewCount`(사이트 내 조회수)보다 더 정확한 인기도 지표
@@ -2723,31 +2723,31 @@ graph LR
 | `src/services/benefitService.ts` | getPopularBenefits() 함수 |
 
 **완료 조건**:
-- [x] 인기 지원금 TOP 10 조회 API
+- [x] 인기 서비스 TOP 10 조회 API
 - [x] 간단한 캐싱 적용 (5분 TTL)
 - [x] 빌드 통과
 
 ---
 
-### [x] Phase 11, T11.2: 인기 지원금 UI ✅
+### [x] Phase 11, T11.2: 인기 서비스 UI ✅
 
 **담당**: frontend-specialist
 
-**의존성**: T11.1 (인기 지원금 API)
+**의존성**: T11.1 (인기 서비스 API)
 
 **작업 내용**:
-- 랜딩 페이지에 인기 지원금 섹션 추가
+- 랜딩 페이지에 인기 서비스 섹션 추가
 - 클릭 시 상세 페이지로 이동
 
 **수정 파일**:
 | 파일 | 변경 내용 |
 |------|----------|
-| `composables/usePopularBenefits.ts` | 인기 지원금 API 호출 composable |
-| `components/home/PopularBenefits.vue` | 인기 지원금 카드 리스트 |
-| `pages/index.vue` | 인기 지원금 섹션 배치 |
+| `composables/usePopularBenefits.ts` | 인기 서비스 API 호출 composable |
+| `components/home/PopularBenefits.vue` | 인기 서비스 카드 리스트 |
+| `pages/index.vue` | 인기 서비스 섹션 배치 |
 
 **완료 조건**:
-- [x] 인기 지원금 TOP 10 표시
+- [x] 인기 서비스 TOP 10 표시
 - [x] 클릭 시 상세 페이지 이동
 - [x] 빌드 통과
 
@@ -2757,7 +2757,7 @@ graph LR
 
 ```mermaid
 graph LR
-    T11.1[T11.1: 인기 지원금 API] --> T11.2[T11.2: 인기 지원금 UI]
+    T11.1[T11.1: 인기 서비스 API] --> T11.2[T11.2: 인기 서비스 UI]
 ```
 
 ---
@@ -2774,8 +2774,8 @@ graph TD
         T10.1[T10.1: 공유 URL] --> T10.2[T10.2: 공유 버튼 UI]
     end
 
-    subgraph Phase11[Phase 11: 인기 지원금]
-        T11.1[T11.1: 인기 지원금 API] --> T11.2[T11.2: 인기 지원금 UI]
+    subgraph Phase11[Phase 11: 인기 서비스]
+        T11.1[T11.1: 인기 서비스 API] --> T11.2[T11.2: 인기 서비스 UI]
     end
 
     Phase9 --> Phase10
