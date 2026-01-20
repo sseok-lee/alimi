@@ -126,6 +126,16 @@
 </template>
 
 <script setup lang="ts">
+// 하위 폴더 컴포넌트는 수동 import 필요 (Nuxt auto-import는 BenefitXxx 형태로 인식)
+import BenefitHero from '~/components/benefit/BenefitHero.vue'
+import EligibilityCard from '~/components/benefit/EligibilityCard.vue'
+import DocumentsCard from '~/components/benefit/DocumentsCard.vue'
+import RelatedLawsCard from '~/components/benefit/RelatedLawsCard.vue'
+import ProcessSteps from '~/components/benefit/ProcessSteps.vue'
+import RelatedBenefits from '~/components/benefit/RelatedBenefits.vue'
+import ApplySidebar from '~/components/benefit/ApplySidebar.vue'
+import MobileBottomBar from '~/components/benefit/MobileBottomBar.vue'
+
 // 라우트 파라미터 가져오기
 const route = useRoute()
 const id = computed(() => Array.isArray(route.params.id) ? route.params.id[0] : route.params.id)
