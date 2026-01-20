@@ -111,80 +111,90 @@
           대상 (선택)
         </label>
         <div class="grid grid-cols-2 gap-3">
-          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.lifePregnancy }">
+          <label for="filter-pregnancy" class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.lifePregnancy }">
             <input
+              id="filter-pregnancy"
               v-model="formData.lifePregnancy"
               type="checkbox"
               class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
             />
             <span class="text-sm text-text-primary">임신/출산</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.targetDisabled }">
+          <label for="filter-disabled" class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.targetDisabled }">
             <input
+              id="filter-disabled"
               v-model="formData.targetDisabled"
               type="checkbox"
               class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
             />
             <span class="text-sm text-text-primary">장애인</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.familySingleParent }">
+          <label for="filter-single-parent" class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.familySingleParent }">
             <input
+              id="filter-single-parent"
               v-model="formData.familySingleParent"
               type="checkbox"
               class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
             />
             <span class="text-sm text-text-primary">한부모/조손</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.familyMultiChild }">
+          <label for="filter-multi-child" class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.familyMultiChild }">
             <input
+              id="filter-multi-child"
               v-model="formData.familyMultiChild"
               type="checkbox"
               class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
             />
             <span class="text-sm text-text-primary">다자녀</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.jobSeeker }">
+          <label for="filter-job-seeker" class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.jobSeeker }">
             <input
+              id="filter-job-seeker"
               v-model="formData.jobSeeker"
               type="checkbox"
               class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
             />
             <span class="text-sm text-text-primary">구직자/실업자</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.lifeUniversity }">
+          <label for="filter-university" class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.lifeUniversity }">
             <input
+              id="filter-university"
               v-model="formData.lifeUniversity"
               type="checkbox"
               class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
             />
             <span class="text-sm text-text-primary">대학생/대학원생</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.familySinglePerson }">
+          <label for="filter-single-person" class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.familySinglePerson }">
             <input
+              id="filter-single-person"
               v-model="formData.familySinglePerson"
               type="checkbox"
               class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
             />
             <span class="text-sm text-text-primary">1인가구</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.familyNoHouse }">
+          <label for="filter-no-house" class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.familyNoHouse }">
             <input
+              id="filter-no-house"
               v-model="formData.familyNoHouse"
               type="checkbox"
               class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
             />
             <span class="text-sm text-text-primary">무주택세대</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.jobEmployee }">
+          <label for="filter-employee" class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.jobEmployee }">
             <input
+              id="filter-employee"
               v-model="formData.jobEmployee"
               type="checkbox"
               class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
             />
             <span class="text-sm text-text-primary">근로자/직장인</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.targetVeteran }">
+          <label for="filter-veteran" class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.targetVeteran }">
             <input
+              id="filter-veteran"
               v-model="formData.targetVeteran"
               type="checkbox"
               class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
@@ -222,16 +232,18 @@
           신청 조건 (선택)
         </label>
         <div class="grid grid-cols-2 gap-3">
-          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.onlineApplyAvailable }">
+          <label for="filter-online-apply" class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.onlineApplyAvailable }">
             <input
+              id="filter-online-apply"
               v-model="formData.onlineApplyAvailable"
               type="checkbox"
               class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"
             />
             <span class="text-sm text-text-primary">온라인 신청 가능</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.alwaysOpen }">
+          <label for="filter-always-open" class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all" :class="{ 'border-primary bg-primary/5': formData.alwaysOpen }">
             <input
+              id="filter-always-open"
               v-model="formData.alwaysOpen"
               type="checkbox"
               class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20"

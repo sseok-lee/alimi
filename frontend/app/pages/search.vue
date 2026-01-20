@@ -132,6 +132,7 @@
                 <div class="flex items-center gap-3">
                   <select
                     v-model="currentSortBy"
+                    aria-label="검색 결과 정렬"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:border-primary text-text-secondary rounded-xl text-sm font-medium transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                     @change="handleSortChange"
                   >
@@ -209,11 +210,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import SearchForm from '../components/SearchForm.vue'
-import BenefitCard from '../components/BenefitCard.vue'
-import { useBenefitSearch, type BenefitSearchRequest, type BenefitResponse } from '../composables/useBenefitSearch'
-import { useShareUrl } from '../composables/useShareUrl'
+import type { BenefitSearchRequest, BenefitResponse } from '../composables/useBenefitSearch'
 
 // 검색 composable
 const {

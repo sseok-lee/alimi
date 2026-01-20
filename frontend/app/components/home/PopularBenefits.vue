@@ -46,16 +46,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import BenefitCard from '~/components/BenefitCard.vue'
-import { usePopularBenefits } from '~/composables/usePopularBenefits'
 import type { BenefitResponse } from '~/composables/useBenefitSearch'
 
-const { loading, error, benefits, fetchPopular } = usePopularBenefits()
-
-onMounted(() => {
-  fetchPopular(8)
-})
+// SSR 지원 - useFetch 내부 사용, onMounted 불필요
+const { loading, error, benefits } = usePopularBenefits(8)
 
 const handleCardClick = (benefit: BenefitResponse) => {
   navigateTo(`/benefits/${benefit.id}`)

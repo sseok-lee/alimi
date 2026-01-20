@@ -1,5 +1,3 @@
-import { ref } from 'vue'
-
 export interface BenefitDetail {
   id: string
   name: string
@@ -43,55 +41,40 @@ export interface BenefitDetailResponse {
   relatedBenefits: SimpleBenefit[]
 }
 
-export function useBenefitDetail() {
-  const loading = ref(false)
-  const error = ref<string | null>(null)
-  const benefit = ref<BenefitDetail | null>(null)
-  const relatedBenefits = ref<SimpleBenefit[]>([])
+/**
+ * 서비스 상세 정보를 가져오는 composable (SSR 지원)
+ * useFetch를 사용하여 서버/클라이언트 이중 요청 방지
+ */
+export function useBenefitDetail(id: Ref<string> | string) {
+  const config = useRuntimeConfig()
+  const idRef = isRef(id) ? id : ref(id)
 
-  const fetchDetail = async (id: string): Promise<BenefitDetailResponse | null> => {
-    loading.value = true
-    error.value = null
-    benefit.value = null
-    relatedBenefits.value = []
-
-    try {
-      const config = useRuntimeConfig()
-
-      const response = await fetch(`${config.public.apiBase}/api/benefits/${id}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response.status === 404) {
-        error.value = '서비스를 찾을 수 없습니다'
-        return null
-      }
-
-      if (!response.ok) {
-        throw new Error('상세 정보를 불러오는데 실패했습니다')
-      }
-
-      const data: BenefitDetailResponse = await response.json()
-      benefit.value = data.benefit
-      relatedBenefits.value = data.relatedBenefits
-
-      return data
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다'
-      throw err
-    } finally {
-      loading.value = false
+  const { data, pending: loading, error: fetchError } = useFetch<BenefitDetailResponse>(
+    () => `${config.public.apiBase}/api/benefits/${idRef.value}`,
+    {
+      key: () => `benefit-detail-${idRef.value}`,
+      watch: [idRef],
     }
-  }
+  )
+
+  const error = computed(() => {
+    if (fetchError.value) {
+      if (fetchError.value.statusCode === 404) {
+        return '서비스를 찾을 수 없습니다'
+      }
+      return '상세 정보를 불러오는데 실패했습니다'
+    }
+    return null
+  })
+
+  const benefit = computed(() => data.value?.benefit ?? null)
+  const relatedBenefits = computed(() => data.value?.relatedBenefits ?? [])
 
   return {
     loading,
     error,
     benefit,
     relatedBenefits,
-    fetchDetail,
+    data,
   }
 }

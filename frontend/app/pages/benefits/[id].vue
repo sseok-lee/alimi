@@ -126,30 +126,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import BenefitHero from '../../components/benefit/BenefitHero.vue'
-import EligibilityCard from '../../components/benefit/EligibilityCard.vue'
-import DocumentsCard from '../../components/benefit/DocumentsCard.vue'
-import RelatedLawsCard from '../../components/benefit/RelatedLawsCard.vue'
-import ProcessSteps from '../../components/benefit/ProcessSteps.vue'
-import ApplySidebar from '../../components/benefit/ApplySidebar.vue'
-import RelatedBenefits from '../../components/benefit/RelatedBenefits.vue'
-import MobileBottomBar from '../../components/benefit/MobileBottomBar.vue'
-import { useBenefitDetail } from '../../composables/useBenefitDetail'
-
 // 라우트 파라미터 가져오기
 const route = useRoute()
-const id = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
+const id = computed(() => Array.isArray(route.params.id) ? route.params.id[0] : route.params.id)
 
-// Composable 사용
-const { loading, error, benefit, relatedBenefits, fetchDetail } = useBenefitDetail()
-
-// 상세 정보 로드
-onMounted(async () => {
-  if (id) {
-    await fetchDetail(id)
-  }
-})
+// Composable 사용 (SSR 지원 - useFetch 내부 사용)
+const { loading, error, benefit, relatedBenefits } = useBenefitDetail(id)
 
 // SEO 메타태그
 useSeoMeta({
