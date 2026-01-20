@@ -9,6 +9,8 @@ export default defineNuxtConfig({
   ],
 
   runtimeConfig: {
+    // 서버 전용 (SSR 시 백엔드 직접 호출)
+    apiBaseServer: process.env.API_BASE_URL_SERVER || 'http://localhost:8000',
     public: {
       // API_BASE_URL 미설정 시 localhost:8000 (로컬 개발용)
       // GitHub Actions에서 API_BASE_URL='' 로 빌드 → 프로덕션에서 Nginx 프록시 사용

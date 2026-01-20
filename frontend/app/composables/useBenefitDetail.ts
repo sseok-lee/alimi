@@ -48,12 +48,17 @@ export interface BenefitDetailResponse {
 export function useBenefitDetail(id: Ref<string> | string) {
   const config = useRuntimeConfig()
   const idRef = isRef(id) ? id : ref(id)
+  // SSR 시 서버 전용 baseURL 사용, CSR 시 public apiBase 사용 (Nginx 프록시)
+  const baseURL = import.meta.server
+    ? config.apiBaseServer as string
+    : (config.public.apiBase || undefined)
 
   const { data, pending: loading, error: fetchError } = useFetch<BenefitDetailResponse>(
-    () => `${config.public.apiBase}/api/benefits/${idRef.value}`,
+    () => `/api/benefits/${idRef.value}`,
     {
       key: () => `benefit-detail-${idRef.value}`,
       watch: [idRef],
+      baseURL,
     }
   )
 

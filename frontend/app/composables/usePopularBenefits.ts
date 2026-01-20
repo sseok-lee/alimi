@@ -6,12 +6,17 @@ import type { BenefitResponse } from './useBenefitSearch'
  */
 export function usePopularBenefits(limit: number = 10) {
   const config = useRuntimeConfig()
+  // SSR 시 서버 전용 baseURL 사용, CSR 시 public apiBase 사용 (Nginx 프록시)
+  const baseURL = import.meta.server
+    ? config.apiBaseServer as string
+    : (config.public.apiBase || undefined)
 
   const { data, pending: loading, error: fetchError } = useFetch<{ benefits: BenefitResponse[] }>(
-    `${config.public.apiBase}/api/benefits/popular`,
+    '/api/benefits/popular',
     {
       key: `popular-benefits-${limit}`,
       params: { limit },
+      baseURL,
     }
   )
 
